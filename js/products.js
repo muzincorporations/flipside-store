@@ -47,16 +47,16 @@ const PRODUCTS = [
 
     {
         id: 1,
-        name: "Premium Wireless Headphones",
+        name: "FlipSide Pros 3rd Gen",
         type: "physical",
-        price: 199.99,
-        commission: 25, // Higher commission for premium products
-        image: "assets/products/headphones.jpg",
-        description: "Experience crystal-clear audio with our premium wireless headphones. Featuring active noise cancellation, 30-hour battery life, and premium comfort padding. Perfect for music lovers and professionals alike.",
-        shortDescription: "Premium wireless headphones with ANC and 30hr battery",
+        price: 44.99,
+        commission: 20,
+        image: "assets/products/Airpod Pro 3s.webp",
+        description: "Experience absolute 1:1 fidelity with the FlipSide Pros 3rd Gen. Featuring high-performance Active Noise Cancellation (ANC), spatial audio support, and a seamless magnetic charging case. These are the ultimate premium wireless earbuds for those who demand quality without the premium price tag. Includes a 12-month manufacturer warranty.",
+        shortDescription: "Premium rep 1:1 Airpods with ANC",
         category: "Electronics",
-        stock: 100,
-        weight: 0.8,
+        stock: 10,
+        weight: 0.5,
         featured: true,
         onSale: false,
         tags: ["trending", "electronics", "audio"]

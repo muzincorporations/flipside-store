@@ -93,5 +93,19 @@ If you've done the above and still see 404:
 
 ---
 
+## 🔄 How to Update Your Store (Add New Products/Images)
+
+Whenever you make a change locally (like adding a new product in `js/products.js` or dropping a new image into `assets/products/`), follow these steps to push it live:
+
+1.  **Go to GitHub**: Open your repository page.
+2.  **Upload Files**: Click the **Add file** button and select **Upload files**.
+3.  **The "Select All" Trick**: To avoid missing anything, open your local `FlipSide` folder, select **EVERYTHING** (all files and folders), and drag them into the GitHub upload area.
+4.  **Overwrite**: GitHub will automatically detect which files are new or changed and update them.
+5.  **Commit**: Scroll down, add a short note like "Updated products", and click **Commit changes**.
+
+*Done! Your live site will update in about 30-60 seconds.*
+
+---
+
 ## Need Help?
-If you're stuck on a specific step (like setting up the GitHub repo or the Vercel CLI), just let me know and I'll walk you through it!
+If you're stuck on a specific step, just let me know and I'll walk you through it!
