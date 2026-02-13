@@ -102,28 +102,43 @@
                     <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
                         Your trusted platform for premium reselling opportunities.
                     </p>
-                    <div class="footer-social" id="footerSocial"></div>
+                    <div class="footer-social" id="footerSocial">
+                        <!-- Dynamically populated -->
+                    </div>
                 </div>
 
                 <div class="footer-column">
-                    <h4>Quick Links</h4>
+                    <h3>Quick Links</h3>
                     <ul class="footer-links">
                         <li><a href="index.html">Home</a></li>
-                        <li><a href="products.html">Shop Products</a></li>
-                        <li><a href="reseller.html">Partner Program</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="reseller.html">Become a Reseller</a></li>
+                        <li><a href="dashboard.html">Dashboard</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-column">
-                    <h4>Support</h4>
+                    <h3>Support</h3>
                     <ul class="footer-links">
-                        <li id="footerEmail"></li>
-                        <li id="footerPhone" class="hidden"></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="index.html#shipping">Shipping Info</a></li>
+                        <li><a href="returns.html">Returns</a></li>
+                        <li><a href="index.html#contact">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Contact</h3>
+                    <ul class="footer-links">
+                        <li id="footerEmail">📧 <a
+                                href="mailto:muzincorporations@gmail.com">muzincorporations@gmail.com</a></li>
+                        <li id="footerPhone" class="hidden">📱 <span></span></li>
                     </ul>
                 </div>
             </div>
+
             <div class="footer-bottom">
-                &copy; 2026 FlipSide. All rights reserved.
+                <p>&copy; 2026 FlipSide. All rights reserved. Built for success.</p>
             </div>
         </div>
     </footer>
@@ -485,26 +500,6 @@
                     <div class="review-date" style="font-size: 0.65rem; margin-top: 5px;">${new Date(r.timestamp).toLocaleDateString()}</div>
                 </div>
             `).join('');
-        }
-        // Render Dynamic Info
-        function renderDynamicInfo() {
-            const socialContainer = document.getElementById('footerSocial');
-            const emailContainer = document.getElementById('footerEmail');
-            if (socialContainer) {
-                const social = CONFIG.social || {};
-                let html = '';
-                if (social.twitter) html += `<a href="${social.twitter}" target="_blank">🐦</a>`;
-                if (social.instagram) html += `<a href="${social.instagram}" target="_blank">📷</a>`;
-                if (social.discord) html += `<a href="${social.discord}" target="_blank">💬</a>`;
-                if (social.tiktok) html += `<a href="${social.tiktok}" target="_blank">📱</a>`;
-                if (social.youtube) html += `<a href="${social.youtube}" target="_blank">📺</a>`;
-                if (social.linktree) html += `<a href="${social.linktree}" target="_blank">🌳</a>`;
-                if (social.telegram) html += `<a href="${social.telegram}" target="_blank">✈️</a>`;
-                socialContainer.innerHTML = html;
-            }
-            if (emailContainer && CONFIG.businessEmail) {
-                emailContainer.innerHTML = `📧 <a href="mailto:${CONFIG.businessEmail}">${CONFIG.businessEmail}</a>`;
-            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {

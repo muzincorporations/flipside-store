@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Join FlipSide's reseller program and earn commission on every sale">
+    <meta name="description" content="Join FlipSide's reseller program and receive commission on every sale">
     <title>Become a Reseller - FlipSide</title>
 
     <!-- Fonts -->
@@ -66,9 +66,10 @@
     <section class="hero" style="min-height: 60vh;">
         <div class="hero-bg-pattern"></div>
         <div class="hero-content">
-            <h1>Start Earning with FlipSide</h1>
-            <p>Join our reseller program and earn up to 35% commission on every sale. No inventory, no shipping - just
-                share your link and earn.</p>
+            <h1>Start Building Your Business</h1>
+            <p>Join our reseller program and receive up to 35% commission on every sale. No inventory, no shipping -
+                just
+                share your link and generate revenue.</p>
         </div>
     </section>
 
@@ -77,14 +78,15 @@
         <div class="container">
             <div class="section-title">
                 <h2>Why Become a Reseller?</h2>
-                <p>Everything you need to start earning today</p>
+                <p>Everything you need to start generating commissions today</p>
             </div>
 
             <div class="grid grid-3">
                 <div class="feature-card">
                     <div class="feature-icon">💰</div>
                     <h3 class="feature-title">High Commissions</h3>
-                    <p class="feature-description">Earn 20-35% commission on every sale. Higher commissions on digital
+                    <p class="feature-description">Receive 20-35% commission on every sale. Higher commissions on
+                        digital
                         products and premium items.</p>
                 </div>
 
@@ -99,7 +101,7 @@
                     <div class="feature-icon">📊</div>
                     <h3 class="feature-title">Real-Time Analytics</h3>
                     <p class="feature-description">Monitor your performance with detailed analytics. See sales,
-                        commissions, and earnings in real-time.</p>
+                        commissions, and revenue in real-time.</p>
                 </div>
 
                 <div class="feature-card">
@@ -131,7 +133,7 @@
         <div class="container">
             <div class="section-title">
                 <h2>How It Works</h2>
-                <p>Start earning in three simple steps</p>
+                <p>Start generating commissions in three simple steps</p>
             </div>
 
             <div class="grid grid-3">
@@ -151,8 +153,8 @@
 
                 <div class="card text-center">
                     <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">3️⃣</div>
-                    <h3 style="margin-bottom: var(--spacing-sm);">Earn Commission</h3>
-                    <p style="color: var(--color-text-secondary);">When someone buys through your link, you earn
+                    <h3 style="margin-bottom: var(--spacing-sm);">Receive Commission</h3>
+                    <p style="color: var(--color-text-secondary);">When someone buys through your link, you receive
                         commission. Track everything in your dashboard.</p>
                 </div>
             </div>
@@ -239,10 +241,10 @@
                 <div class="footer-column">
                     <h3>Support</h3>
                     <ul class="footer-links">
-                        <li><a href="#faq">FAQ</a></li>
-                        <li><a href="#shipping">Shipping Info</a></li>
-                        <li><a href="#returns">Returns</a></li>
-                        <li><a href="#contact">Contact Us</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="index.html#shipping">Shipping Info</a></li>
+                        <li><a href="returns.html">Returns</a></li>
+                        <li><a href="index.html#contact">Contact Us</a></li>
                     </ul>
                 </div>
 
@@ -320,37 +322,6 @@
             setTimeout(() => toast.remove(), 4000);
         }
 
-        // Render Dynamic Social Links & Info
-        function renderDynamicInfo() {
-            const socialContainer = document.getElementById('footerSocial');
-            const emailContainer = document.getElementById('footerEmail');
-            const phoneContainer = document.getElementById('footerPhone');
-
-            if (socialContainer) {
-                const social = CONFIG.social || {};
-                let html = '';
-
-                if (social.twitter) html += `<a href="${social.twitter}" target="_blank" title="Twitter">🐦</a>`;
-                if (social.instagram) html += `<a href="${social.instagram}" target="_blank" title="Instagram">📷</a>`;
-                if (social.discord) html += `<a href="${social.discord}" target="_blank" title="Discord">💬</a>`;
-                if (social.tiktok) html += `<a href="${social.tiktok}" target="_blank" title="TikTok">📱</a>`;
-                if (social.youtube) html += `<a href="${social.youtube}" target="_blank" title="YouTube">📺</a>`;
-                if (social.linktree) html += `<a href="${social.linktree}" target="_blank" title="Linktree">🌳</a>`;
-                if (social.telegram) html += `<a href="${social.telegram}" target="_blank" title="Telegram">✈️</a>`;
-                if (social.whatsapp) html += `<a href="${social.whatsapp}" target="_blank" title="WhatsApp">📞</a>`;
-
-                socialContainer.innerHTML = html;
-            }
-
-            if (emailContainer && CONFIG.businessEmail) {
-                emailContainer.innerHTML = `📧 <a href="mailto:${CONFIG.businessEmail}">${CONFIG.businessEmail}</a>`;
-            }
-
-            if (phoneContainer && CONFIG.businessPhone) {
-                phoneContainer.classList.remove('hidden');
-                phoneContainer.innerHTML = `📱 <span>${CONFIG.businessPhone}</span>`;
-            }
-        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="FlipSide - Premium reselling platform. Shop quality products or become a reseller today and earn commissions on every sale.">
+        content="FlipSide - Premium reselling platform. Shop quality products or become a reseller today and commission on every sale.">
     <meta name="keywords" content="reselling, affiliate, commission, FlipSide, earn money">
     <title>FlipSide - Premium Reselling Platform</title>
 
@@ -109,8 +109,9 @@
 
                 <div class="feature-card">
                     <div class="feature-icon">💰</div>
-                    <h3 class="feature-title">Earn Commission</h3>
-                    <p class="feature-description">Join our reseller program and earn up to 35% commission on every sale
+                    <h3 class="feature-title">Commission on Sales</h3>
+                    <p class="feature-description">Join our reseller program and receive up to 35% commission on every
+                        sale
                         through your unique link.</p>
                 </div>
 
@@ -143,7 +144,7 @@
         <div class="container">
             <div class="section-title">
                 <h2>Featured Products</h2>
-                <p>Hand-picked premium products with high earning potential</p>
+                <p>Hand-picked premium products with high commission potential</p>
             </div>
 
             <div class="grid grid-3" id="featuredProducts">
@@ -187,10 +188,10 @@
     <section class="section" style="background: var(--color-bg-darker);">
         <div class="container">
             <div class="card card-glass" style="text-align: center; padding: var(--spacing-2xl);">
-                <h2 style="margin-bottom: var(--spacing-md);">Ready to Start Earning?</h2>
+                <h2 style="margin-bottom: var(--spacing-md);">Ready to Start Commissioning?</h2>
                 <p
                     style="font-size: 1.125rem; margin-bottom: var(--spacing-xl); max-width: 600px; margin-left: auto; margin-right: auto;">
-                    Join thousands of successful resellers and start earning commission on premium products today.
+                    Join thousands of successful resellers and start receiving commissions on premium products today.
                 </p>
                 <div style="display: flex; gap: var(--spacing-md); justify-content: center; flex-wrap: wrap;">
                     <a href="reseller.html" class="btn btn-primary btn-large">Become a Reseller</a>
@@ -227,10 +228,10 @@
                 <div class="footer-column">
                     <h3>Support</h3>
                     <ul class="footer-links">
-                        <li><a href="#faq">FAQ</a></li>
-                        <li><a href="#shipping">Shipping Info</a></li>
-                        <li><a href="#returns">Returns</a></li>
-                        <li><a href="#contact">Contact Us</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="index.html#shipping">Shipping Info</a></li>
+                        <li><a href="returns.html">Returns</a></li>
+                        <li><a href="index.html#contact">Contact Us</a></li>
                     </ul>
                 </div>
 
@@ -384,7 +385,7 @@
                 ${isSaved ? '❤️' : '🤍'}
               </div>
               <div class="product-commission-badge">
-                ${product.commission || CONFIG.defaultCommissionRate}% Earn
+                ${product.commission || CONFIG.defaultCommissionRate}% Commission
               </div>
             </div>
             <div class="product-card-body">
@@ -682,39 +683,6 @@
             }
         });
 
-        // Render Dynamic Social Links & Info
-        function renderDynamicInfo() {
-            const socialContainer = document.getElementById('footerSocial');
-            const emailContainer = document.getElementById('footerEmail');
-            const phoneContainer = document.getElementById('footerPhone');
-
-            if (socialContainer) {
-                const social = CONFIG.social || {};
-                let html = '';
-
-                if (social.twitter) html += `<a href="${social.twitter}" target="_blank" title="Twitter">🐦</a>`;
-                if (social.instagram) html += `<a href="${social.instagram}" target="_blank" title="Instagram">📷</a>`;
-                if (social.discord) html += `<a href="${social.discord}" target="_blank" title="Discord">💬</a>`;
-                if (social.tiktok) html += `<a href="${social.tiktok}" target="_blank" title="TikTok">📱</a>`;
-                if (social.youtube) html += `<a href="${social.youtube}" target="_blank" title="YouTube">📺</a>`;
-                if (social.linktree) html += `<a href="${social.linktree}" target="_blank" title="Linktree">🌳</a>`;
-                if (social.telegram) html += `<a href="${social.telegram}" target="_blank" title="Telegram">✈️</a>`;
-                if (social.whatsapp) html += `<a href="${social.whatsapp}" target="_blank" title="WhatsApp">📞</a>`;
-
-                socialContainer.innerHTML = html;
-            }
-
-            if (emailContainer && CONFIG.businessEmail) {
-                emailContainer.innerHTML = `📧 <a href="mailto:${CONFIG.businessEmail}">${CONFIG.businessEmail}</a>`;
-            } else if (emailContainer) {
-                emailContainer.classList.add('hidden');
-            }
-
-            if (phoneContainer && CONFIG.businessPhone) {
-                phoneContainer.classList.remove('hidden');
-                phoneContainer.innerHTML = `📱 <span>${CONFIG.businessPhone}</span>`;
-            }
-        }
 
         // Load on page ready
         document.addEventListener('DOMContentLoaded', () => {

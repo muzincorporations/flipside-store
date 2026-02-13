@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initThemeToggle();
     initSupportHub();
     initGlobalDispatchTimer();
+    renderDynamicInfo(); // Centralized social & business info rendering
 });
 
 // 1. Page Progress Bar
@@ -240,3 +241,45 @@ window.shareProduct = function (platform, productName, productId) {
 
     if (shareUrl) window.open(shareUrl, '_blank');
 };
+
+// 9. Centralized Social & Business Info Rendering
+function renderDynamicInfo() {
+    if (typeof CONFIG === 'undefined') return;
+
+    const socialContainer = document.getElementById('footerSocial') || document.getElementById('footerSocialLinks') || document.getElementById('dashboardSocial');
+    const emailContainer = document.getElementById('footerEmail');
+    const phoneContainer = document.getElementById('footerPhone');
+
+    // Render Social Links
+    if (socialContainer) {
+        const social = CONFIG.social || {};
+        let html = '';
+
+        if (social.twitter) html += `<a href="${social.twitter}" target="_blank" title="Twitter">🐦</a>`;
+        if (social.instagram) html += `<a href="${social.instagram}" target="_blank" title="Instagram">📷</a>`;
+        if (social.discord) html += `<a href="${social.discord}" target="_blank" title="Discord">💬</a>`;
+        if (social.tiktok) html += `<a href="${social.tiktok}" target="_blank" title="TikTok">📱</a>`;
+        if (social.youtube) html += `<a href="${social.youtube}" target="_blank" title="YouTube">📺</a>`;
+        if (social.linktree) html += `<a href="${social.linktree}" target="_blank" title="Linktree">🌳</a>`;
+        if (social.telegram) html += `<a href="${social.telegram}" target="_blank" title="Telegram">✈️</a>`;
+        if (social.whatsapp) html += `<a href="${social.whatsapp}" target="_blank" title="WhatsApp">📞</a>`;
+
+        socialContainer.innerHTML = html;
+    }
+
+    // Render Email
+    if (emailContainer && CONFIG.businessEmail) {
+        emailContainer.innerHTML = `📧 <a href="mailto:${CONFIG.businessEmail}">${CONFIG.businessEmail}</a>`;
+        emailContainer.classList.remove('hidden');
+    } else if (emailContainer) {
+        emailContainer.classList.add('hidden');
+    }
+
+    // Render Phone
+    if (phoneContainer && CONFIG.businessPhone) {
+        phoneContainer.classList.remove('hidden');
+        phoneContainer.innerHTML = `📱 <span>${CONFIG.businessPhone}</span>`;
+    } else if (phoneContainer) {
+        phoneContainer.classList.add('hidden');
+    }
+}

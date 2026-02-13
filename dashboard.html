@@ -121,7 +121,7 @@
                 <div class="referral-link-box">
                     <h2 style="margin-bottom: var(--spacing-sm);">🔗 Your Referral Link</h2>
                     <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
-                        Share this link to earn commission on every sale. The referral code is automatically tracked!
+                        Share this link to receive commission on every sale. The referral code is automatically tracked!
                     </p>
 
                     <div class="referral-link-input">
@@ -144,7 +144,7 @@
 
                     <div id="recentSales">
                         <p style="text-align: center; color: var(--color-text-muted); padding: var(--spacing-xl);">
-                            No sales yet. Start sharing your referral link to earn commissions!
+                            No sales yet. Start sharing your referral link to generate commissions!
                         </p>
                     </div>
                 </div>
@@ -166,7 +166,7 @@
                     <div class="card" style="padding: var(--spacing-lg);">
                         <h2 style="margin-bottom: var(--spacing-md);">🎨 Marketing Materials</h2>
                         <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
-                            Use these resources to promote FlipSide products and earn commissions.
+                            Use these resources to promote FlipSide products and receive commissions.
                         </p>
                         <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
                             <button class="btn btn-ghost btn-small" onclick="alert('Feature coming soon!')">🖼️
@@ -182,8 +182,49 @@
         <!-- Footer -->
         <footer>
             <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-column">
+                        <h3>FlipSide</h3>
+                        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                            Your trusted platform for premium reselling opportunities.
+                        </p>
+                        <div class="footer-social" id="footerSocial">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+
+                    <div class="footer-column">
+                        <h3>Quick Links</h3>
+                        <ul class="footer-links">
+                            <li><a href="index.html">Home</a></li>
+                            <li><a href="products.html">Products</a></li>
+                            <li><a href="reseller.html">Become a Reseller</a></li>
+                            <li><a href="dashboard.html">Dashboard</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-column">
+                        <h3>Support</h3>
+                        <ul class="footer-links">
+                            <li><a href="faq.html">FAQ</a></li>
+                            <li><a href="index.html#shipping">Shipping Info</a></li>
+                            <li><a href="returns.html">Returns</a></li>
+                            <li><a href="index.html#contact">Contact Us</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-column">
+                        <h3>Contact</h3>
+                        <ul class="footer-links">
+                            <li id="footerEmail">📧 <a
+                                    href="mailto:muzincorporations@gmail.com">muzincorporations@gmail.com</a></li>
+                            <li id="footerPhone" class="hidden">📱 <span></span></li>
+                        </ul>
+                    </div>
+                </div>
+
                 <div class="footer-bottom">
-                    <p>&copy; 2026 FlipSide. All rights reserved. Reseller Dashboard</p>
+                    <p>&copy; 2026 FlipSide. All rights reserved. Built for success.</p>
                 </div>
             </div>
         </footer>
@@ -216,25 +257,6 @@
             }
         });
 
-        // Render Dynamic Social Links & Info
-        function renderDynamicInfo() {
-            const socialContainer = document.getElementById('dashboardSocial');
-            if (socialContainer) {
-                const social = CONFIG.social || {};
-                let html = '';
-
-                if (social.twitter) html += `<a href="${social.twitter}" target="_blank" title="Twitter" style="font-size: 1.5rem;">🐦</a>`;
-                if (social.instagram) html += `<a href="${social.instagram}" target="_blank" title="Instagram" style="font-size: 1.5rem;">📷</a>`;
-                if (social.discord) html += `<a href="${social.discord}" target="_blank" title="Discord" style="font-size: 1.5rem;">💬</a>`;
-                if (social.tiktok) html += `<a href="${social.tiktok}" target="_blank" title="TikTok" style="font-size: 1.5rem;">📱</a>`;
-                if (social.youtube) html += `<a href="${social.youtube}" target="_blank" title="YouTube" style="font-size: 1.5rem;">📺</a>`;
-                if (social.linktree) html += `<a href="${social.linktree}" target="_blank" title="Linktree" style="font-size: 1.5rem;">🌳</a>`;
-                if (social.telegram) html += `<a href="${social.telegram}" target="_blank" title="Telegram" style="font-size: 1.5rem;">✈️</a>`;
-                if (social.whatsapp) html += `<a href="${social.whatsapp}" target="_blank" title="WhatsApp" style="font-size: 1.5rem;">📞</a>`;
-
-                socialContainer.innerHTML = html || '<p style="color: var(--color-text-muted);">No community links set.</p>';
-            }
-        }
 
         // Check if already logged in
         document.addEventListener('DOMContentLoaded', () => {

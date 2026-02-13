@@ -88,7 +88,7 @@
         <div class="policy-card">
             <div class="policy-header">
                 <h1>Privacy Policy</h1>
-                <p style="color: var(--color-text-muted);">Last Updated: February 10, 2026</p>
+                <p style="color: var(--color-text-muted);">Last Updated: February 13, 2026</p>
             </div>
 
             <div class="policy-section">
@@ -98,62 +98,97 @@
                     or communicate with us. This includes:
                 </p>
                 <ul style="color: var(--color-text-secondary); margin-left: 20px; line-height: 1.8;">
-                    <li>Name and email address</li>
-                    <li>Shipping address (for physical items)</li>
-                    <li>Phone number</li>
-                    <li>Payment information (processed securely by 3rd parties)</li>
-                    <li>Referral codes used</li>
+                    <li>Full Name and secure email identity</li>
+                    <li>Shipping address (exclusively for physical logistics)</li>
+                    <li>Contact phone number</li>
+                    <li>Referral codes for commission attribution</li>
                 </ul>
             </div>
 
             <div class="policy-section">
                 <h2>2. How We Use Your Information</h2>
                 <p>
-                    We use the information we collect to:
+                    Your data is used solely to facilitate the high-end service we provide:
                 </p>
                 <ul style="color: var(--color-text-secondary); margin-left: 20px; line-height: 1.8;">
-                    <li>Process and fulfill your orders</li>
-                    <li>Manage reseller accounts and commissions</li>
-                    <li>Send transaction emails and updates</li>
-                    <li>Improve our platform and security</li>
-                    <li>Comply with legal obligations</li>
+                    <li>Fulfillment of digital and physical orders</li>
+                    <li>Accurate commission tracking for resellers</li>
+                    <li>Transaction alerts and platform security</li>
+                    <li>Compliance with global digital trade regulations</li>
                 </ul>
             </div>
 
             <div class="policy-section">
-                <h2>3. Data Storage & Security</h2>
+                <h2>3. Security & Integrity</h2>
                 <p>
-                    We use Google Firebase for hosting and database services. Your data is stored securely in Firebase's
-                    data centers. While we take reasonable measures to protect your information, no system is 100%
-                    secure.
+                    FlipSide utilizes Google Cloud and Firebase architectures to host our data with enterprise-grade
+                    encryption. We continuously monitor our systems to protect your business and personal information
+                    from unauthorized access.
                 </p>
             </div>
 
             <div class="policy-section">
-                <h2>4. Sharing of Information</h2>
+                <h2>4. Third-Party Integration</h2>
                 <p>
-                    We do not sell your personal data. We share information only with service providers needed to
-                    operate our business (e.g., Firebase, EmailJS, PayPal, and our dropshipping fulfillment partners).
-                </p>
-            </div>
-
-            <div class="policy-section">
-                <h2>5. Cookies</h2>
-                <p>
-                    We use local storage and cookies to remember your shopping cart and reseller referral status. You
-                    can disable cookies in your browser, but some features of the platform may not function correctly.
+                    We do not monetize your personal data through sales to third parties. Information is shared only
+                    with verified service providers necessary for your transaction, such as payment gateways, email
+                    delivery systems, and logistics partners.
                 </p>
             </div>
 
             <div style="text-align: center; margin-top: var(--spacing-2xl);">
-                <a href="index.html" class="btn btn-outline">Back to Home</a>
+                <a href="index.html" class="btn btn-outline">Return Home</a>
             </div>
         </div>
     </main>
 
-    <footer class="footer" style="padding: 40px 0; border-top: 1px solid rgba(255,215,0,0.1); margin-top: 60px;">
-        <div class="container" style="text-align: center;">
-            <p>&copy; 2026 FlipSide. All rights reserved.</p>
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>FlipSide</h3>
+                    <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                        Your trusted platform for premium reselling opportunities.
+                    </p>
+                    <div class="footer-social" id="footerSocial">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="reseller.html">Become a Reseller</a></li>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Support</h3>
+                    <ul class="footer-links">
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="index.html#shipping">Shipping Info</a></li>
+                        <li><a href="returns.html">Returns</a></li>
+                        <li><a href="index.html#contact">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Contact</h3>
+                    <ul class="footer-links">
+                        <li id="footerEmail">📧 <a
+                                href="mailto:muzincorporations@gmail.com">muzincorporations@gmail.com</a></li>
+                        <li id="footerPhone" class="hidden">📱 <span></span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 FlipSide. All rights reserved. Built for success.</p>
+            </div>
         </div>
     </footer>
     <script src="js/utils.js"></script>

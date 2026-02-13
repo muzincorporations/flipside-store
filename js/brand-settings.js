@@ -58,7 +58,7 @@ const BRAND_SETTINGS = {
 
     // 📈 RESELLER SETTINGS
     reseller: {
-        defaultCommission: 20 // Percentage (20 = 20%)
+        defaultCommission: 10 // Percentage (20 = 20%)
     }
 };
 

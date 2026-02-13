@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FlipSide - Frequently Asked Questions">
+    <title>FAQ - FlipSide</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=3">
+
+    <style>
+        .policy-container {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 var(--spacing-md);
+        }
+
+        .policy-card {
+            background: var(--color-bg-light);
+            padding: var(--spacing-2xl);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .policy-header {
+            text-align: center;
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .policy-header h1 {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-sm);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* FAQ Accordion Styles */
+        .faq-item {
+            margin-bottom: var(--spacing-md);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all var(--transition-fast);
+        }
+
+        .faq-item:hover {
+            border-color: var(--color-gold);
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .faq-question {
+            padding: var(--spacing-lg);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: white;
+            user-select: none;
+        }
+
+        .faq-question::after {
+            content: '+';
+            font-size: 1.5rem;
+            color: var(--color-gold);
+            transition: transform var(--transition-normal);
+        }
+
+        .faq-item.active .faq-question::after {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height var(--transition-normal) ease-out, padding var(--transition-normal);
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+            padding: 0 var(--spacing-lg);
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+            padding-bottom: var(--spacing-lg);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <div class="nav-container">
+                <a href="index.html" class="nav-logo">
+                    <img src="assets/logo.png" alt="FlipSide Logo">
+                    <span>FlipSide</span>
+                </a>
+                <div class="nav-links">
+                    <a href="products.html">Products</a>
+                    <a href="reseller.html">Become Reseller</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="policy-container">
+        <div class="policy-card">
+            <div class="policy-header">
+                <h1>FAQ</h1>
+                <p style="color: var(--color-text-muted);">How can we help you today?</p>
+            </div>
+
+            <div class="faq-list">
+                <!-- FAQ Item 1 -->
+                <div class="faq-item">
+                    <div class="faq-question">How do I receive my digital product?</div>
+                    <div class="faq-answer">
+                        Digital keys and download links are sent instantly to your provided email address once payment
+                        has been confirmed by our staff or system.
+                    </div>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div class="faq-item">
+                    <div class="faq-question">What payment methods do you accept?</div>
+                    <div class="faq-answer">
+                        We currently support PayPal (Friends & Family) for instant verification, alongside Bitcoin and
+                        Ethereum for crypto enthusiasts. All payments are processed through secure, encrypted gateways.
+                    </div>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div class="faq-item">
+                    <div class="faq-question">Can I get a refund if I change my mind?</div>
+                    <div class="faq-answer">
+                        No. Due to the high-value nature of digital licenses and the logistics of our dropshipping
+                        chain, <strong>all sales are final</strong>. We encourage you to review our Return Policy for
+                        exceptional cases involving invalid keys.
+                    </div>
+                </div>
+
+                <!-- FAQ Item 4 -->
+                <div class="faq-item">
+                    <div class="faq-question">Is there a warranty on physical products?</div>
+                    <div class="faq-answer">
+                        Yes! Most of our premium physical electronics come with a 12-month manufacturer warranty. Please
+                        check the specific product description for warranty details.
+                    </div>
+                </div>
+
+                <!-- FAQ Item 5 -->
+                <div class="faq-item">
+                    <div class="faq-question">How long does shipping take?</div>
+                    <div class="faq-answer">
+                        For UK physical products, delivery typically takes 2-3 business days. You will receive a
+                        tracking number as soon as your order has been dispatched.
+                    </div>
+                </div>
+
+                <!-- FAQ Item 6 -->
+                <div class="faq-item">
+                    <div class="faq-question">How do I become a reseller?</div>
+                    <div class="faq-answer">
+                        Simply head over to our "Become a Reseller" page, fill out the registration form, and you'll
+                        receive your unique referral link to start generating commissions immediately!
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: var(--spacing-2xl);">
+                <p style="margin-bottom: var(--spacing-md); color: var(--color-text-secondary);">Still have questions?
+                </p>
+                <a href="https://discord.gg/flipside" class="btn btn-primary" target="_blank">Join Our Discord</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>FlipSide</h3>
+                    <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                        Your trusted platform for premium reselling opportunities.
+                    </p>
+                    <div class="footer-social" id="footerSocial">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="reseller.html">Become a Reseller</a></li>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Support</h3>
+                    <ul class="footer-links">
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="index.html#shipping">Shipping Info</a></li>
+                        <li><a href="returns.html">Returns</a></li>
+                        <li><a href="index.html#contact">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Contact</h3>
+                    <ul class="footer-links">
+                        <li id="footerEmail">📧 <a
+                                href="mailto:muzincorporations@gmail.com">muzincorporations@gmail.com</a></li>
+                        <li id="footerPhone" class="hidden">📱 <span></span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 FlipSide. All rights reserved. Built for success.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        // FAQ Accordion Logic
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                const isActive = item.classList.contains('active');
+
+                // Close all other items
+                document.querySelectorAll('.faq-item').forEach(otherItem => {
+                    otherItem.classList.remove('active');
+                });
+
+                // Toggle current item
+                if (!isActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

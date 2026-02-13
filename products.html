@@ -152,10 +152,10 @@
                 <div class="footer-column">
                     <h3>Support</h3>
                     <ul class="footer-links">
-                        <li><a href="#faq">FAQ</a></li>
-                        <li><a href="#shipping">Shipping Info</a></li>
-                        <li><a href="#returns">Returns</a></li>
-                        <li><a href="#contact">Contact Us</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="index.html#shipping">Shipping Info</a></li>
+                        <li><a href="returns.html">Returns</a></li>
+                        <li><a href="index.html#contact">Contact Us</a></li>
                     </ul>
                 </div>
 
@@ -287,19 +287,6 @@
         });
 
         // Render Dynamic Social Links & Info
-        function renderDynamicInfo() {
-            const emailContainer = document.getElementById('footerEmail');
-            const phoneContainer = document.getElementById('footerPhone');
-
-            if (emailContainer && CONFIG.businessEmail) {
-                emailContainer.innerHTML = `📧 <a href="mailto:${CONFIG.businessEmail}">${CONFIG.businessEmail}</a>`;
-            }
-
-            if (phoneContainer && CONFIG.businessPhone) {
-                phoneContainer.classList.remove('hidden');
-                phoneContainer.innerHTML = `📱 <span>${CONFIG.businessPhone}</span>`;
-            }
-        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -417,7 +404,7 @@
                 ${isSaved ? '❤️' : '🤍'}
               </div>
               <div class="product-commission-badge">
-                ${product.commission || CONFIG.defaultCommissionRate}% Earn
+                ${product.commission || CONFIG.defaultCommissionRate}% Commission
               </div>
             </div>
             <div class="product-card-body">

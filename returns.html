@@ -100,66 +100,112 @@
     <main class="policy-container">
         <div class="policy-card">
             <div class="policy-header">
-                <h1>Return Policy</h1>
-                <p style="color: var(--color-text-muted);">Last Updated: February 10, 2026</p>
+                <h1>Returns & Refunds</h1>
+                <p style="color: var(--color-text-muted);">Last Updated: February 13, 2026</p>
             </div>
 
-            <div class="no-returns-box">
-                <h3>⚠️ STRICT NO-RETURN POLICY</h3>
-                <p style="margin-bottom: 0; color: white; font-weight: 500;">
-                    At FlipSide, all sales are final. Due to the nature of our products (digital assets and dropshipped
-                    goods), we do not offer returns, refunds, or exchanges under any circumstances.
+            <div class="no-returns-box"
+                style="background: rgba(255, 165, 0, 0.05); border-left-color: var(--color-gold);">
+                <h3 style="color: var(--color-gold); text-transform: uppercase; letter-spacing: 1px;">Final Sale Policy
+                </h3>
+                <p style="margin-bottom: 0; color: var(--color-text-secondary); font-weight: 400;">
+                    To maintain our competitive pricing and high-speed fulfillment model, FlipSide operates a
+                    <strong>Strict Final Sale Policy</strong>. By completing a purchase, you acknowledge that all items
+                    are non-returnable and non-refundable.
                 </p>
             </div>
 
             <div class="policy-section">
                 <h2>1. Digital Products</h2>
                 <p>
-                    All digital products, including but not limited to activation keys, software licenses, and
-                    downloadable content, are delivered instantly or upon payment verification. Once a digital key or
-                    link has been revealed or sent to your email, it is considered "used" and cannot be returned or
-                    refunded.
+                    Digital assets—including software licenses, activation keys, and account credentials—are delivered
+                    instantly or via secured email. Due to the high-security nature of these items and the fact they
+                    cannot be "restocked" once seen, <strong>all digital sales are final</strong>.
                 </p>
             </div>
 
             <div class="policy-section">
                 <h2>2. Physical Products</h2>
                 <p>
-                    Our physical products are fulfilled through specialized dropshipping partners. To keep our prices
-                    competitive and maintain our logistics chain, we cannot accept returns for physical items. Please
-                    ensure you select the correct size, color, or model before completing your purchase.
+                    Our physical catalog is fulfilled through a global network of logistics partners. To ensure the
+                    fastest possible delivery times, orders enter the dispatch stream immediately. We are unable to
+                    accept returns or exchanges for physical goods unless otherwise specified in the product
+                    description.
                 </p>
             </div>
 
             <div class="policy-section">
-                <h2>3. Exceptional Circumstances</h2>
+                <h2>3. Verified Faults</h2>
                 <p>
-                    If you receive a digital key that is verified as "invalid" or "already used" **at the time of
-                    delivery**, please contact our support team within 24 hours. We will investigate the issue and, if
-                    verified, provide a replacement. This does not apply to keys that are banned or disabled due to user
-                    activity after successful activation.
+                    In the exceptional case that a digital key is reported as invalid within <strong>24 hours of
+                        delivery</strong>, our technical team will conduct a thorough verification. If the fault is
+                    confirmed on our end, a replacement will be issued immediately. This does not cover keys blocked due
+                    to user breach of 3rd party terms.
                 </p>
             </div>
 
             <div class="policy-section">
-                <h2>4. Order Cancellations</h2>
+                <h2>4. Order Protection</h2>
                 <p>
-                    Orders can only be cancelled if they have not yet been "Processed" or "Paid" in our system. Once an
-                    order is marked as Paid (manually or automatically), it enters our fulfillment queue and cannot be
-                    cancelled.
+                    We encourage all customers to double-check their cart and shipping details (for physical goods)
+                    before finalizing payment. Once a "Paid" status is achieved, the order cannot be modified or
+                    reversed.
                 </p>
             </div>
 
             <div style="text-align: center; margin-top: var(--spacing-2xl);">
-                <a href="products.html" class="btn btn-primary">Back to Shopping</a>
+                <a href="products.html" class="btn btn-primary">Continue Shopping</a>
             </div>
         </div>
     </main>
 
-    <!-- Footer Mockup (Real one will be synced later) -->
-    <footer class="footer" style="padding: 40px 0; border-top: 1px solid rgba(255,215,0,0.1); margin-top: 60px;">
-        <div class="container" style="text-align: center;">
-            <p>&copy; 2026 FlipSide. All rights reserved.</p>
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>FlipSide</h3>
+                    <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                        Your trusted platform for premium reselling opportunities.
+                    </p>
+                    <div class="footer-social" id="footerSocial">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="reseller.html">Become a Reseller</a></li>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Support</h3>
+                    <ul class="footer-links">
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="index.html#shipping">Shipping Info</a></li>
+                        <li><a href="returns.html">Returns</a></li>
+                        <li><a href="index.html#contact">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Contact</h3>
+                    <ul class="footer-links">
+                        <li id="footerEmail">📧 <a
+                                href="mailto:muzincorporations@gmail.com">muzincorporations@gmail.com</a></li>
+                        <li id="footerPhone" class="hidden">📱 <span></span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 FlipSide. All rights reserved. Built for success.</p>
+            </div>
         </div>
     </footer>
     <script src="js/utils.js"></script>
