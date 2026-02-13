@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initSocialProof();
     syncFooterPolicies();
     initThemeToggle();
+    initSupportHub();
+    initGlobalDispatchTimer();
 });
 
 // 1. Page Progress Bar
@@ -30,7 +32,7 @@ function initPageProgress() {
 function initBackToTop() {
     const btn = document.createElement('div');
     btn.className = 'back-to-top';
-    btn.innerHTML = '↑';
+    btn.innerHTML = '↑'; // Arrow UP icon as requested
     btn.title = 'Back to Top';
     document.body.appendChild(btn);
 
@@ -83,7 +85,7 @@ function initSocialProof() {
             name = names[Math.floor(Math.random() * names.length)];
             location = locations[Math.floor(Math.random() * locations.length)];
             action = actions[Math.floor(Math.random() * actions.length)];
-            const productNames = typeof products !== 'undefined' ? products.map(p => p.name) : ['Premium Digital Key', 'Limited Edition Tee'];
+            const productNames = typeof PRODUCTS !== 'undefined' ? PRODUCTS.map(p => p.name) : ['Premium Digital Key', 'Limited Edition Tee'];
             product = productNames[Math.floor(Math.random() * productNames.length)];
         }
 
@@ -140,7 +142,7 @@ function syncFooterPolicies() {
     footerInner.appendChild(policyLinks);
 }
 
-// 5. Global Toast Helper (If not defined)
+// 5. Global Toast Helper
 if (typeof showToast === 'undefined') {
     window.showToast = function (message, type = 'success') {
         const toast = document.createElement('div');
@@ -158,8 +160,6 @@ function initThemeToggle() {
         document.body.classList.add('light-mode');
     }
 
-    // Attempt to find a toggle button in the DOM, otherwise we can't do much
-    // We will later add this button to all pages
     const toggleBtn = document.getElementById('themeToggle');
     if (toggleBtn) {
         updateThemeIcon(toggleBtn, savedTheme);
@@ -177,3 +177,66 @@ function updateThemeIcon(btn, theme) {
     btn.innerHTML = theme === 'light' ? '🌙' : '☀️';
     btn.title = `Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`;
 }
+
+// 7. Support Hub
+function initSupportHub() {
+    const hub = document.createElement('a');
+    hub.className = 'support-hub';
+    hub.innerHTML = '💬';
+    hub.title = 'Contact Support (Discord)';
+    hub.href = (typeof CONFIG !== 'undefined' && CONFIG.social && CONFIG.social.discord) ? CONFIG.social.discord : 'https://discord.gg/flipside';
+    hub.target = '_blank';
+    document.body.appendChild(hub);
+}
+
+// 8. Global Dispatch Timer (FOMO)
+function initGlobalDispatchTimer() {
+    // Only run on index and product pages
+    const validPages = ['index.html', 'products.html', ''];
+    let currentPage = window.location.pathname.split('/').pop();
+    if (currentPage === '') currentPage = 'index.html';
+    if (!validPages.includes(currentPage)) return;
+}
+
+// Global Helper: Update Dispatch Timer
+window.updateDispatchTimer = function (elementId) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+
+    function update() {
+        const now = new Date();
+        const tomorrow = new Date();
+        tomorrow.setDate(now.getDate() + 1);
+        tomorrow.setHours(16, 0, 0, 0); // Dispatch at 4PM
+
+        let diff = tomorrow - now;
+        if (now.getHours() >= 16) {
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            diff = tomorrow - now;
+        }
+
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+
+        el.innerHTML = `Order within <span class="fomo-timer-clock">${h}h ${m}m ${s}s</span> for same-day dispatch!`;
+    }
+
+    update();
+    setInterval(update, 1000);
+};
+
+// Global Helper: Share Product
+window.shareProduct = function (platform, productName, productId) {
+    const url = window.location.origin + window.location.pathname + '?product=' + productId;
+    const text = encodeURIComponent(`Check out ${productName} on FlipSide!`);
+
+    let shareUrl = '';
+    if (platform === 'whatsapp') {
+        shareUrl = `https://wa.me/?text=${text}%20${encodeURIComponent(url)}`;
+    } else if (platform === 'twitter') {
+        shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`;
+    }
+
+    if (shareUrl) window.open(shareUrl, '_blank');
+};

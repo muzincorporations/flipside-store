@@ -93,6 +93,7 @@
                 <div class="search-box">
                     <span class="search-icon">🔍</span>
                     <input type="text" id="searchInput" placeholder="Search products...">
+                    <button id="clearSearch" class="search-clear">&times;</button>
                 </div>
             </div>
 
@@ -204,6 +205,21 @@
                         <div class="product-info-actions">
                             <button class="btn btn-primary" id="modalAddToCart">Add to Cart</button>
                             <button class="btn btn-outline" id="modalToggleWishlist">Add to Wishlist</button>
+                        </div>
+
+                        <!-- FOMO Dispatch Timer -->
+                        <div id="modalFomoTimer" class="fomo-timer">
+                            Order within <span class="fomo-timer-clock">...</span> for same-day dispatch!
+                        </div>
+
+                        <!-- Share Suite -->
+                        <div class="modal-share-suite">
+                            <button class="share-btn whatsapp" id="shareWhatsApp">
+                                <span>Share on WhatsApp</span>
+                            </button>
+                            <button class="share-btn twitter" id="shareTwitter">
+                                <span>Share on Twitter</span>
+                            </button>
                         </div>
 
                         <!-- Reviews Section -->
@@ -331,8 +347,23 @@
         // Search input
         document.getElementById('searchInput').addEventListener('input', (e) => {
             searchQuery = e.target.value.toLowerCase();
+            const clearBtn = document.getElementById('clearSearch');
+            if (clearBtn) clearBtn.style.display = searchQuery ? 'block' : 'none';
             filterProducts();
         });
+
+        // Clear search
+        const clearSearchBtn = document.getElementById('clearSearch');
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', () => {
+                const input = document.getElementById('searchInput');
+                input.value = '';
+                searchQuery = '';
+                clearSearchBtn.style.display = 'none';
+                filterProducts();
+                input.focus();
+            });
+        }
 
         // Filter products
         function filterProducts() {
@@ -392,6 +423,9 @@
             <div class="product-card-body">
               <div class="product-card-category">${product.category}</div>
               <h3 class="product-card-title">${product.name}</h3>
+              <div class="product-card-rating" id="rating-card-${product.id}" style="font-size: 0.75rem; color: var(--color-gold); margin-bottom: 5px;">
+                ⭐⭐⭐⭐⭐ (Verified)
+              </div>
               <p class="product-card-description">${product.shortDescription || product.description}</p>
               <div class="product-card-footer">
                 <div class="product-price">
@@ -399,7 +433,7 @@
                   ${isOnSale ? `<div class="product-price-original">£${product.price.toFixed(2)}</div>` : ''}
                   ${product.type === 'physical' ? `<div class="product-stock ${isInStock(product) ? 'in-stock' : 'out-of-stock'}">${isInStock(product) ? 'In Stock' : 'Out of Stock'}</div>` : ''}
                 </div>
-                <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); addToCart(${product.id})" ${!isInStock(product) ? 'disabled' : ''}>
+                <button class="btn btn-primary btn-small btn-premium" onclick="event.stopPropagation(); addToCart(${product.id})" ${!isInStock(product) ? 'disabled' : ''}>
                   ${isInStock(product) ? 'Add to Cart' : 'Out of Stock'}
                 </button>
               </div>
@@ -444,6 +478,14 @@
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartCount();
             showToast(`${product.name} added to cart!`, 'success');
+
+            // Cart bounce animation
+            const cartIcon = document.getElementById('cartCount');
+            if (cartIcon) {
+                cartIcon.classList.remove('cart-icon-animate');
+                void cartIcon.offsetWidth; // Trigger reflow
+                cartIcon.classList.add('cart-icon-animate');
+            }
         }
 
         function showToast(message, type = 'success') {
@@ -519,6 +561,17 @@
                 toggleWishlist(product.id);
                 updateWishBtnLabel();
             };
+
+            // FOMO Timer
+            if (typeof updateDispatchTimer === 'function') {
+                updateDispatchTimer('modalFomoTimer');
+            }
+
+            // Share Suite
+            const shareWhatsApp = document.getElementById('shareWhatsApp');
+            const shareTwitter = document.getElementById('shareTwitter');
+            if (shareWhatsApp) shareWhatsApp.onclick = () => shareProduct('whatsapp', product.name, product.id);
+            if (shareTwitter) shareTwitter.onclick = () => shareProduct('twitter', product.name, product.id);
 
             // Review Logic
             modal.dataset.productId = productId;

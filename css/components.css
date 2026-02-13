@@ -798,7 +798,7 @@ footer {
 .back-to-top {
     position: fixed;
     bottom: var(--spacing-lg);
-    left: var(--spacing-lg);
+    right: var(--spacing-lg);
     width: 45px;
     height: 45px;
     background: var(--color-bg-card);
@@ -809,11 +809,13 @@ footer {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 100;
+    z-index: 1000;
     transition: all var(--transition-normal);
     opacity: 0;
     visibility: hidden;
     box-shadow: var(--glow-gold);
+    font-size: 1.2rem;
+    font-weight: bold;
 }
 
 .back-to-top.visible {
