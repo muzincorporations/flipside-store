@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order - FlipSide</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=3">
+</head>
+
+<body>
+    <nav>
+        <div class="container">
+            <div class="nav-container">
+                <a href="index.html" class="nav-logo">
+                    <img src="assets/logo.png" alt="FlipSide Logo">
+                    <span>FlipSide</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container"
+        style="max-width: 600px; padding-top: var(--spacing-2xl); padding-bottom: var(--spacing-2xl);">
+        <h1 style="text-align: center; margin-bottom: var(--spacing-xl);">Track Your Order</h1>
+
+        <div class="card">
+            <div class="form-group">
+                <label class="form-label">Enter Order Code</label>
+                <div style="display: flex; gap: var(--spacing-sm);">
+                    <input type="text" id="orderInput" class="form-input" placeholder="e.g. 123456"
+                        style="text-align: center; font-size: 1.2rem; letter-spacing: 2px;">
+                    <button class="btn btn-primary" onclick="trackOrder()">Track</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="statusResult" class="card hidden" style="margin-top: var(--spacing-lg);">
+            <div style="text-align: center; margin-bottom: var(--spacing-lg);">
+                <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">Status</p>
+                <div id="statusBadge" class="badge badge-pending" style="font-size: 1.2rem; padding: 8px 16px;">Pending
+                </div>
+            </div>
+
+            <div id="orderDetails">
+                <!-- Order items will go here -->
+            </div>
+
+            <p
+                style="text-align: center; color: var(--color-text-muted); font-size: 0.85rem; margin-top: var(--spacing-lg);">
+                Order ID: <span id="displayOrderId"></span>
+            </p>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script src="js/config.js"></script>
+    <script src="js/firebase.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', initFirebase);
+
+        async function trackOrder() {
+            const input = document.getElementById('orderInput');
+            const code = input.value.trim();
+
+            if (!code) {
+                alert("Please enter an order code");
+                return;
+            }
+
+            const btn = document.querySelector('button');
+            btn.textContent = "Checking...";
+            btn.disabled = true;
+
+            try {
+                // We need to fetch the specific document ID directly
+                // Since our ID is the doc ID in Firestore
+                const docRef = db.collection('orders').doc(code);
+                const doc = await docRef.get();
+
+                if (doc.exists) {
+                    const order = doc.data();
+                    displayResult(order, code);
+                } else {
+                    alert("Order not found! Please check the code and try again.");
+                    document.getElementById('statusResult').classList.add('hidden');
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Error finding order.");
+            } finally {
+                btn.textContent = "Track";
+                btn.disabled = false;
+            }
+        }
+
+        function displayResult(order, id) {
+            const result = document.getElementById('statusResult');
+            const badge = document.getElementById('statusBadge');
+            const details = document.getElementById('orderDetails');
+
+            result.classList.remove('hidden');
+            document.getElementById('displayOrderId').textContent = id;
+
+            // Update Badge
+            badge.className = `badge badge-${order.status === 'pending_payment' ? 'pending' : order.status}`;
+            badge.textContent = order.status === 'pending_payment' ? 'Pending Payment' : capitalize(order.status);
+
+            if (order.status === 'pending_payment') {
+                badge.style.background = 'rgba(255, 215, 0, 0.1)';
+                badge.style.color = 'var(--color-gold)';
+                badge.style.borderColor = 'var(--color-gold)';
+            } else if (order.status === 'completed') {
+                badge.style.background = 'rgba(0, 212, 255, 0.1)';
+                badge.style.color = 'var(--color-blue)';
+                badge.style.borderColor = 'var(--color-blue)';
+            }
+
+            // Products
+            details.innerHTML = order.cart.map(item => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <span>${item.name}</span>
+                    <span style="color: var(--color-text-secondary);">£${item.price.toFixed(2)}</span>
+                </div>
+            `).join('');
+
+            // Total
+            details.innerHTML += `
+                <div style="display: flex; justify-content: space-between; margin-top: 12px; font-weight: 700;">
+                    <span>Total</span>
+                    <span>£${order.total.toFixed(2)}</span>
+                </div>
+            `;
+        }
+
+        function capitalize(s) {
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+    </script>
+</body>
+
+</html>

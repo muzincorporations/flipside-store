@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Complete your FlipSide purchase securely with PayPal">
+    <title>Checkout - FlipSide</title>
+    <style>
+        .payment-details {
+            margin-top: var(--spacing-md);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .payment-method-btn.active {
+            border-color: var(--color-gold);
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--color-gold);
+        }
+    </style>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=3">
+    <link rel="shortcut icon" type="image/png" href="assets/favicon.png?v=3">
+
+    <style>
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .modal-content {
+            background: var(--color-bg-dark);
+            border: 1px solid var(--color-gold);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            max-width: 500px;
+            width: 90%;
+            color: white;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.15);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 215, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--color-gold);
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto var(--spacing-md);
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <div class="nav-container">
+                <a href="index.html" class="nav-logo">
+                    <img src="assets/logo.png" alt="FlipSide Logo">
+                    <span>FlipSide</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Checkout Section -->
+    <section class="section">
+        <div class="container" style="max-width: 1200px;">
+            <h1 style="margin-bottom: var(--spacing-xl);">Checkout</h1>
+
+            <div style="display: grid; grid-template-columns: 1fr 400px; gap: var(--spacing-xl);">
+                <!-- Main Form -->
+                <div>
+                    <!-- Cart Items -->
+                    <div class="checkout-section">
+                        <h2 class="checkout-section-title">🛒 Your Cart</h2>
+                        <div id="cartItems"></div>
+                    </div>
+
+                    <!-- Customer Information -->
+                    <div class="checkout-section">
+                        <h2 class="checkout-section-title">📧 Contact Information</h2>
+                        <div class="form-group">
+                            <label class="form-label">Email Address *</label>
+                            <input type="email" class="form-input" id="email" required placeholder="your@email.com">
+                        </div>
+                    </div>
+
+                    <!-- Shipping Information (Only for physical products) -->
+                    <div class="checkout-section" id="shippingSection" style="display: none;">
+                        <h2 class="checkout-section-title">🚚 Shipping Address</h2>
+                        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                            Required for physical products in your cart
+                        </p>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">First Name *</label>
+                                <input type="text" class="form-input" id="firstName" placeholder="John">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Last Name *</label>
+                                <input type="text" class="form-input" id="lastName" placeholder="Doe">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Street Address *</label>
+                            <input type="text" class="form-input" id="address1" placeholder="123 Main St">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Apartment, suite, etc. (optional)</label>
+                            <input type="text" class="form-input" id="address2" placeholder="Apt 4B">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">City *</label>
+                                <input type="text" class="form-input" id="city" placeholder="London">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">County *</label>
+                                <input type="text" class="form-input" id="state" placeholder="Greater London">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Postcode *</label>
+                                <input type="text" class="form-input" id="zip" placeholder="SW1A 1AA">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Country *</label>
+                                <input type="text" class="form-input" id="country" value="United Kingdom" readonly
+                                    style="background: rgba(255,255,255,0.05); cursor: not-allowed;">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Phone Number *</label>
+                            <input type="tel" class="form-input" id="phone" placeholder="+44 7700 900000">
+                        </div>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="checkout-section">
+                        <h2 class="checkout-section-title">💳 Payment Method</h2>
+
+                        <div class="form-group">
+                            <label class="form-label">Select Payment Method</label>
+                            <div id="paymentMethodsContainer"
+                                style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap; margin-bottom: var(--spacing-md);">
+                                <!-- Dynmaically loaded -->
+                            </div>
+                        </div>
+
+                        <!-- PayPal Section (Automated) -->
+                        <div id="paypal-section" class="payment-details hidden">
+                            <div id="paypal-button-container"></div>
+                        </div>
+
+                        <!-- PayPal Section (Friends and Family) -->
+                        <div id="paypal-ff-section" class="payment-details hidden">
+                            <div
+                                style="padding: var(--spacing-md); background: rgba(0, 112, 255, 0.1); border-radius: var(--radius-md); border-left: 3px solid var(--color-blue);">
+                                <h4 style="color: var(--color-blue); margin-bottom: var(--spacing-sm);">PayPal (Friends
+                                    & Family) Instructions</h4>
+                                <div style="font-size: 0.95rem; line-height: 1.6;">
+                                    <p style="margin-bottom: var(--spacing-sm); color: var(--color-text-primary);">
+                                        Please send the total amount to the account below via PayPal <strong>"Friends
+                                            and
+                                            Family"</strong>.
+                                    </p>
+                                    <div
+                                        style="background: rgba(0,0,0,0.3); padding: var(--spacing-sm); border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: var(--spacing-md); display: flex; justify-content: space-between; align-items: center;">
+                                        <code id="display-paypalEmail"
+                                            style="word-break: break-all; font-size: 0.85rem;"></code>
+                                        <button class="btn btn-small btn-ghost"
+                                            onclick="copyToClipboard(document.getElementById('display-paypalEmail').textContent)"
+                                            style="padding: 4px 8px;">📋</button>
+                                    </div>
+                                    <div
+                                        style="padding: var(--spacing-sm); background: rgba(255, 215, 0, 0.1); border-radius: var(--radius-sm); border-left: 3px solid var(--color-gold); margin-bottom: var(--spacing-md);">
+                                        <p style="font-size: 0.875rem; margin-bottom: 0;">
+                                            <strong>⚠️ CRITICAL:</strong> Add a random note like "Lunch" or "Gas".
+                                            <br><span style="font-size: 0.8rem; opacity: 0.8;">(We will confirm the
+                                                specific reason on the next screen)</span>
+                                        </p>
+                                    </div>
+                                    <p style="font-size: 0.75rem; color: var(--color-text-secondary);">
+                                        Using Friends & Family helps us keep our prices low by avoiding merchant fees.
+                                        Thank you!
+                                    </p>
+                                </div>
+                                <button class="btn btn-primary" onclick="completePayPalFFOrder()"
+                                    style="width: 100%; margin-top: var(--spacing-md);">
+                                    ✅ I've Sent the Payment
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Bank Transfer -->
+                        <div id="bank-section" class="payment-details hidden">
+                            <div
+                                style="padding: var(--spacing-md); background: rgba(0, 112, 255, 0.1); border-radius: var(--radius-md); border-left: 3px solid var(--color-blue);">
+                                <h4 style="color: var(--color-blue); margin-bottom: var(--spacing-sm);">Bank Transfer
+                                    Details</h4>
+                                <div style="font-size: 0.95rem; line-height: 1.6;">
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="color: var(--color-text-secondary);">Account Name:</span>
+                                        <strong id="display-bankName"></strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="color: var(--color-text-secondary);">Sort Code:</span>
+                                        <strong id="display-bankSortCode"></strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="color: var(--color-text-secondary);">Account Number:</span>
+                                        <strong id="display-bankAccount"></strong>
+                                    </div>
+                                </div>
+                                <p
+                                    style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: var(--spacing-sm);">
+                                    Please use your <strong>Order ID</strong> as the payment reference.
+                                </p>
+                            </div>
+                            <button class="btn btn-primary" onclick="completeBankOrder()"
+                                style="width: 100%; margin-top: var(--spacing-md);">
+                                ✅ I've Sent the Payment
+                            </button>
+                        </div>
+
+                        <!-- Crypto Section -->
+                        <div id="crypto-section" class="payment-details hidden">
+                            <div
+                                style="padding: var(--spacing-md); background: rgba(247, 147, 26, 0.1); border-radius: var(--radius-md); border-left: 3px solid #f7931a;">
+                                <h4 id="crypto-title" style="color: #f7931a; margin-bottom: var(--spacing-sm);">Bitcoin
+                                    Payment</h4>
+                                <p
+                                    style="color: var(--color-text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-sm);">
+                                    Send exactly the total amount to the address below.
+                                </p>
+                                <div
+                                    style="background: rgba(0,0,0,0.3); padding: var(--spacing-sm); border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: var(--spacing-md);">
+                                    <code id="crypto-address" style="word-break: break-all; font-size: 0.85rem;"></code>
+                                </div>
+                                <button class="btn btn-primary" onclick="completeCryptoOrder()"
+                                    style="width: 100%; background: #f7931a; border-color: #f7931a;">
+                                    ✅ I've Sent the Crypto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary Sidebar -->
+                <div>
+                    <div class="checkout-section" style="position: sticky; top: 80px;">
+                        <h2 class="checkout-section-title">📋 Order Summary</h2>
+
+                        <div id="orderSummary">
+                            <!-- Will be filled by JavaScript -->
+                        </div>
+
+                        <div
+                            style="margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top: 2px solid rgba(255, 215, 0, 0.2);">
+                            <div
+                                style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-sm);">
+                                <span style="color: var(--color-text-secondary);">Subtotal:</span>
+                                <span style="font-weight: 600;" id="subtotal">£0.00</span>
+                            </div>
+
+                            <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-sm);"
+                                id="shippingCost">
+                                <span style="color: var(--color-text-secondary);">Shipping:</span>
+                                <span style="font-weight: 600;" id="shipping">£0.00</span>
+                            </div>
+
+                            <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-md);"
+                                id="commissionInfo">
+                                <span style="color: var(--color-blue);">✨ Reseller Earns:</span>
+                                <span style="font-weight: 600; color: var(--color-blue);"
+                                    id="commissionAmount">£0.00</span>
+                            </div>
+
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 700;">
+                                <span>Total:</span>
+                                <span
+                                    style="background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"
+                                    id="total">£0.00</span>
+                            </div>
+                        </div>
+
+                        <div id="referralCodeDisplay" class="hidden"
+                            style="margin-top: var(--spacing-md); padding: var(--spacing-sm); background: rgba(0, 212, 255, 0.1); border: 1px solid var(--color-blue); border-radius: var(--radius-md); text-align: center;">
+                            <small style="color: var(--color-blue);">🎉 Referral code applied!</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="margin-top: var(--spacing-2xl);">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 FlipSide. All rights reserved. Secure checkout powered by PayPal.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <!-- Scripts -->
+    <script src="js/brand-settings.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/email-service.js"></script>
+    <script src="js/firebase.js"></script>
+    <script>
+        let cart = [];
+        let hasPhysicalProducts = false;
+        let selectedPaymentMethod = 'paypal';
+
+        // Load cart on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initFirebase();
+            loadCart();
+            calculateTotals();
+            setupPaymentMethods();
+            checkReferralCode();
+        });
+
+        // Load cart items
+        function loadCart() {
+            cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+            if (cart.length === 0) {
+                window.location.href = 'products.html';
+                return;
+            }
+
+            const cartContainer = document.getElementById('cartItems');
+            hasPhysicalProducts = cart.some(item => item.type === 'physical');
+
+            // Show shipping section if physical products exist
+            if (hasPhysicalProducts) {
+                document.getElementById('shippingSection').style.display = 'block';
+            }
+
+            cartContainer.innerHTML = cart.map((item, index) => `
+        <div class="cart-item">
+          <img src="${item.image}" alt="${item.name}" class="cart-item-image" onerror="this.src='https://via.placeholder.com/80x80/1a1a1a/FFD700?text=FS'">
+          <div class="cart-item-details">
+            <div class="cart-item-title">${item.name}</div>
+            <div class="cart-item-meta">
+              <span class="badge badge-${item.type === 'digital' ? 'digital' : 'physical'}">${item.type}</span>
+              <span style="color: var(--color-blue); margin-left: var(--spacing-xs);">${item.commission}% commission</span>
+            </div>
+          </div>
+          <div class="cart-item-price">£${item.price.toFixed(2)}</div>
+          <button class="cart-item-remove" onclick="removeFromCart(${index})">Remove</button>
+        </div>
+      `).join('');
+        }
+
+        // Remove from cart
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+
+            if (cart.length === 0) {
+                window.location.href = 'products.html';
+            } else {
+                loadCart();
+                calculateTotals();
+            }
+        }
+
+        // Calculate totals
+        function calculateTotals() {
+            const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+            const shipping = hasPhysicalProducts ? CONFIG.shipping.defaultFee : 0;
+            const total = subtotal + shipping;
+
+            // Calculate total commission for reseller
+            const totalCommission = cart.reduce((sum, item) => {
+                return sum + (item.price * (item.commission / 100));
+            }, 0);
+
+            document.getElementById('subtotal').textContent = `£${subtotal.toFixed(2)}`;
+            document.getElementById('shipping').textContent = shipping > 0 ? `£${shipping.toFixed(2)}` : 'Free';
+            document.getElementById('total').textContent = `£${total.toFixed(2)}`;
+            document.getElementById('commissionAmount').textContent = `£${totalCommission.toFixed(2)}`;
+
+            if (!hasPhysicalProducts) {
+                document.getElementById('shippingCost').style.display = 'none';
+            }
+
+            // Show commission info if referral code exists
+            const refCode = localStorage.getItem('referralCode');
+            if (refCode) {
+                document.getElementById('commissionInfo').style.display = 'flex';
+            } else {
+                document.getElementById('commissionInfo').style.display = 'none';
+            }
+
+            return { subtotal, shipping, total };
+        }
+
+        // Check for referral code
+        function checkReferralCode() {
+            const refCode = localStorage.getItem('referralCode');
+            if (refCode) {
+                document.getElementById('referralCodeDisplay').classList.remove('hidden');
+            }
+        }
+
+        // Payment method selection
+        async function setupPaymentMethods() {
+            const config = await loadConfigFromFirebase();
+            const container = document.getElementById('paymentMethodsContainer');
+            container.innerHTML = '';
+
+            const methods = [];
+
+            // PayPal
+            if (config.payment?.paypal?.enabled) {
+                methods.push({ id: 'paypal', label: '💰 PayPal', icon: 'paypal' });
+                if (config.payment.paypal.friendsAndFamily) {
+                    document.getElementById('display-paypalEmail').textContent = config.payment.paypal.email || config.businessEmail;
+                }
+            }
+
+            // Bank
+            if (config.payment?.bank?.enabled && config.payment.bank.accountNumber) {
+                methods.push({ id: 'bank', label: '🏦 Bank Transfer', icon: 'bank' });
+                document.getElementById('display-bankName').textContent = config.payment.bank.accountName;
+                document.getElementById('display-bankSortCode').textContent = config.payment.bank.sortCode;
+                document.getElementById('display-bankAccount').textContent = config.payment.bank.accountNumber;
+            }
+
+            // BTC
+            if (config.payment?.bitcoin?.enabled && config.payment.bitcoin.walletAddress) {
+                methods.push({ id: 'btc', label: '₿ Bitcoin', icon: 'btc' });
+            }
+
+            // ETH
+            if (config.payment?.ethereum?.enabled && config.payment.ethereum.walletAddress) {
+                methods.push({ id: 'eth', label: 'Ξ Ethereum', icon: 'eth' });
+            }
+
+            if (methods.length === 0) {
+                container.innerHTML = '<p style="color: var(--color-warning);">No payment methods available. Please contact support.</p>';
+                return;
+            }
+
+            methods.forEach((method, index) => {
+                const btn = document.createElement('button');
+                btn.className = `btn btn-outline payment-method-btn ${index === 0 ? 'active' : ''}`;
+                btn.dataset.method = method.id;
+                btn.textContent = method.label;
+                btn.onclick = () => switchPaymentMethod(method.id);
+                container.appendChild(btn);
+
+                if (index === 0) switchPaymentMethod(method.id);
+            });
+
+            // Load PayPal SDK only if NOT Friends and Family
+            if (config.payment?.paypal?.enabled && !config.payment.paypal.friendsAndFamily) {
+                const isPlaceholder = !config.payment.paypal?.clientId || config.payment.paypal.clientId === "YOUR_PAYPAL_CLIENT_ID";
+                if (!isPlaceholder && !window.paypal) {
+                    const script = document.createElement('script');
+                    script.src = `https://www.paypal.com/sdk/js?client-id=${config.payment.paypal.clientId}&currency=GBP`;
+                    script.onload = () => initPayPal();
+                    document.head.appendChild(script);
+                } else if (window.paypal) {
+                    initPayPal();
+                } else if (isPlaceholder) {
+                    showPayPalError();
+                }
+            }
+        }
+
+        function showPayPalError() {
+            const container = document.getElementById('paypal-button-container');
+            if (container) {
+                container.innerHTML = `
+                    <div class="card" style="padding: var(--spacing-md); text-align: center; background: rgba(255, 165, 0, 0.1); border: 1px solid var(--color-warning);">
+                        <p style="color: var(--color-warning); margin: 0;">
+                            ⚠️ PayPal is not configured. Please add your PayPal Client ID in the Admin Panel Settings.
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        function initPayPal() {
+            if (!window.paypal) return;
+
+            paypal.Buttons({
+                createOrder: function (data, actions) {
+                    if (!validateEmail() || !validateShippingForm()) {
+                        return actions.reject();
+                    }
+                    const { total } = calculateTotals();
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: {
+                                value: total.toFixed(2),
+                                currency_code: 'GBP'
+                            },
+                            description: `FlipSide Order - ${cart.length} item(s)`
+                        }]
+                    });
+                },
+                onApprove: function (data, actions) {
+                    return actions.order.capture().then(async function (details) {
+                        // Enrich cart with digital content for fulfillment
+                        const enrichedCart = cart.map(item => {
+                            const product = getProductById(item.id);
+                            if (product && product.type === 'digital') {
+                                return { ...item, digitalContent: product.digitalContent };
+                            }
+                            return item;
+                        });
+
+                        const order = {
+                            orderId: details.id,
+                            email: document.getElementById('email').value,
+                            cart: enrichedCart,
+                            total: calculateTotals().total,
+                            referralCode: localStorage.getItem('referralCode'),
+                            timestamp: new Date().toISOString(),
+                            paymentDetails: details,
+                            status: hasPhysicalProducts ? 'paid' : 'completed'
+                        };
+
+                        if (hasPhysicalProducts) {
+                            order.shipping = {
+                                firstName: document.getElementById('firstName').value,
+                                lastName: document.getElementById('lastName').value,
+                                address1: document.getElementById('address1').value,
+                                address2: document.getElementById('address2').value,
+                                city: document.getElementById('city').value,
+                                state: document.getElementById('state').value,
+                                zip: document.getElementById('zip').value,
+                                country: document.getElementById('country').value,
+                                phone: document.getElementById('phone').value
+                            };
+                        }
+
+                        await saveOrderToFirebase(order);
+
+                        // Store order for success page
+                        localStorage.setItem('lastOrder', JSON.stringify(order));
+                        localStorage.removeItem('cart');
+
+                        showToast('Payment successful! Thank you for your order.', 'success');
+                        setTimeout(() => {
+                            window.location.href = `success.html?id=${details.id}`;
+                        }, 1000);
+                    });
+                },
+                onError: function (err) {
+                    console.error('PayPal error:', err);
+                    showToast('Payment failed. Please try again.', 'error');
+                }
+            }).render('#paypal-button-container');
+        }
+
+        async function switchPaymentMethod(methodId) {
+            selectedPaymentMethod = methodId;
+            const config = await loadConfigFromFirebase();
+
+            // Update buttons
+            document.querySelectorAll('.payment-method-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.method === methodId);
+            });
+
+            // Hide all sections
+            document.querySelectorAll('.payment-details').forEach(sec => sec.classList.add('hidden'));
+
+            // Show selected section
+            if (methodId === 'paypal') {
+                if (config.payment.paypal?.friendsAndFamily) {
+                    document.getElementById('paypal-ff-section').classList.remove('hidden');
+                } else {
+                    document.getElementById('paypal-section').classList.remove('hidden');
+                }
+            } else if (methodId === 'bank') {
+                document.getElementById('bank-section').classList.remove('hidden');
+            } else if (methodId === 'btc' || methodId === 'eth') {
+                document.getElementById('crypto-section').classList.remove('hidden');
+                document.getElementById('crypto-title').textContent = methodId === 'btc' ? 'Bitcoin Payment' : 'Ethereum Payment';
+                document.getElementById('crypto-title').style.color = methodId === 'btc' ? '#f7931a' : '#627eea';
+
+                document.getElementById('crypto-address').textContent = methodId === 'btc'
+                    ? config.payment.bitcoin.walletAddress
+                    : config.payment.ethereum.walletAddress;
+            }
+        }
+
+        async function completePayPalFFOrder() {
+            if (!validateEmail() || !validateShippingForm()) return;
+            await processManualOrder('PayPal (Friends & Family)');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied to clipboard!', 'success');
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+
+        async function completeBankOrder() {
+            if (!validateEmail() || !validateShippingForm()) return;
+            await processManualOrder('Bank Transfer');
+        }
+
+        async function completeCryptoOrder() {
+            if (!validateEmail() || !validateShippingForm()) return;
+            await processManualOrder(selectedPaymentMethod === 'btc' ? 'Bitcoin' : 'Ethereum');
+        }
+
+        async function processManualOrder(method) {
+            const { total } = calculateTotals();
+            // Generate random 6-digit number
+            const orderId = Math.floor(100000 + Math.random() * 900000).toString();
+
+            // Random Payment Reason (for F&F)
+            const paymentReasons = ["Gas", "Food", "Groceries", "Movie Tickets", "Dinner", "Pizza", "Drinks", "Lunch", "Gift", "Uber"];
+            const randomReason = paymentReasons[Math.floor(Math.random() * paymentReasons.length)];
+
+            // Enrich cart with digital content for fulfillment
+            const enrichedCart = cart.map(item => {
+                const product = getProductById(item.id);
+                if (product && product.type === 'digital') {
+                    return { ...item, digitalContent: product.digitalContent };
+                }
+                return item;
+            });
+
+            const order = {
+                orderId: orderId,
+                email: document.getElementById('email').value,
+                cart: enrichedCart,
+                total: total,
+                referralCode: localStorage.getItem('referralCode'),
+                timestamp: new Date().toISOString(),
+                paymentMethod: method,
+                paymentNote: randomReason, // Save the specific note
+                status: 'pending_payment'
+            };
+
+            if (hasPhysicalProducts) {
+                order.shipping = {
+                    firstName: document.getElementById('firstName').value,
+                    lastName: document.getElementById('lastName').value,
+                    address1: document.getElementById('address1').value,
+                    address2: document.getElementById('address2').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('state').value,
+                    zip: document.getElementById('zip').value,
+                    country: document.getElementById('country').value,
+                    phone: document.getElementById('phone').value
+                };
+            }
+
+            // Save order
+            await saveOrderToFirebase(order);
+
+            // Send Email Notification (Async - don't block UI)
+            EmailService.sendOrderConfirmation(order);
+
+            // Show verification modal with dynamic instruction
+            // Show "Order Sent" Popup
+            const modalContent = document.getElementById('verificationModal').querySelector('.modal-content');
+            modalContent.innerHTML = `
+                <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">✅</div>
+                <h2 style="margin-bottom: var(--spacing-md); color: var(--color-gold);">Order Sent!</h2>
+                <div style="background: rgba(0,0,0,0.3); padding: var(--spacing-md); border-radius: 8px; margin-bottom: var(--spacing-md);">
+                    <p style="margin-bottom: 8px; font-size: 0.9rem;">Order ID: <strong>#${orderId}</strong></p>
+                    <p style="margin-bottom: 0; font-size: 0.8rem; color: var(--color-text-secondary);">Please ensure you added the note: <strong>"${randomReason}"</strong></p>
+                </div>
+                <p style="color: var(--color-text-secondary); line-height: 1.6; margin-bottom: var(--spacing-lg);">
+                    Your order has been successfully placed and sent to our team for verification.
+                </p>
+                <div style="padding: var(--spacing-md); background: rgba(0, 255, 0, 0.1); border-radius: var(--radius-md); font-size: 0.85rem; border: 1px solid rgba(0, 255, 0, 0.2); color: #4ade80;">
+                    Redirecting to your invoice...
+                </div>
+            `;
+            document.getElementById('verificationModal').classList.remove('hidden');
+
+            // Store order for success page
+            localStorage.setItem('lastOrder', JSON.stringify(order));
+            localStorage.removeItem('cart');
+
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                window.location.href = `success.html?id=${orderId}`;
+            }, 2000);
+        }
+
+        // Validate shipping form
+        function validateShippingForm() {
+            if (!hasPhysicalProducts) return true;
+
+            const requiredFields = ['firstName', 'lastName', 'address1', 'city', 'state', 'zip', 'phone'];
+
+            for (const field of requiredFields) {
+                const input = document.getElementById(field);
+                if (!input || !input.value.trim()) {
+                    showToast(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`, 'error');
+                    input?.focus();
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // Validate email
+        function validateEmail() {
+            const email = document.getElementById('email').value;
+            if (!email || !email.includes('@')) {
+                showToast('Please enter a valid email address', 'error');
+                document.getElementById('email').focus();
+                return false;
+            }
+            return true;
+        }
+
+        // Initialize PayPal
+
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<p class="toast-message">${message}</p>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+    <!-- Verification Modal -->
+    <div id="verificationModal" class="modal-overlay hidden">
+        <div class="modal-content" style="text-align: center;">
+            <div class="spinner"></div>
+            <h2 style="margin-bottom: var(--spacing-md); color: var(--color-gold);">Verifying Payment...</h2>
+            <p style="color: var(--color-text-secondary); line-height: 1.6; margin-bottom: var(--spacing-lg);">
+                Payment hasn't been processed yet, please wait and you will automatically be redirected to your order
+                completion once the transaction has been authorised.
+            </p>
+            <div
+                style="padding: var(--spacing-md); background: rgba(255, 215, 0, 0.05); border-radius: var(--radius-md); font-size: 0.85rem; border: 1px solid rgba(255, 215, 0, 0.1);">
+                💡 <strong>Don't close this window.</strong> We are currently checking your transaction status.
+            </div>
+        </div>
+    </div>
+    <script src="js/utils.js"></script>
+</body>
+
+</html>

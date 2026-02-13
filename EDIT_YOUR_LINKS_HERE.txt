@@ -1,0 +1,22 @@
+🚀 FLIPSIDE QUICK-START: CUSTOMIZING YOUR LINKS
+==========================
+
+To update your website's social media, payment methods, and business info, 
+simply edit the following file:
+
+📂 File Path: js/brand-settings.js
+
+In that file, you can enter:
+✅ Discord Server Link
+✅ TikTok / YouTube / Instagram Channel Links
+✅ Linktree URL
+✅ Bitcoin (BTC) & Ethereum (ETH) Wallet Addresses
+✅ PayPal Client ID
+✅ Business Email & Phone
+
+⚠️ IMPORTANT:
+- Always keep the quotes around your links (e.g., "https://discord.gg/...")
+- If you leave a link empty (e.g., discord: ""), it will automatically be hidden from the website.
+- Save the file and refresh your browser to see the changes!
+
+Need help? Check the admin panel settings too!

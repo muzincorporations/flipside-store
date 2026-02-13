@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FlipSide - Order Invoice">
+    <title>Order Invoice - FlipSide</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=3">
+
+    <style>
+        .invoice-container {
+            max-width: 850px;
+            margin: 40px auto;
+            background: var(--color-bg-light);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .invoice-header {
+            background: var(--gradient-primary);
+            padding: var(--spacing-xl);
+            color: black;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .invoice-header h1 {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 2rem;
+            color: black;
+        }
+
+        .invoice-content {
+            padding: var(--spacing-xl);
+        }
+
+        .invoice-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .invoice-section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--color-gold);
+            margin-bottom: var(--spacing-md);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.1);
+            padding-bottom: 8px;
+        }
+
+        .invoice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .detail-item {
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .detail-label {
+            color: var(--color-text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: var(--spacing-sm);
+        }
+
+        .items-table th {
+            text-align: left;
+            padding: var(--spacing-sm) var(--spacing-md);
+            color: var(--color-text-secondary);
+            font-size: 0.85rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .items-table td {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .item-name {
+            font-weight: 600;
+        }
+
+        .item-type {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-left: 8px;
+        }
+
+        .invoice-footer {
+            padding: var(--spacing-xl);
+            background: rgba(0, 0, 0, 0.2);
+            text-align: center;
+            border-top: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 40px;
+            padding: var(--spacing-md);
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .total-label {
+            color: var(--color-gold);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: 1px solid currentColor;
+        }
+
+        .status-pending_payment {
+            color: #facc15;
+            background: rgba(250, 204, 21, 0.1);
+        }
+
+        .status-paid {
+            color: #4ade80;
+            background: rgba(74, 222, 128, 0.1);
+        }
+
+        .status-completed {
+            color: #60a5fa;
+            background: rgba(96, 165, 250, 0.1);
+        }
+
+        .fulfillment-card {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .print-btn {
+            background: white;
+            color: black;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
+        }
+
+        .print-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        @media print {
+
+            nav,
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+                color: black;
+            }
+
+            .invoice-container {
+                margin: 0;
+                border: none;
+                box-shadow: none;
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="no-print">
+        <div class="container">
+            <div class="nav-container">
+                <a href="index.html" class="nav-logo">
+                    <img src="assets/logo.png" alt="FlipSide Logo">
+                    <span>FlipSide</span>
+                </a>
+                <div class="nav-cta">
+                    <a href="track.html" class="btn btn-outline btn-small">Track My Order</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="invoice-container" id="invoice">
+            <div class="invoice-header">
+                <div>
+                    <h1>INVOICE</h1>
+                    <div style="font-weight: 600; font-size: 1.1rem; opacity: 0.8;">#<span
+                            id="invoiceOrderId">000000</span></div>
+                </div>
+                <button class="print-btn no-print" onclick="window.print()">
+                    🖨️ Print Invoice
+                </button>
+            </div>
+
+            <div class="invoice-content">
+                <!-- Status Row -->
+                <div style="margin-bottom: var(--spacing-xl); text-align: right;">
+                    <div id="orderStatusBadge" class="status-badge">Loading...</div>
+                </div>
+
+                <div class="invoice-grid">
+                    <!-- Customer Details -->
+                    <div class="invoice-section">
+                        <div class="invoice-section-title">👤 Customer Details</div>
+                        <div class="detail-item">
+                            <div class="detail-label">Email Address</div>
+                            <div class="detail-value" id="invoiceEmail">...</div>
+                        </div>
+                        <div class="detail-item" id="phoneContainer">
+                            <div class="detail-label">Phone Number</div>
+                            <div class="detail-value" id="invoicePhone">...</div>
+                        </div>
+                    </div>
+
+                    <!-- Order Details -->
+                    <div class="invoice-section">
+                        <div class="invoice-section-title">📅 Order Details</div>
+                        <div class="detail-item">
+                            <div class="detail-label">Order Date</div>
+                            <div class="detail-value" id="invoiceDate">...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Payment Method</div>
+                            <div class="detail-value" id="invoiceMethod">...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Details (Conditional) -->
+                <div class="invoice-section hidden" id="shippingSection">
+                    <div class="invoice-section-title">🚚 Shipping Address</div>
+                    <div class="detail-value" id="invoiceAddress" style="white-space: pre-line; line-height: 1.6;">...
+                    </div>
+                </div>
+
+                <!-- Items Section -->
+                <div class="invoice-section">
+                    <div class="invoice-section-title">🛍️ Products Ordered</div>
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th style="text-align: right;">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceItems">
+                            <!-- Items populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Totals -->
+                <div class="total-row">
+                    <div class="total-label">Grand Total:</div>
+                    <div id="invoiceTotal">£0.00</div>
+                </div>
+
+                <!-- Digital Content (Conditional) -->
+                <div id="digitalSection" class="invoice-section hidden">
+                    <div class="invoice-section-title">⚡ Digital Content</div>
+                    <div id="digitalItemsList"></div>
+                    <p style="font-size: 0.85rem; color: var(--color-text-secondary); margin-top: var(--spacing-md);">
+                        💡 These items will be accessible here once your payment is confirmed.
+                    </p>
+                </div>
+
+                <!-- Delivery Tracking (Conditional) -->
+                <div id="trackingSection" class="invoice-section hidden">
+                    <div class="invoice-section-title">📦 Delivery Tracking</div>
+                    <div class="fulfillment-card" style="border-left: 4px solid var(--color-gold);">
+                        <div id="trackingContent">
+                            <!-- Tracking info populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Fulfillment Notes (Conditional) -->
+                <div id="fulfillmentNotesSection" class="invoice-section hidden">
+                    <div class="invoice-section-title">📝 Fulfillment Notes</div>
+                    <div id="fulfillmentNotesContent"
+                        style="padding: var(--spacing-md); background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-md); font-size: 0.95rem; line-height: 1.6;">
+                        <!-- Notes populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Tracking Link -->
+                <div class="no-print"
+                    style="margin-top: var(--spacing-xl); padding: var(--spacing-md); background: rgba(255, 215, 0, 0.05); border-radius: var(--radius-md); text-align: center;">
+                    <p style="margin-bottom: var(--spacing-sm); font-size: 0.95rem;">You can track this order anytime
+                        using your code:</p>
+                    <a href="track.html" class="btn btn-outline" style="letter-spacing: 1px;">🔍 Track Your Order</a>
+                </div>
+            </div>
+
+            <div class="invoice-footer">
+                <p style="font-size: 0.9rem; margin-bottom: 8px;">Thank you for shopping with <strong>FlipSide</strong>!
+                </p>
+                <p style="font-size: 0.75rem; color: var(--color-text-secondary);">If you have any questions about this
+                    invoice, please contact support.</p>
+            </div>
+        </div>
+
+        <div class="no-print" style="text-align: center; margin: var(--spacing-xl) 0 60px;">
+            <a href="products.html" class="btn btn-primary btn-large">Continue Shopping</a>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- Scripts -->
+    <script src="js/brand-settings.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/firebase.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initFirebase();
+            const params = new URLSearchParams(window.location.search);
+            const orderId = params.get('id');
+            const lastOrder = JSON.parse(localStorage.getItem('lastOrder') || '{}');
+
+            if (!orderId) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Populate invoice
+            populateInvoice(orderId, lastOrder);
+
+            // Set up listener for real-time status updates
+            listenToOrder(orderId, (updatedOrder) => {
+                populateInvoice(orderId, updatedOrder);
+            });
+        });
+
+        function populateInvoice(orderId, order) {
+            if (!order || order.orderId !== orderId) return;
+
+            document.getElementById('invoiceOrderId').textContent = orderId;
+            document.title = `Invoice #${orderId} - FlipSide`;
+
+            // Status Badge
+            const statusBadge = document.getElementById('orderStatusBadge');
+            statusBadge.textContent = (order.status || 'Pending').replace('_', ' ');
+            statusBadge.className = `status-badge status-${order.status || 'pending_payment'}`;
+
+            // Details
+            document.getElementById('invoiceEmail').textContent = order.email;
+            document.getElementById('invoiceDate').textContent = new Date(order.timestamp).toLocaleDateString('en-GB', {
+                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+            document.getElementById('invoiceMethod').textContent = order.paymentMethod || 'PayPal';
+            document.getElementById('invoiceTotal').textContent = `£${parseFloat(order.total).toFixed(2)}`;
+
+            // Phone
+            if (order.shipping && order.shipping.phone) {
+                document.getElementById('invoicePhone').textContent = order.shipping.phone;
+            } else {
+                document.getElementById('phoneContainer').style.display = 'none';
+            }
+
+            // Shipping
+            if (order.shipping && (order.cart.some(i => i.type === 'physical') || order.shipping.address1)) {
+                const s = order.shipping;
+                document.getElementById('shippingSection').classList.remove('hidden');
+                document.getElementById('invoiceAddress').textContent = `${s.firstName} ${s.lastName}\n${s.address1}${s.address2 ? '\n' + s.address2 : ''}\n${s.city}, ${s.state} ${s.zip}\n${s.country}`;
+            }
+
+            // Items Table
+            const itemsTable = document.getElementById('invoiceItems');
+            itemsTable.innerHTML = order.cart.map(item => `
+                <tr>
+                    <td>
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-type">${item.type.toUpperCase()}</div>
+                    </td>
+                    <td style="text-align: right; font-weight: 600;">£${parseFloat(item.price).toFixed(2)}</td>
+                </tr>
+            `).join('');
+
+            // Digital Content
+            const digitalItems = order.cart.filter(item => item.digitalContent);
+            const digitalSection = document.getElementById('digitalSection');
+            const digitalList = document.getElementById('digitalItemsList');
+
+            if (digitalItems.length > 0) {
+                digitalSection.classList.remove('hidden');
+
+                if (order.status === 'paid' || order.status === 'completed') {
+                    digitalList.innerHTML = digitalItems.map(item => {
+                        const isLink = item.digitalContent.startsWith('http');
+                        return `
+                            <div class="fulfillment-card">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div style="font-weight: 700; color: var(--color-gold);">${item.name}</div>
+                                        <div style="font-size: 0.8rem; margin-top: 4px;">${isLink ? 'Ready for Download' : 'Activation Key Available'}</div>
+                                    </div>
+                                    ${isLink
+                                ? `<a href="${item.digitalContent}" target="_blank" class="btn btn-primary btn-small">Download</a>`
+                                : `<div style="display: flex; gap: 8px;">
+                                              <code style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);">${item.digitalContent}</code>
+                                              <button class="btn btn-ghost btn-small no-print" onclick="copyToClipboard('${item.digitalContent}')">📋</button>
+                                           </div>`
+                            }
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    digitalList.innerHTML = `
+                        <div style="padding: var(--spacing-md); background: rgba(0,0,0,0.2); border-radius: var(--radius-md); font-style: italic; color: var(--color-text-secondary); text-align: center;">
+                            Items will be unlocked once payment is confirmed.
+                        </div>
+                    `;
+                }
+            }
+
+            // Live Tracking Number (Admin 2.0)
+            if (order.trackingNumber) {
+                document.getElementById('trackingSection').classList.remove('hidden');
+                document.getElementById('trackingContent').innerHTML = `
+                    <div style="font-size: 1.1rem; font-weight: 600; color: var(--color-text-primary); margin-bottom: 5px;">${order.trackingNumber}</div>
+                    <div style="font-size: 0.85rem; color: var(--color-text-secondary);">Your package has been dispatched. Use the number above to track your delivery.</div>
+                `;
+            }
+
+            // Global Fulfillment Notes (Admin 2.0)
+            if (order.fulfillmentData) {
+                document.getElementById('fulfillmentNotesSection').classList.remove('hidden');
+                document.getElementById('fulfillmentNotesContent').textContent = order.fulfillmentData;
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.createElement('div');
+                toast.className = 'toast toast-success';
+                toast.innerHTML = '<p class="toast-message">Copied to clipboard!</p>';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            });
+        }
+    </script>
+    <script src="js/utils.js"></script>
+</body>
+
+</html>

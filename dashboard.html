@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Reseller dashboard - Track your sales and commissions">
+    <title>Dashboard - FlipSide</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=3">
+    <link rel="shortcut icon" type="image/png" href="assets/favicon.png?v=3">
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="modal-overlay active">
+        <div class="modal" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2 class="modal-title">🔐 Reseller Dashboard Login</h2>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                    Enter your referral code to access your dashboard
+                </p>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">Referral Code</label>
+                        <input type="text" class="form-input" id="referralCode" required placeholder="RS1234567890"
+                            style="text-transform: uppercase;">
+                        <small style="color: var(--color-text-muted); margin-top: var(--spacing-xs); display: block;">
+                            Enter the code you received after approval
+                        </small>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-md);">
+                        Access Dashboard
+                    </button>
+                    <p style="text-align: center; margin-top: var(--spacing-md); font-size: 0.875rem;">
+                        <a href="reseller.html" style="color: var(--color-blue);">Don't have a code? Apply here</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboardContent" class="hidden">
+        <!-- Navigation -->
+        <nav>
+            <div class="container">
+                <div class="nav-container">
+                    <a href="index.html" class="nav-logo">
+                        <img src="assets/logo.png" alt="FlipSide Logo">
+                        <span>FlipSide</span>
+                    </a>
+
+                    <ul class="nav-links" id="navLinks">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="wishlist.html">Wishlist</a></li>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                        <li><a href="track.html">Orders</a></li>
+                    </ul>
+
+                    <button class="menu-toggle" id="menuToggle">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Dashboard Content -->
+        <section class="section">
+            <div class="container">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xl); flex-wrap: wrap; gap: var(--spacing-md);">
+                    <div>
+                        <h1 style="margin-bottom: 0.5rem;">Reseller Dashboard</h1>
+                        <p style="color: var(--color-text-secondary);" id="welcomeMessage">Welcome back!</p>
+                    </div>
+                    <button class="btn btn-outline btn-small" onclick="logout()">Logout</button>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="dashboard-stats">
+                    <div class="dashboard-stat-card">
+                        <div class="dashboard-stat-label">Total Sales</div>
+                        <div class="dashboard-stat-value" id="totalSales">0</div>
+                    </div>
+
+                    <div class="dashboard-stat-card">
+                        <div class="dashboard-stat-label">Total Commission</div>
+                        <div class="dashboard-stat-value" id="totalCommission">$0.00</div>
+                    </div>
+
+                    <div class="dashboard-stat-card">
+                        <div class="dashboard-stat-label">Pending Commissions</div>
+                        <div class="dashboard-stat-value" id="pendingCommission">$0.00</div>
+                    </div>
+
+                    <div class="dashboard-stat-card">
+                        <div class="dashboard-stat-label">Paid Out</div>
+                        <div class="dashboard-stat-value" id="paidOut">$0.00</div>
+                    </div>
+                </div>
+
+                <!-- Referral Link Section -->
+                <div class="referral-link-box">
+                    <h2 style="margin-bottom: var(--spacing-sm);">🔗 Your Referral Link</h2>
+                    <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                        Share this link to earn commission on every sale. The referral code is automatically tracked!
+                    </p>
+
+                    <div class="referral-link-input">
+                        <input type="text" class="form-input" id="referralLink" readonly value="">
+                        <button class="btn btn-primary" onclick="copyReferralLink()">📋 Copy Link</button>
+                    </div>
+
+                    <div style="margin-top: var(--spacing-md); display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                        <button class="btn btn-secondary btn-small" onclick="shareToTwitter()">🐦 Share on
+                            Twitter</button>
+                        <button class="btn btn-secondary btn-small" onclick="shareToFacebook()">📘 Share on
+                            Facebook</button>
+                        <button class="btn btn-secondary btn-small" onclick="copyQRCode()">📱 Get QR Code</button>
+                    </div>
+                </div>
+
+                <!-- Recent Sales -->
+                <div class="card" style="margin-top: var(--spacing-xl); padding: var(--spacing-lg);">
+                    <h2 style="margin-bottom: var(--spacing-md);">📊 Recent Sales</h2>
+
+                    <div id="recentSales">
+                        <p style="text-align: center; color: var(--color-text-muted); padding: var(--spacing-xl);">
+                            No sales yet. Start sharing your referral link to earn commissions!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Marketing Materials -->
+                <!-- Community & Marketing -->
+                <div class="grid grid-2" style="margin-top: var(--spacing-xl); gap: var(--spacing-lg);">
+                    <div class="card" style="padding: var(--spacing-lg);">
+                        <h2 style="margin-bottom: var(--spacing-md);">📱 Join Our Community</h2>
+                        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                            Connect with other resellers and get real-time support in our official channels.
+                        </p>
+                        <div class="footer-social" id="dashboardSocial"
+                            style="justify-content: flex-start; gap: var(--spacing-md); background: rgba(255, 255, 255, 0.03); padding: var(--spacing-md); border-radius: var(--radius-md);">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+
+                    <div class="card" style="padding: var(--spacing-lg);">
+                        <h2 style="margin-bottom: var(--spacing-md);">🎨 Marketing Materials</h2>
+                        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                            Use these resources to promote FlipSide products and earn commissions.
+                        </p>
+                        <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                            <button class="btn btn-ghost btn-small" onclick="alert('Feature coming soon!')">🖼️
+                                Images</button>
+                            <button class="btn btn-ghost btn-small" onclick="alert('Feature coming soon!')">📝
+                                Descriptions</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <div class="container">
+                <div class="footer-bottom">
+                    <p>&copy; 2026 FlipSide. All rights reserved. Reseller Dashboard</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/brand-settings.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/products.js"></script>
+    <script>
+        let currentReseller = null;
+
+        // Handle login
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const code = document.getElementById('referralCode').value.toUpperCase();
+
+            // Check if reseller exists
+            const allResellers = JSON.parse(localStorage.getItem('allResellers') || '[]');
+            const reseller = allResellers.find(r => r.id === code);
+
+            if (reseller) {
+                currentReseller = reseller;
+                localStorage.setItem('currentResellerCode', code);
+                document.getElementById('loginScreen').classList.remove('active');
+                document.getElementById('dashboardContent').classList.remove('hidden');
+                loadDashboard();
+                showToast('Welcome back, ' + reseller.name + '!', 'success');
+            } else {
+                showToast('Invalid referral code. Please check and try again.', 'error');
+            }
+        });
+
+        // Render Dynamic Social Links & Info
+        function renderDynamicInfo() {
+            const socialContainer = document.getElementById('dashboardSocial');
+            if (socialContainer) {
+                const social = CONFIG.social || {};
+                let html = '';
+
+                if (social.twitter) html += `<a href="${social.twitter}" target="_blank" title="Twitter" style="font-size: 1.5rem;">🐦</a>`;
+                if (social.instagram) html += `<a href="${social.instagram}" target="_blank" title="Instagram" style="font-size: 1.5rem;">📷</a>`;
+                if (social.discord) html += `<a href="${social.discord}" target="_blank" title="Discord" style="font-size: 1.5rem;">💬</a>`;
+                if (social.tiktok) html += `<a href="${social.tiktok}" target="_blank" title="TikTok" style="font-size: 1.5rem;">📱</a>`;
+                if (social.youtube) html += `<a href="${social.youtube}" target="_blank" title="YouTube" style="font-size: 1.5rem;">📺</a>`;
+                if (social.linktree) html += `<a href="${social.linktree}" target="_blank" title="Linktree" style="font-size: 1.5rem;">🌳</a>`;
+                if (social.telegram) html += `<a href="${social.telegram}" target="_blank" title="Telegram" style="font-size: 1.5rem;">✈️</a>`;
+                if (social.whatsapp) html += `<a href="${social.whatsapp}" target="_blank" title="WhatsApp" style="font-size: 1.5rem;">📞</a>`;
+
+                socialContainer.innerHTML = html || '<p style="color: var(--color-text-muted);">No community links set.</p>';
+            }
+        }
+
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDynamicInfo();
+            const savedCode = localStorage.getItem('currentResellerCode');
+            if (savedCode) {
+                const allResellers = JSON.parse(localStorage.getItem('allResellers') || '[]');
+                const reseller = allResellers.find(r => r.id === savedCode);
+
+                if (reseller) {
+                    currentReseller = reseller;
+                    document.getElementById('loginScreen').classList.remove('active');
+                    document.getElementById('dashboardContent').classList.remove('hidden');
+                    loadDashboard();
+                }
+            }
+        });
+
+        function loadDashboard() {
+            if (!currentReseller) return;
+
+            // Set welcome message
+            document.getElementById('welcomeMessage').textContent = `Welcome back, ${currentReseller.name}!`;
+
+            // Set referral link
+            const referralLink = `${window.location.origin}/products.html?ref=${currentReseller.id}`;
+            document.getElementById('referralLink').value = referralLink;
+
+            // Calculate sales from orders
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const resellerOrders = orders.filter(order => order.referralCode === currentReseller.id);
+
+            let totalSales = resellerOrders.length;
+            let totalCommission = 0;
+
+            resellerOrders.forEach(order => {
+                order.cart.forEach(item => {
+                    const commissionRate = item.commission || CONFIG.defaultCommissionRate;
+                    const commission = item.price * (commissionRate / 100);
+                    totalCommission += commission;
+                });
+            });
+
+            // Update stats
+            document.getElementById('totalSales').textContent = totalSales;
+            document.getElementById('totalCommission').textContent = `£${totalCommission.toFixed(2)}`;
+            document.getElementById('pendingCommission').textContent = `£${totalCommission.toFixed(2)}`;
+            document.getElementById('paidOut').textContent = '£0.00';
+
+            // Load recent sales
+            if (resellerOrders.length > 0) {
+                document.getElementById('recentSales').innerHTML = `
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
+                        <th style="padding: var(--spacing-sm); text-align: left; color: var(--color-text-secondary); font-size: 0.875rem;">Date</th>
+                        <th style="padding: var(--spacing-sm); text-align: left; color: var(--color-text-secondary); font-size: 0.875rem;">Order ID</th>
+                        <th style="padding: var(--spacing-sm); text-align: left; color: var(--color-text-secondary); font-size: 0.875rem;">Items</th>
+                        <th style="padding: var(--spacing-sm); text-align: right; color: var(--color-text-secondary); font-size: 0.875rem;">Your Commission</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${resellerOrders.slice(-10).reverse().map(order => {
+                    const orderCommission = order.cart.reduce((sum, item) => {
+                        const rate = item.commission || CONFIG.defaultCommissionRate;
+                        return sum + (item.price * (rate / 100));
+                    }, 0);
+
+                    return `
+                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                        <td style="padding: var(--spacing-sm); color: var(--color-text-secondary);">${new Date(order.timestamp).toLocaleDateString()}</td>
+                        <td style="padding: var(--spacing-sm); font-family: monospace; font-size: 0.875rem;">${order.orderId.substring(0, 8)}...</td>
+                        <td style="padding: var(--spacing-sm);">${order.cart.length} item(s)</td>
+                        <td style="padding: var(--spacing-sm); text-align: right; color: var(--color-gold); font-weight: 600;">£${orderCommission.toFixed(2)}</td>
+                    </tr>
+                    `;
+                }).join('')}
+                </tbody>
+            </table>
+          </div>
+        `;
+            }
+        }
+
+        function copyReferralLink() {
+            const input = document.getElementById('referralLink');
+            input.select();
+            document.execCommand('copy');
+            showToast('Referral link copied to clipboard!', 'success');
+        }
+
+        function shareToTwitter() {
+            const text = `Check out FlipSide! Amazing products with fast shipping. 🔥`;
+            const url = `${window.location.origin}/products.html?ref=${currentReseller.id}`;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+        }
+
+        function shareToFacebook() {
+            const url = `${window.location.origin}/products.html?ref=${currentReseller.id}`;
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('currentResellerCode');
+                showToast('Logged out successfully', 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<p class="toast-message">${message}</p>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+    <script src="js/utils.js"></script>
+</body>
+
+</html>

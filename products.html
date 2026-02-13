@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Browse our complete catalog of premium products. Physical and digital products with reseller commission opportunities.">
+    <title>Products - FlipSide</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=3">
+    <link rel="shortcut icon" type="image/png" href="assets/favicon.png?v=3">
+
+    <!-- Firebase SDK (Added for Reviews & Social Proof) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <div class="nav-container">
+                <a href="index.html" class="nav-logo">
+                    <img src="assets/logo.png" alt="FlipSide Logo">
+                    <span>FlipSide</span>
+                </a>
+
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="products.html">Products</a></li>
+                    <li><a href="reseller.html">Become a Reseller</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="track.html">Orders</a></li>
+                </ul>
+
+                <div class="nav-cta">
+                    <button class="btn btn-ghost" id="themeToggle" title="Toggle Light/Dark Mode"
+                        style="font-size: 1.2rem; padding: 0.5rem;">☀️</button>
+                    <a href="wishlist.html" class="btn btn-ghost cart-badge" id="wishlistBtn" title="Wishlist">
+                        ❤️ <span>Wishlist</span>
+                        <span class="cart-badge-count" id="wishlistCount">0</span>
+                    </a>
+                    <button class="btn btn-ghost cart-badge" id="cartBtn">
+                        🛒 <span>Shop</span>
+                        <span class="cart-badge-count" id="cartCount">0</span>
+                    </button>
+                    <a href="admin.html" class="btn btn-outline btn-small">Admin</a>
+                </div>
+
+                <button class="menu-toggle" id="menuToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="section" style="padding-top: var(--spacing-xl); padding-bottom: var(--spacing-md);">
+        <div class="container">
+            <h1 style="margin-bottom: var(--spacing-sm);">Our Products</h1>
+            <p style="font-size: 1.125rem; color: var(--color-text-secondary); max-width: 700px;">
+                Browse our complete catalog of premium products. Filter by category or search for specific items.
+            </p>
+        </div>
+    </section>
+
+    <!-- Filter Bar -->
+    <section class="section" style="padding-top: 0;">
+        <div class="container">
+            <div class="filter-bar">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">All Products</button>
+                    <button class="filter-tab" data-filter="physical">Physical</button>
+                    <button class="filter-tab" data-filter="digital">Digital</button>
+                    <button class="filter-tab" data-filter="sale">On Sale</button>
+                </div>
+
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Search products...">
+                </div>
+            </div>
+
+            <!-- Category filters -->
+            <div class="filter-tabs" id="categoryFilters" style="margin-top: var(--spacing-md);">
+                <!-- Categories will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Grid -->
+    <section class="section" style="padding-top: 0;">
+        <div class="container">
+            <div class="grid grid-3" id="productsGrid">
+                <!-- Products will be loaded here -->
+                <div style="text-align: center; padding: var(--spacing-xl); grid-column: 1 / -1;">
+                    <div class="loading-spinner" style="margin: 0 auto;"></div>
+                    <p style="margin-top: var(--spacing-md);">Loading products...</p>
+                </div>
+            </div>
+
+            <div id="noResults" class="hidden"
+                style="text-align: center; padding: var(--spacing-2xl); grid-column: 1 / -1;">
+                <h3 style="color: var(--color-text-secondary);">No products found</h3>
+                <p style="color: var(--color-text-muted);">Try adjusting your filters or search query</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>FlipSide</h3>
+                    <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                        Your trusted platform for premium reselling opportunities.
+                    </p>
+                    <div class="footer-social">
+                        <a href="#" title="Twitter">🐦</a>
+                        <a href="#" title="Instagram">📷</a>
+                        <a href="#" title="Discord">💬</a>
+                    </div>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="reseller.html">Become a Reseller</a></li>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Support</h3>
+                    <ul class="footer-links">
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="#shipping">Shipping Info</a></li>
+                        <li><a href="#returns">Returns</a></li>
+                        <li><a href="#contact">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Contact</h3>
+                    <ul class="footer-links">
+                        <li id="footerEmail">📧 <a
+                                href="mailto:muzincorporations@gmail.com">muzincorporations@gmail.com</a></li>
+                        <li id="footerPhone" class="hidden">📱 <span></span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 FlipSide. All rights reserved. Built for success.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Product Detail Modal -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal product-detail-modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalProductName">Product Details</h3>
+                <button class="modal-close" onclick="closeProductModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="product-detail-grid">
+                    <div class="product-detail-gallery">
+                        <img src="" alt="" id="modalProductImage" class="product-main-img"
+                            onerror="this.src='https://via.placeholder.com/400x400/1a1a1a/FFD700?text=Image+Not+Found'">
+                    </div>
+                    <div class="product-detail-info">
+                        <div class="product-card-category" id="modalProductCategory">CATEGORY</div>
+                        <h2 class="product-info-title" id="modalProductTitle">Product Title</h2>
+                        <div class="product-info-price" id="modalProductPrice">£0.00</div>
+
+                        <div class="product-info-meta">
+                            <span class="badge badge-digital" id="modalProductType">Digital</span>
+                            <span class="badge badge-sale" id="modalProductSale" style="display:none">Sale</span>
+                        </div>
+
+                        <div class="product-info-desc" id="modalProductDesc">
+                            Detailed description goes here...
+                        </div>
+
+                        <div class="product-info-actions">
+                            <button class="btn btn-primary" id="modalAddToCart">Add to Cart</button>
+                            <button class="btn btn-outline" id="modalToggleWishlist">Add to Wishlist</button>
+                        </div>
+
+                        <!-- Reviews Section -->
+                        <div class="product-reviews-section">
+                            <div class="reviews-header">
+                                <h3>Customer Reviews</h3>
+                                <div id="averageRating" class="star-rating">
+                                    <span>Average:</span>
+                                    <div class="stars" id="modalAverageStars"></div>
+                                </div>
+                            </div>
+
+                            <div id="reviewsList">
+                                <!-- Reviews dynamically loaded here -->
+                            </div>
+
+                            <button class="btn btn-ghost btn-small" onclick="toggleReviewForm()" id="writeReviewBtn">
+                                ✍️ Write a Review
+                            </button>
+
+                            <div id="reviewFormContainer" class="add-review-form hidden">
+                                <h4>Share your experience</h4>
+                                <div class="rating-selector">
+                                    <span>Rating:</span>
+                                    <div id="ratingSelector" class="star-rating interactive">
+                                        <span data-value="1" class="star">★</span>
+                                        <span data-value="2" class="star">★</span>
+                                        <span data-value="3" class="star">★</span>
+                                        <span data-value="4" class="star">★</span>
+                                        <span data-value="5" class="star">★</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" id="reviewName" class="form-input" placeholder="Your Name">
+                                </div>
+                                <div class="form-group">
+                                    <textarea id="reviewComment" class="form-input" rows="3"
+                                        placeholder="What did you think of this product?"></textarea>
+                                </div>
+                                <button class="btn btn-primary btn-small" onclick="submitReview()">Submit
+                                    Review</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/brand-settings.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/firebase.js"></script>
+    <script>
+        let allProducts = [];
+        let filteredProducts = [];
+        let currentFilter = 'all';
+        let currentCategory = 'all';
+        let searchQuery = '';
+
+        // Mobile menu
+        document.getElementById('menuToggle').addEventListener('click', () => {
+            document.getElementById('navLinks').classList.toggle('active');
+        });
+
+        // Render Dynamic Social Links & Info
+        function renderDynamicInfo() {
+            const emailContainer = document.getElementById('footerEmail');
+            const phoneContainer = document.getElementById('footerPhone');
+
+            if (emailContainer && CONFIG.businessEmail) {
+                emailContainer.innerHTML = `📧 <a href="mailto:${CONFIG.businessEmail}">${CONFIG.businessEmail}</a>`;
+            }
+
+            if (phoneContainer && CONFIG.businessPhone) {
+                phoneContainer.classList.remove('hidden');
+                phoneContainer.innerHTML = `📱 <span>${CONFIG.businessPhone}</span>`;
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDynamicInfo();
+            allProducts = getAllProducts();
+            filteredProducts = allProducts;
+            loadCategories();
+            displayProducts();
+            updateCartCount();
+        });
+
+        // Load categories
+        function loadCategories() {
+            const categories = getAllCategories();
+            const container = document.getElementById('categoryFilters');
+
+            container.innerHTML = `
+        <button class="filter-tab active" data-category="all">All Categories</button>
+        ${categories.map(cat => `
+          <button class="filter-tab" data-category="${cat}">${cat}</button>
+        `).join('')}
+      `;
+
+            // Add event listeners
+            container.querySelectorAll('.filter-tab').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    container.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCategory = btn.dataset.category;
+                    filterProducts();
+                });
+            });
+        }
+
+        // Filter tabs
+        document.querySelectorAll('.filter-tabs button[data-filter]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-tabs button[data-filter]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                filterProducts();
+            });
+        });
+
+        // Search input
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchQuery = e.target.value.toLowerCase();
+            filterProducts();
+        });
+
+        // Filter products
+        function filterProducts() {
+            filteredProducts = allProducts.filter(product => {
+                // Type filter
+                if (currentFilter === 'physical' && product.type !== 'physical') return false;
+                if (currentFilter === 'digital' && product.type !== 'digital') return false;
+                if (currentFilter === 'sale' && !product.onSale) return false;
+
+                // Category filter
+                if (currentCategory !== 'all' && product.category !== currentCategory) return false;
+
+                // Search filter
+                if (searchQuery) {
+                    const searchable = `${product.name} ${product.description} ${product.category}`.toLowerCase();
+                    if (!searchable.includes(searchQuery)) return false;
+                }
+
+                return true;
+            });
+
+            displayProducts();
+        }
+
+        // Display products
+        function displayProducts() {
+            const container = document.getElementById('productsGrid');
+            const noResults = document.getElementById('noResults');
+
+            if (filteredProducts.length === 0) {
+                container.innerHTML = '';
+                noResults.classList.remove('hidden');
+                return;
+            }
+
+            noResults.classList.add('hidden');
+
+            container.innerHTML = filteredProducts.map(product => {
+                const price = getFinalPrice(product);
+                const isOnSale = product.onSale && product.salePrice;
+                const isSaved = isInWishlist(product.id);
+
+                return `
+          <div class="product-card fade-in" onclick="openProductModal(${product.id})">
+            <div class="product-card-image">
+              <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/400x400/1a1a1a/FFD700?text=${encodeURIComponent(product.name)}'">
+              <div class="product-card-badges">
+                ${isOnSale ? '<span class="badge badge-sale">Sale</span>' : ''}
+              </div>
+              <div class="wishlist-btn ${isSaved ? 'active' : ''}" onclick="event.stopPropagation(); toggleWishlist(${product.id})">
+                ${isSaved ? '❤️' : '🤍'}
+              </div>
+              <div class="product-commission-badge">
+                ${product.commission || CONFIG.defaultCommissionRate}% Earn
+              </div>
+            </div>
+            <div class="product-card-body">
+              <div class="product-card-category">${product.category}</div>
+              <h3 class="product-card-title">${product.name}</h3>
+              <p class="product-card-description">${product.shortDescription || product.description}</p>
+              <div class="product-card-footer">
+                <div class="product-price">
+                  <div class="product-price-current">£${price.toFixed(2)}</div>
+                  ${isOnSale ? `<div class="product-price-original">£${product.price.toFixed(2)}</div>` : ''}
+                  ${product.type === 'physical' ? `<div class="product-stock ${isInStock(product) ? 'in-stock' : 'out-of-stock'}">${isInStock(product) ? 'In Stock' : 'Out of Stock'}</div>` : ''}
+                </div>
+                <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); addToCart(${product.id})" ${!isInStock(product) ? 'disabled' : ''}>
+                  ${isInStock(product) ? 'Add to Cart' : 'Out of Stock'}
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+            }).join('');
+        }
+
+        // Update counts
+        function updateCounts() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            document.getElementById('cartCount').textContent = cart.length;
+
+            const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+            const wishCount = document.getElementById('wishlistCount');
+            if (wishCount) wishCount.textContent = wishlist.length;
+        }
+
+        function updateCartCount() { updateCounts(); }
+
+        function addToCart(productId) {
+            const product = getProductById(productId);
+            if (!product || !isInStock(product)) return;
+
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+            if (cart.find(item => item.id === productId)) {
+                showToast('Product already in cart!', 'error');
+                return;
+            }
+
+            cart.push({
+                id: product.id,
+                name: product.name,
+                price: getFinalPrice(product),
+                image: product.image,
+                type: product.type,
+                commission: product.commission || CONFIG.defaultCommissionRate
+            });
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            showToast(`${product.name} added to cart!`, 'success');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<p class="toast-message">${message}</p>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Wishlist functions
+        function toggleWishlist(productId) {
+            let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+            const index = wishlist.indexOf(productId);
+
+            if (index > -1) {
+                wishlist.splice(index, 1);
+                showToast('Removed from wishlist', 'info');
+            } else {
+                wishlist.push(productId);
+                showToast('Added to wishlist!', 'success');
+            }
+
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+            updateCounts();
+            displayProducts(); // Refresh to update icons
+        }
+
+        function isInWishlist(productId) {
+            const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+            return wishlist.includes(productId);
+        }
+
+        // Product Modal functions
+        async function openProductModal(productId) {
+            const product = getProductById(productId);
+            if (!product) return;
+
+            const modal = document.getElementById('productModal');
+            const price = getFinalPrice(product);
+            const isOnSale = product.onSale && product.salePrice;
+
+            document.getElementById('modalProductImage').src = product.image;
+            document.getElementById('modalProductCategory').textContent = product.category;
+            document.getElementById('modalProductTitle').textContent = product.name;
+            document.getElementById('modalProductPrice').textContent = `£${price.toFixed(2)}`;
+            document.getElementById('modalProductDesc').innerHTML = product.description.replace(/\n/g, '<br>');
+            document.getElementById('modalProductType').textContent = product.type.charAt(0).toUpperCase() + product.type.slice(1);
+
+            const saleBadge = document.getElementById('modalProductSale');
+            if (isOnSale) {
+                saleBadge.style.display = 'inline-block';
+            } else {
+                saleBadge.style.display = 'none';
+            }
+
+            // Update buttons
+            const addBtn = document.getElementById('modalAddToCart');
+            addBtn.disabled = !isInStock(product);
+            addBtn.textContent = isInStock(product) ? 'Add to Cart' : 'Out of Stock';
+            addBtn.onclick = () => {
+                addToCart(product.id);
+                closeProductModal();
+            };
+
+            const wishBtn = document.getElementById('modalToggleWishlist');
+            const updateWishBtnLabel = () => {
+                wishBtn.textContent = isInWishlist(product.id) ? '❤️ In Wishlist' : '🤍 Add to Wishlist';
+            };
+            updateWishBtnLabel();
+
+            wishBtn.onclick = () => {
+                toggleWishlist(product.id);
+                updateWishBtnLabel();
+            };
+
+            // Review Logic
+            modal.dataset.productId = productId;
+            loadModalReviews(productId);
+            resetReviewForm();
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent scroll
+        }
+
+        function closeProductModal() {
+            const modal = document.getElementById('productModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // --- Review & Rating Logic ---
+
+        function toggleReviewForm() {
+            const container = document.getElementById('reviewFormContainer');
+            const btn = document.getElementById('writeReviewBtn');
+            container.classList.toggle('hidden');
+            btn.textContent = container.classList.contains('hidden') ? '✍️ Write a Review' : '✖ Cancel Review';
+        }
+
+        function resetReviewForm() {
+            document.getElementById('reviewFormContainer').classList.add('hidden');
+            document.getElementById('writeReviewBtn').textContent = '✍️ Write a Review';
+            document.getElementById('reviewName').value = '';
+            document.getElementById('reviewComment').value = '';
+            const stars = document.querySelectorAll('#ratingSelector .star');
+            stars.forEach(s => {
+                s.classList.add('empty');
+                s.textContent = '☆';
+            });
+            window.currentRating = 0;
+        }
+
+        // Star Rating Selection
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('#ratingSelector .star')) {
+                const val = parseInt(e.target.dataset.value);
+                window.currentRating = val;
+                const stars = document.querySelectorAll('#ratingSelector .star');
+                stars.forEach(s => {
+                    const sVal = parseInt(s.dataset.value);
+                    if (sVal <= val) {
+                        s.classList.remove('empty');
+                        s.textContent = '★';
+                    } else {
+                        s.classList.add('empty');
+                        s.textContent = '☆';
+                    }
+                });
+            }
+        });
+
+        async function submitReview() {
+            const modal = document.getElementById('productModal');
+            const productId = modal.dataset.productId;
+            const name = document.getElementById('reviewName').value.trim();
+            const comment = document.getElementById('reviewComment').value.trim();
+            const rating = window.currentRating || 0;
+
+            if (!name || !comment || rating === 0) {
+                showToast('Please fill in all fields and provide a rating.', 'error');
+                return;
+            }
+
+            const review = {
+                productId: productId,
+                customerName: name,
+                comment: comment,
+                rating: rating
+            };
+
+            const success = await saveReviewToFirebase(review);
+            if (success) {
+                showToast('Review submitted! It will appear once approved.', 'success');
+                resetReviewForm();
+            } else {
+                showToast('Failed to submit review.', 'error');
+            }
+        }
+
+        async function loadModalReviews(productId) {
+            const reviewsContainer = document.getElementById('reviewsList');
+            const starsContainer = document.getElementById('modalAverageStars');
+            reviewsContainer.innerHTML = '<p style="font-size: 0.8rem; color: var(--color-text-muted);">Loading reviews...</p>';
+
+            if (typeof loadReviewsFromFirebase !== 'function') return;
+
+            const reviews = await loadReviewsFromFirebase(productId);
+
+            if (reviews.length === 0) {
+                reviewsContainer.innerHTML = '<p style="font-size: 0.8rem; color: var(--color-text-muted); opacity: 0.6;">No reviews yet. Be the first to share your experience!</p>';
+                starsContainer.innerHTML = '☆☆☆☆☆ (0)';
+                return;
+            }
+
+            // Calculate average
+            const avg = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                starsHtml += i <= Math.round(avg) ? '★' : '☆';
+            }
+            starsContainer.innerHTML = `${starsHtml} (${reviews.length})`;
+
+            // Render reviews
+            reviewsContainer.innerHTML = reviews.map(r => `
+                <div class="review-card">
+                    <div class="review-meta">
+                        <span class="review-author">${r.customerName}</span>
+                        <div class="star-rating">
+                            ${Array(5).fill(0).map((_, i) => i < r.rating ? '★' : '☆').join('')}
+                        </div>
+                    </div>
+                    <div class="review-comment">${r.comment}</div>
+                    <div class="review-date" style="font-size: 0.65rem; margin-top: 5px;">${new Date(r.timestamp).toLocaleDateString()}</div>
+                </div>
+            `).join('');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            const modal = document.getElementById('productModal');
+            if (event.target == modal) {
+                closeProductModal();
+            }
+        }
+
+        document.getElementById('cartBtn').addEventListener('click', () => {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            if (cart.length === 0) {
+                showToast('Your cart is empty', 'error');
+            } else {
+                window.location.href = 'checkout.html';
+            }
+        });
+    </script>
+    <script src="js/utils.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FlipSide Admin Panel - Manage products and resellers">
+    <title>Admin Panel - FlipSide</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=3">
+    <link rel="shortcut icon" type="image/png" href="assets/favicon.png?v=3">
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="modal-overlay active">
+        <div class="modal" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2 class="modal-title">🔐 Admin Login</h2>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                    Enter the admin password to access the panel
+                </p>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" id="adminPassword" required
+                            placeholder="Enter admin password">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-md);">
+                        Login
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Admin Panel -->
+    <div id="adminPanel" class="hidden">
+        <!-- Navigation -->
+        <nav>
+            <div class="container">
+                <div class="nav-container">
+                    <a href="index.html" class="nav-logo">
+                        <img src="assets/logo.png" alt="FlipSide Logo">
+                        <span>FlipSide Admin</span>
+                    </a>
+
+                    <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                        <button class="btn btn-ghost" id="themeToggle" title="Toggle Light/Dark Mode"
+                            style="font-size: 1.2rem; padding: 0.5rem;">☀️</button>
+                        <button class="btn btn-outline btn-small" onclick="logout()">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Admin Dashboard -->
+        <section class="section">
+            <div class="container">
+                <h1 style="margin-bottom: var(--spacing-xl);">Admin Dashboard</h1>
+
+                <!-- Tabs -->
+                <div class="filter-tabs" style="margin-bottom: var(--spacing-xl);">
+                    <button class="filter-tab active" onclick="showTab('overview')">📊 Overview</button>
+                    <button class="filter-tab" onclick="showTab('products')">📦 Products</button>
+                    <button class="filter-tab" onclick="showTab('resellers')">👥 Resellers</button>
+                    <button class="filter-tab" onclick="showTab('orders')">🛒 Orders</button>
+                    <button class="filter-tab" onclick="showTab('reviews')">⭐ Reviews</button>
+                    <button class="filter-tab" onclick="showTab('settings')">⚙️ Settings</button>
+                </div>
+
+                <!-- Overview Tab -->
+                <div id="tab-overview" class="tab-content">
+                    <div class="dashboard-stats">
+                        <div class="dashboard-stat-card">
+                            <div class="dashboard-stat-label">Products Active</div>
+                            <div class="dashboard-stat-value" id="stat-products">0</div>
+                            <small style="color: var(--color-text-muted); font-size: 0.75rem;">In stock</small>
+                        </div>
+
+                        <div class="dashboard-stat-card">
+                            <div class="dashboard-stat-label">Active Partners</div>
+                            <div class="dashboard-stat-value" id="stat-resellers">0</div>
+                            <small style="color: var(--color-text-muted); font-size: 0.75rem;">With sales</small>
+                        </div>
+
+                        <div class="dashboard-stat-card">
+                            <div class="dashboard-stat-label">Total Orders</div>
+                            <div class="dashboard-stat-value" id="stat-orders">0</div>
+                        </div>
+
+                        <div class="dashboard-stat-card">
+                            <div class="dashboard-stat-label">Revenue (GBP)</div>
+                            <div class="dashboard-stat-value" id="stat-revenue">£0.00</div>
+                            <small style="color: var(--color-text-muted); font-size: 0.75rem;">Total processed</small>
+                        </div>
+                    </div>
+
+                    <!-- Admin 2.0: Sales Analytics Chart -->
+                    <div class="card" style="padding: var(--spacing-lg); margin-top: var(--spacing-lg);">
+                        <h3 style="margin-bottom: var(--spacing-md); color: var(--color-gold);">📊 7-Day Sales Trends
+                        </h3>
+                        <div id="salesChart"
+                            style="height: 150px; display: flex; align-items: flex-end; gap: 10px; padding: 20px 0 10px; border-bottom: 2px solid rgba(255,255,255,0.1);">
+                            <!-- Bars populated by JS -->
+                        </div>
+                        <div id="chartLabels"
+                            style="display: flex; justify-content: space-between; padding-top: 10px; color: var(--color-text-secondary); font-size: 0.75rem;">
+                            <!-- Labels populated by JS -->
+                        </div>
+                    </div>
+
+                    <div class="grid grid-2" style="margin-top: var(--spacing-xl);">
+                        <div class="card" style="padding: var(--spacing-lg);">
+                            <h2 style="margin-bottom: var(--spacing-md);">Quick Actions</h2>
+                            <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+                                <button class="btn btn-primary"
+                                    onclick="showTab('products'); document.getElementById('addProductBtn').click()">➕
+                                    Add New Product</button>
+                                <button class="btn btn-outline" onclick="createTestOrder()">🛠️ Create Test
+                                    Order</button>
+                                <button class="btn btn-primary" onclick="exportOrdersCSV()">📊 Download Orders
+                                    (CSV)</button>
+                                <button class="btn btn-secondary" onclick="exportData()">📥 Export System JSON</button>
+                                <button class="btn btn-outline" onclick="showTab('settings')">⚙️ Edit Settings</button>
+                            </div>
+                        </div>
+
+                        <div class="card" style="padding: var(--spacing-lg);">
+                            <h2 style="margin-bottom: var(--spacing-md);">Recent Activity</h2>
+                            <div id="recentActivityList" style="display: flex; flex-direction: column; gap: 10px;">
+                                <!-- Loaded dynamically -->
+                                <p style="color: var(--color-text-muted); font-size: 0.85rem;">Loading activity...</p>
+                            </div>
+                            <button class="btn btn-ghost btn-small" onclick="showTab('orders')"
+                                style="margin-top: 15px; width: 100%;">View All Orders →</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Tab -->
+                <div id="tab-products" class="tab-content hidden">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); flex-wrap: wrap; gap: var(--spacing-md);">
+                        <h2>Manage Products</h2>
+                        <button class="btn btn-primary" id="addProductBtn" onclick="openProductModal()">➕ Add
+                            Product</button>
+                    </div>
+
+                    <div class="card" style="padding: var(--spacing-lg);">
+                        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                            ℹ️ To edit products easily, open <code>js/products.js</code> in a text editor. Products are
+                            stored in a simple array format.
+                        </p>
+
+                        <div id="productsList">
+                            <!-- Products will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resellers Tab -->
+                <div id="tab-resellers" class="tab-content hidden">
+                    <h2 style="margin-bottom: var(--spacing-lg);">Manage Resellers</h2>
+
+                    <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                        <h3 style="margin-bottom: var(--spacing-md);">📝 Pending Applications</h3>
+                        <div id="applicationsList">
+                            <!-- Applications will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="card" style="padding: var(--spacing-lg);">
+                        <h3 style="margin-bottom: var(--spacing-md);">✅ Active Resellers</h3>
+                        <div id="resellersList">
+                            <!-- Resellers will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Tab -->
+                <div id="tab-orders" class="tab-content hidden">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); flex-wrap: wrap; gap: var(--spacing-md);">
+                        <h2>Manage Orders</h2>
+
+                        <!-- Search Box -->
+                        <div class="search-box" style="margin: 0; max-width: 300px;">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="orderSearchInput" placeholder="Search ID, Email, Name..."
+                                oninput="loadOrders()">
+                        </div>
+
+                        <div
+                            style="display: flex; gap: var(--spacing-sm); background: rgba(255,255,255,0.05); padding: 4px; border-radius: var(--radius-md);">
+                            <style>
+                                .filter-btn {
+                                    padding: 6px 16px;
+                                    border-radius: var(--radius-sm);
+                                    cursor: pointer;
+                                    font-size: 0.875rem;
+                                    transition: all 0.2s;
+                                    background: transparent;
+                                    border: none;
+                                    color: var(--color-text-secondary);
+                                }
+
+                                .filter-btn.active {
+                                    background: var(--color-primary);
+                                    color: white;
+                                }
+
+                                .bulk-actions-bar {
+                                    padding: var(--spacing-md);
+                                    background: rgba(255, 215, 0, 0.1);
+                                    border: 1px solid var(--color-gold);
+                                    border-radius: var(--radius-md);
+                                    margin-bottom: var(--spacing-md);
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                    animation: slideInDown 0.3s ease;
+                                }
+                            </style>
+                            <button class="filter-btn active" id="filter-active"
+                                onclick="setOrderFilter('active')">Active Orders</button>
+                            <button class="filter-btn" id="filter-completed"
+                                onclick="setOrderFilter('completed')">Completed</button>
+                        </div>
+                    </div>
+
+                    <!-- Bulk Actions Bar (Hidden by default) -->
+                    <div id="bulkActionsBar" class="bulk-actions-bar hidden">
+                        <div style="font-weight: 600; color: var(--color-gold);">
+                            <span id="selectedCount">0</span> orders selected
+                        </div>
+                        <div style="display: flex; gap: var(--spacing-sm);">
+                            <button class="btn btn-primary btn-small" onclick="bulkCompleteOrders()">✅ Mark
+                                Completed</button>
+                            <button class="btn btn-outline btn-small" onclick="bulkDeleteOrders()"
+                                style="border-color: #ff4444; color: #ff4444;">🗑️ Delete All</button>
+                            <button class="btn btn-ghost btn-small" onclick="deselectAllOrders()">Cancel</button>
+                        </div>
+                    </div>
+
+                    <div
+                        style="margin-bottom: var(--spacing-sm); display: flex; align-items: center; gap: 8px; padding-left: 8px;">
+                        <input type="checkbox" id="selectAllOrders" onchange="toggleSelectAllOrders(this.checked)">
+                        <label for="selectAllOrders"
+                            style="font-size: 0.85rem; color: var(--color-text-secondary); cursor: pointer;">Select All
+                            Visible</label>
+                    </div>
+
+                    <div id="ordersList">
+                        <!-- Orders will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Reviews Tab -->
+                <div id="tab-reviews" class="tab-content hidden">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">⭐ Product Reviews</h2>
+                            <p class="section-subtitle">Moderate customer feedback and ratings</p>
+                        </div>
+                    </div>
+
+                    <div class="orders-table-container">
+                        <table class="orders-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Customer</th>
+                                    <th>Rating</th>
+                                    <th>Comment</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reviewsList">
+                                <!-- Reviews will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div id="tab-settings" class="tab-content hidden">
+                    <h2 style="margin-bottom: var(--spacing-lg);">Settings</h2>
+
+                    <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                        <h3 style="margin-bottom: var(--spacing-md);">📧 Business Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Business Name</label>
+                                <input type="text" class="form-input" id="setting-businessName" value="">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Business Email</label>
+                                <input type="email" class="form-input" id="setting-businessEmail" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Business Phone</label>
+                            <input type="tel" class="form-input" id="setting-businessPhone" value="">
+                        </div>
+                    </div>
+
+                    <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                        <h3 style="margin-bottom: var(--spacing-md);">📱 Social Media & Community</h3>
+                        <p
+                            style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md); font-size: 0.875rem;">
+                            Links to your social channels. Leave blank to hide them from the website.
+                        </p>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Discord Server</label>
+                                <input type="url" class="form-input" id="setting-social-discord"
+                                    placeholder="https://discord.gg/...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">TikTok</label>
+                                <input type="url" class="form-input" id="setting-social-tiktok"
+                                    placeholder="https://tiktok.com/@...">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">YouTube</label>
+                                <input type="url" class="form-input" id="setting-social-youtube"
+                                    placeholder="https://youtube.com/...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Linktree</label>
+                                <input type="url" class="form-input" id="setting-social-linktree"
+                                    placeholder="https://linktr.ee/...">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Twitter / X</label>
+                                <input type="url" class="form-input" id="setting-social-twitter"
+                                    placeholder="https://twitter.com/...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Instagram</label>
+                                <input type="url" class="form-input" id="setting-social-instagram"
+                                    placeholder="https://instagram.com/...">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Telegram</label>
+                                <input type="url" class="form-input" id="setting-social-telegram"
+                                    placeholder="https://t.me/...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">WhatsApp</label>
+                                <input type="url" class="form-input" id="setting-social-whatsapp"
+                                    placeholder="https://wa.me/...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                        <h3 style="margin-bottom: var(--spacing-md);">💰 Commission Settings</h3>
+                        <div class="form-group">
+                            <label class="form-label">Default Commission Rate (%)</label>
+                            <input type="number" class="form-input" id="setting-commissionRate" value="" min="0"
+                                max="100">
+                            <small
+                                style="color: var(--color-text-muted); margin-top: var(--spacing-xs); display: block;">
+                                Default commission percentage for resellers (can be overridden per product)
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                        <h3 style="margin-bottom: var(--spacing-md);">🚚 Shipping Settings</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Default Shipping Fee (£)</label>
+                                <input type="number" class="form-input" id="setting-shippingFee" value="" step="0.01"
+                                    min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Free Shipping Threshold (£)</label>
+                                <input type="number" class="form-input" id="setting-freeShipping" value="" step="0.01"
+                                    min="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                        <h3 style="margin-bottom: var(--spacing-md);">💳 Payment Methods</h3>
+                        <p
+                            style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md); font-size: 0.875rem;">
+                            Configure your payment active options. Leave fields empty to disable a method in the store.
+                        </p>
+
+                        <div style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+                            <!-- PayPal -->
+                            <div
+                                style="padding: var(--spacing-md); background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-md);">
+                                <h4 style="margin-bottom: var(--spacing-sm); color: #0070ba;">PayPal</h4>
+                                <div class="form-group" style="margin-bottom: var(--spacing-sm);">
+                                    <label class="form-label"
+                                        style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" id="setting-paypalFF" style="width: 18px; height: 18px;">
+                                        Enable Friends & Family (Manual)
+                                    </label>
+                                </div>
+                                <div id="paypal-ff-fields">
+                                    <div class="form-group">
+                                        <label class="form-label">PayPal Username/Email (for F&F)</label>
+                                        <input type="text" class="form-input" id="setting-paypalEmail"
+                                            placeholder="e.g., muzincorporations">
+                                    </div>
+                                </div>
+                                <div id="paypal-auto-fields">
+                                    <div class="form-group">
+                                        <label class="form-label">PayPal Client ID (for Automation)</label>
+                                        <input type="text" class="form-input" id="setting-paypalId"
+                                            placeholder="Enter your PayPal Client ID">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bank Transfer -->
+                            <div
+                                style="padding: var(--spacing-md); background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-md);">
+                                <h4 style="margin-bottom: var(--spacing-sm); color: var(--color-blue);">Bank Transfer
+                                    (UK)</h4>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Account Name</label>
+                                        <input type="text" class="form-input" id="setting-bankName"
+                                            placeholder="e.g., FlipSide Ltd">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Sort Code</label>
+                                        <input type="text" class="form-input" id="setting-bankSortCode"
+                                            placeholder="00-00-00">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Account Number</label>
+                                    <input type="text" class="form-input" id="setting-bankAccount"
+                                        placeholder="8-digit account number">
+                                </div>
+                            </div>
+
+                            <!-- Crypto -->
+                            <div
+                                style="padding: var(--spacing-md); background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-md);">
+                                <h4 style="margin-bottom: var(--spacing-sm); color: #f7931a;">Cryptocurrency</h4>
+                                <div class="form-group">
+                                    <label class="form-label">Bitcoin (BTC) Wallet Address</label>
+                                    <input type="text" class="form-input" id="setting-btcWallet"
+                                        placeholder="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Ethereum (ETH) Wallet Address</label>
+                                    <input type="text" class="form-input" id="setting-ethWallet"
+                                        placeholder="0x742d35Cc6634C0532925a3b844Bc454e4438f44e">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Automation Bridge (Hidden for now as per user request to revert to manual) -->
+                    <div class="card"
+                        style="padding: var(--spacing-lg); margin-top: var(--spacing-lg); border-top: 4px solid var(--color-blue); display: none;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+                            <h3 style="margin: 0;">🤖 Automation Bridge (Zapier)</h3>
+                            <div id="automation-badge" class="badge"
+                                style="background: rgba(0, 212, 255, 0.1); color: var(--color-blue); border: 1px solid var(--color-blue);">
+                                LISTENING</div>
+                        </div>
+                        <p
+                            style="color: var(--color-text-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-md);">
+                            The bridge automatically matches incoming PayPal F&F emails to pending orders using the
+                            <strong>Order ID</strong> in the notes.
+                        </p>
+                        <div
+                            style="background: rgba(0,0,0,0.3); padding: var(--spacing-md); border-radius: var(--radius-md); font-size: 0.85rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span style="color: var(--color-text-muted);">Bridge Mode:</span>
+                                <span style="color: var(--color-gold); font-weight: 600;">ACTIVE (Oldest First)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--color-text-muted);">Incoming Hub:</span>
+                                <code style="color: var(--color-blue);">/incoming_payments</code>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: var(--spacing-md); display: flex; gap: var(--spacing-sm);">
+                            <button class="btn btn-outline btn-small" onclick="testAutomationMatch()"
+                                style="flex: 1;">🧪 Simulate Incoming Payment</button>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="saveSettings()"
+                        style="margin-top: var(--spacing-xl); width: 100%;">
+                        💾 Save All Settings
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- Scripts -->
+    <script src="js/brand-settings.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/firebase.js"></script>
+    <script>
+        let sessionActive = false;
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const password = document.getElementById('adminPassword').value;
+
+            if (password === CONFIG.admin.password) {
+                sessionActive = true;
+                localStorage.setItem('adminSession', Date.now());
+                document.getElementById('loginScreen').classList.remove('active');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                loadDashboard();
+                showToast('Login successful!', 'success');
+            } else {
+                showToast('Incorrect password!', 'error');
+            }
+        });
+
+        // Check session on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initFirebase();
+            const session = localStorage.getItem('adminSession');
+            if (session) {
+                const elapsed = Date.now() - parseInt(session);
+                if (elapsed < CONFIG.admin.sessionTimeout) {
+                    sessionActive = true;
+                    document.getElementById('loginScreen').classList.remove('active');
+                    document.getElementById('adminPanel').classList.remove('hidden');
+                    loadDashboard();
+                }
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('adminSession');
+            window.location.reload();
+        }
+
+        // Load dashboard
+        function loadDashboard() {
+            loadStats();
+            loadProducts();
+            loadResellers();
+            loadOrders();
+            loadSettings();
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+        }
+
+        // Load stats - now uses Firebase
+        async function loadStats() {
+            const products = await loadProductsFromFirebase();
+            const resellers = await loadResellersFromFirebase();
+            const orders = await loadOrdersFromFirebase();
+
+            // Calculate products available (in stock only)
+            const productsAvailable = products.filter(product => {
+                if (product.type === 'digital') return true; // Digital always available
+                return product.stock && product.stock > 0; // Physical must have stock
+            }).length;
+
+            // Calculate active resellers (those who have made sales)
+            const activeResellers = resellers.filter(reseller => {
+                return reseller.totalSales && reseller.totalSales > 0;
+            }).length;
+
+            // Calculate total commissions paid to resellers
+            const totalCommissions = orders.reduce((sum, order) => {
+                if (!order.referralCode || !order.cart) return sum;
+
+                // Calculate commission for this order
+                const orderCommission = order.cart.reduce((cartSum, item) => {
+                    const commission = item.commission || CONFIG.defaultCommissionRate;
+                    return cartSum + (item.price * (commission / 100));
+                }, 0);
+
+                return sum + orderCommission;
+            }, 0);
+
+            document.getElementById('stat-products').textContent = productsAvailable;
+            document.getElementById('stat-resellers').textContent = activeResellers;
+            document.getElementById('stat-orders').textContent = orders.length;
+            document.getElementById('stat-revenue').textContent = `£${totalCommissions.toFixed(2)}`;
+
+            // Inventory Alerts
+            const lowStock = products.filter(p => p.type === 'physical' && p.stock <= 3 && p.stock > 0);
+            if (lowStock.length > 0) {
+                showToast(`Inventory Alert: ${lowStock.length} items running low!`, 'info');
+            }
+
+            // Update Sales chart
+            updateSalesChart(orders);
+
+            // Recent Activity Feed
+            const activityContainer = document.getElementById('recentActivityList');
+            if (activityContainer && orders.length > 0) {
+                const recent = orders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 5);
+                activityContainer.innerHTML = recent.map(o => {
+                    let color = 'var(--color-text-secondary)';
+                    if (o.status === 'paid') color = 'var(--color-gold)';
+                    if (o.status === 'completed') color = 'var(--color-blue)';
+
+                    return `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 6px; border-left: 2px solid ${color};">
+                            <div>
+                                <div style="font-size: 0.85rem; font-weight: 600;">Order #${o.orderId.substring(0, 8)}</div>
+                                <div style="font-size: 0.75rem; color: var(--color-text-muted);">${new Date(o.timestamp).toLocaleDateString()}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.85rem; color: var(--color-gold); font-weight: bold;">£${o.total.toFixed(2)}</div>
+                                <div style="font-size: 0.7rem; color: ${color}; text-transform: uppercase;">${o.status.replace('_', ' ')}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else if (activityContainer) {
+                activityContainer.innerHTML = '<p style="color: var(--color-text-muted); font-size: 0.85rem;">No recent activity.</p>';
+            }
+        }
+
+        // Tab switching
+        async function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.filter-tab').forEach(btn => btn.classList.remove('active'));
+
+            const targetTab = document.getElementById(`tab-${tabName}`);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+                // Find and activate the correct button
+                const buttons = document.querySelectorAll('.filter-tab');
+                buttons.forEach(btn => {
+                    if (btn.textContent.toLowerCase().includes(tabName)) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
+            if (tabName === 'products') loadProducts();
+            if (tabName === 'resellers') loadResellers();
+            if (tabName === 'orders') loadOrders();
+            if (tabName === 'reviews') loadReviews();
+            if (tabName === 'overview') loadStats();
+        }
+
+        // Load products
+        async function loadProducts() {
+            const products = await loadProductsFromFirebase();
+            currentProducts = products; // Store for modal editing
+            const container = document.getElementById('productsList');
+
+            if (products.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--color-text-muted); padding: var(--spacing-xl);">No products found. Add your first product above!</p>';
+                return;
+            }
+
+            container.innerHTML = `
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
+                <th style="padding: var(--spacing-sm); text-align: left;">Product</th>
+                <th style="padding: var(--spacing-sm); text-align: left;">Type</th>
+                <th style="padding: var(--spacing-sm); text-align: left;">Category</th>
+                <th style="padding: var(--spacing-sm); text-align: right;">Price</th>
+                <th style="padding: var(--spacing-sm); text-align: center;">Comm.</th>
+                <th style="padding: var(--spacing-sm); text-align: center;">Stock</th>
+                <th style="padding: var(--spacing-sm); text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${products.map(product => `
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                  <td style="padding: var(--spacing-sm);">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                      <img src="${product.image}" alt="${product.name}" style="width: 40px; height: 40px; border-radius: var(--radius-sm); object-fit: cover;" onerror="this.src='https://via.placeholder.com/40x40/1a1a1a/FFD700'">
+                      <strong>${product.name}</strong>
+                    </div>
+                  </td>
+                  <td style="padding: var(--spacing-sm);">
+                    <span class="badge badge-${product.type === 'digital' ? 'digital' : 'physical'}">${product.type}</span>
+                  </td>
+                  <td style="padding: var(--spacing-sm); color: var(--color-text-secondary);">${product.category}</td>
+                  <td style="padding: var(--spacing-sm); text-align: right; font-weight: 600;">£${product.price ? product.price.toFixed(2) : '0.00'}</td>
+                  <td style="padding: var(--spacing-sm); text-align: center; color: var(--color-blue);">${product.commission || 10}%</td>
+                  <td style="padding: var(--spacing-sm); text-align: center;">${product.type === 'digital' ? '∞' : (product.stock || 0)}</td>
+                  <td style="padding: var(--spacing-sm); text-align: right;">
+                    <div style="display: flex; gap: 5px; justify-content: flex-end;">
+                        <button class="btn btn-ghost btn-small" onclick="openProductModal('${product.id}')" style="color: var(--color-gold);">Edit</button>
+                        <button class="btn btn-ghost btn-small" onclick="deleteProduct('${product.id}')" style="color: #ff4444;">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+        }
+
+        // Load resellers
+        async function loadResellers() {
+            const resellers = await loadResellersFromFirebase();
+            const container = document.getElementById('resellersList');
+
+            if (resellers.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--color-text-muted); padding: var(--spacing-lg);">No resellers yet.</p>';
+            } else {
+                container.innerHTML = `
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
+                  <th style="padding: var(--spacing-sm); text-align: left; color: var(--color-text-secondary); font-size: 0.875rem;">Name</th>
+                  <th style="padding: var(--spacing-sm); text-align: left; color: var(--color-text-secondary); font-size: 0.875rem;">ID / Code</th>
+                  <th style="padding: var(--spacing-sm); text-align: left; color: var(--color-text-secondary); font-size: 0.875rem;">Email</th>
+                  <th style="padding: var(--spacing-sm); text-align: right; color: var(--color-text-secondary); font-size: 0.875rem;">Sales</th>
+                  <th style="padding: var(--spacing-sm); text-align: right; color: var(--color-text-secondary); font-size: 0.875rem;">Commission</th>
+                  <th style="padding: var(--spacing-sm); text-align: right; color: var(--color-text-secondary); font-size: 0.875rem;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${resellers.map(reseller => {
+                    const totalComm = reseller.totalCommission || 0;
+                    const paidComm = reseller.paidCommission || 0;
+                    const pendingComm = Math.max(0, totalComm - paidComm);
+
+                    return `
+                      <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                        <td style="padding: var(--spacing-sm);">${reseller.name}</td>
+                        <td style="padding: var(--spacing-sm); font-family: monospace;">${reseller.id}</td>
+                        <td style="padding: var(--spacing-sm); color: var(--color-text-secondary);">${reseller.email}</td>
+                        <td style="padding: var(--spacing-sm); text-align: right;">${reseller.totalSales || 0}</td>
+                        <td style="padding: var(--spacing-sm); text-align: right;">
+                            <div style="font-weight: 600; color: var(--color-gold);">£${totalComm.toFixed(2)}</div>
+                            <div style="font-size: 0.7rem; color: var(--color-text-secondary);">Paid: £${paidComm.toFixed(2)}</div>
+                        </td>
+                        <td style="padding: var(--spacing-sm); text-align: right;">
+                          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                              ${pendingComm > 0.01 ? `
+                                  <button class="btn btn-primary btn-small" onclick="markResellerPaid('${reseller.id}', ${pendingComm})" style="font-size: 0.7rem; padding: 4px 8px;">Mark £${pendingComm.toFixed(2)} Paid</button>
+                              ` : '<span style="color: var(--color-blue); font-size: 0.7rem;">✅ Balanced</span>'}
+                              <button class="btn btn-ghost btn-small" onclick="deleteReseller('${reseller.id}')" style="color: #ff4444; font-size: 0.7rem;">Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                    `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+            }
+
+            // Also load applications
+            loadApplications();
+        }
+
+        // Load applications
+        async function loadApplications() {
+            const applications = await loadApplicationsFromFirebase();
+            const container = document.getElementById('applicationsList');
+
+            if (applications.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--color-text-muted); padding: var(--spacing-lg);">No pending applications.</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
+                                <th style="padding: var(--spacing-sm); text-align: left; color: var(--color-text-secondary); font-size: 0.875rem;">Date</th>
+                                <th style="padding: var(--spacing-sm); text-align: left; color: var(--color-text-secondary); font-size: 0.875rem;">Name</th>
+                                <th style="padding: var(--spacing-sm); text-align: left; color: var(--color-text-secondary); font-size: 0.875rem;">Email</th>
+                                <th style="padding: var(--spacing-sm); text-align: left; color: var(--color-text-secondary); font-size: 0.875rem;">Channels</th>
+                                <th style="padding: var(--spacing-sm); text-align: right; color: var(--color-text-secondary); font-size: 0.875rem;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${applications.map((app, index) => `
+                                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                    <td style="padding: var(--spacing-sm); color: var(--color-text-secondary); font-size: 0.875rem;">
+                                        ${new Date(app.appliedAt).toLocaleDateString()}
+                                    </td>
+                                    <td style="padding: var(--spacing-sm); font-weight: 500;">${app.name}</td>
+                                    <td style="padding: var(--spacing-sm); color: var(--color-text-secondary);">${app.email}</td>
+                                    <td style="padding: var(--spacing-sm); font-size: 0.875rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        ${app.channels}
+                                    </td>
+                                    <td style="padding: var(--spacing-sm); text-align: right;">
+                                        <button class="btn btn-primary btn-small" onclick="approveApplication('${app.id || index}', ${index})">Approve</button>
+                                        <button class="btn btn-ghost btn-small" onclick="rejectApplication('${app.id || index}', ${index})" style="color: #ff4444;">Reject</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        async function approveApplication(appId, index) {
+            const applications = await loadApplicationsFromFirebase();
+            const app = applications.find(a => (a.id === appId) || (applications.indexOf(a) === index));
+
+            if (!app) return;
+
+            // Generate unique reseller code
+            const resellerCode = 'RS' + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+            const reseller = {
+                id: resellerCode,
+                name: app.name,
+                email: app.email,
+                paypalEmail: app.paypalEmail,
+                channels: app.channels,
+                registeredAt: new Date().toISOString(),
+                totalSales: 0,
+                totalCommission: 0
+            };
+
+            // Save to all resellers
+            await saveResellerToFirebase(reseller);
+
+            // Remove from applications
+            if (isFirebaseConnected() && app.id) {
+                await deleteApplicationFromFirebase(app.id);
+            } else {
+                const localApps = JSON.parse(localStorage.getItem('resellerApplications') || '[]');
+                localApps.splice(index, 1);
+                localStorage.setItem('resellerApplications', JSON.stringify(localApps));
+            }
+
+            showToast(`Approved! Referral code: ${resellerCode}`, 'success');
+            loadResellers();
+        }
+
+        async function rejectApplication(appId, index) {
+            if (confirm('Are you sure you want to reject this application?')) {
+                if (isFirebaseConnected() && appId && appId !== 'undefined') {
+                    await deleteApplicationFromFirebase(appId);
+                } else {
+                    const localApps = JSON.parse(localStorage.getItem('resellerApplications') || '[]');
+                    localApps.splice(index, 1);
+                    localStorage.setItem('resellerApplications', JSON.stringify(localApps));
+                }
+                showToast('Application rejected', 'info');
+                loadApplications();
+            }
+        }
+
+        async function deleteReseller(resellerId) {
+            if (confirm(`Are you sure you want to delete reseller ${resellerId}? This will remove their access to the dashboard.`)) {
+                await deleteResellerFromFirebase(resellerId);
+                showToast('Reseller deleted', 'success');
+                loadResellers();
+            }
+        }
+
+        let selectedOrderIds = new Set();
+
+        function toggleOrderSelection(orderId) {
+            if (selectedOrderIds.has(orderId)) {
+                selectedOrderIds.delete(orderId);
+            } else {
+                selectedOrderIds.add(orderId);
+            }
+            updateBulkActionsUI();
+        }
+
+        function toggleSelectAllOrders(checked) {
+            const checkboxes = document.querySelectorAll('.order-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = checked;
+                const orderId = cb.dataset.orderId;
+                if (checked) selectedOrderIds.add(orderId);
+                else selectedOrderIds.delete(orderId);
+            });
+            updateBulkActionsUI();
+        }
+
+        function updateBulkActionsUI() {
+            const bar = document.getElementById('bulkActionsBar');
+            const countSpan = document.getElementById('selectedCount');
+            const selectAll = document.getElementById('selectAllOrders');
+
+            countSpan.textContent = selectedOrderIds.size;
+
+            if (selectedOrderIds.size > 0) {
+                bar.classList.remove('hidden');
+            } else {
+                bar.classList.add('hidden');
+                selectAll.checked = false;
+            }
+        }
+
+        function deselectAllOrders() {
+            selectedOrderIds.clear();
+            const checkboxes = document.querySelectorAll('.order-checkbox');
+            checkboxes.forEach(cb => cb.checked = false);
+            updateBulkActionsUI();
+        }
+
+        async function bulkCompleteOrders() {
+            if (selectedOrderIds.size === 0) return;
+            if (confirm(`Mark ${selectedOrderIds.size} orders as COMPLETED?`)) {
+                const ids = Array.from(selectedOrderIds);
+                for (const id of ids) {
+                    await updateOrderInFirebase(id, { status: 'completed' });
+                }
+                showToast(`Successfully completed ${ids.length} orders`, 'success');
+                deselectAllOrders();
+                loadOrders();
+            }
+        }
+
+        async function bulkDeleteOrders() {
+            if (selectedOrderIds.size === 0) return;
+            if (confirm(`⚠️ PERMANENTLY DELETE ${selectedOrderIds.size} orders? This cannot be undone.`)) {
+                const ids = Array.from(selectedOrderIds);
+                for (const id of ids) {
+                    await deleteOrderFromFirebase(id);
+                }
+                showToast(`Successfully deleted ${ids.length} orders`, 'info');
+                deselectAllOrders();
+                loadOrders();
+            }
+        }
+
+        // Load orders
+        async function loadOrders() {
+            // Start Automation Listener
+            if (!window.automationListenerActive) {
+                startAutomationListener((orderId, newStatus) => {
+                    showToast(`🤖 Automation: Order ${orderId} marked as ${newStatus}!`, 'success');
+                    loadOrders(); // Refresh UI
+                    loadStats();
+                });
+                window.automationListenerActive = true;
+            }
+
+            const orders = await loadOrdersFromFirebase();
+            const container = document.getElementById('ordersList');
+            const searchVal = document.getElementById('orderSearchInput').value.toLowerCase();
+
+            if (orders.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--color-text-muted); padding: var(--spacing-xl);">No orders yet.</p>';
+                return;
+            }
+
+            // Filter status
+            let filteredOrders = orders.filter(order => {
+                const matchesStatus = orderFilter === 'active' ? order.status !== 'completed' : order.status === 'completed';
+                if (!matchesStatus) return false;
+
+                // Search filtering
+                if (searchVal) {
+                    const idMatch = order.orderId.toLowerCase().includes(searchVal);
+                    const emailMatch = order.email.toLowerCase().includes(searchVal);
+                    const nameMatch = (order.shipping?.firstName + ' ' + order.shipping?.lastName).toLowerCase().includes(searchVal);
+                    return idMatch || emailMatch || nameMatch;
+                }
+                return true;
+            });
+
+            // Sort
+            if (orderFilter === 'active') {
+                filteredOrders.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            } else {
+                filteredOrders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            }
+
+            if (filteredOrders.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: var(--color-text-muted); padding: var(--spacing-xl);">No matching orders found.</p>`;
+                return;
+            }
+
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+                    ${filteredOrders.map(order => {
+                const total = order.cart.reduce((sum, item) => sum + item.price, 0);
+                const hasPhysicalProducts = order.cart.some(item => item.type === 'physical');
+
+                let statusColor = 'var(--color-text-muted)';
+                let statusLabel = order.status || 'Paid';
+
+                if (order.status === 'paid') statusColor = 'var(--color-gold)';
+                if (order.status === 'completed') statusColor = 'var(--color-blue)';
+                if (order.status === 'pending_payment') statusColor = 'var(--color-warning)';
+
+                return `
+                            <div class="card" style="padding: var(--spacing-lg); background: rgba(255, 255, 255, 0.03); border-left: 4px solid ${statusColor};">
+                                <!-- Order Header -->
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-md); flex-wrap: wrap; gap: var(--spacing-sm);">
+                                    <div style="display: flex; gap: 12px; align-items: center;">
+                                        <input type="checkbox" class="order-checkbox" data-order-id="${order.orderId}" 
+                                               ${selectedOrderIds.has(order.orderId) ? 'checked' : ''} 
+                                               onchange="toggleOrderSelection('${order.orderId}')">
+                                        <div>
+                                            <h3 style="margin: 0; color: var(--color-gold);">Order #${order.orderId.substring(0, 8)}</h3>
+                                            <p style="margin: 0.25rem 0 0 0; color: var(--color-text-secondary); font-size: 0.875rem;">
+                                                ${new Date(order.timestamp).toLocaleString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-gold);">£${total.toFixed(2)}</div>
+                                        ${order.referralCode ? `<span class="badge badge-blue" style="font-size: 0.75rem;">Referral: ${order.referralCode}</span>` : ''}
+                                        <div style="margin-top: 4px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                                            <span class="badge" style="background: ${statusColor}22; color: ${statusColor}; border: 1px solid ${statusColor}44;">${statusLabel.toUpperCase().replace('_', ' ')}</span>
+                                            <button class="btn btn-ghost btn-small" onclick="deleteOrder('${order.orderId}')" style="color: var(--color-text-muted); font-size: 0.75rem; padding: 2px 6px;">🗑️ Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Customer Info -->
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-md); padding: var(--spacing-md); background: rgba(0,0,0,0.3); border-radius: var(--radius-md);">
+                                    <div>
+                                        <div style="margin-bottom: 4px;">
+                                            <strong style="color: var(--color-text-secondary); font-size: 0.875rem;">Customer Email:</strong>
+                                            <div style="color: var(--color-text-primary);word-break: break-all;">${order.email}</div>
+                                        </div>
+                                        ${order.paymentNote ? `
+                                            <div style="margin-top: 8px; padding: 4px 8px; background: rgba(255, 215, 0, 0.1); border-radius: 4px; border: 1px solid rgba(255, 215, 0, 0.2);">
+                                                <strong style="color: var(--color-gold); font-size: 0.75rem;">PAYMENT NOTE:</strong>
+                                                <div style="color: white; font-weight: bold; font-size: 1.1rem;">"${order.paymentNote}"</div>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                    ${hasPhysicalProducts && order.shipping ? `
+                                        <div>
+                                            <strong style="color: var(--color-text-secondary); font-size: 0.875rem;">Customer Name:</strong>
+                                            <div style="color: var(--color-text-primary);">${order.shipping.firstName} ${order.shipping.lastName}</div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                
+                                <!-- Shipping Address (for fulfillment) -->
+                                ${hasPhysicalProducts && order.shipping ? `
+                                    <div style="padding: var(--spacing-md); background: rgba(255, 215, 0, 0.05); border-left: 3px solid var(--color-gold); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);">
+                                        <h4 style="margin: 0 0 0.5rem 0; color: var(--color-gold); font-size: 0.875rem; font-weight: 600;">📦 SHIP TO CUSTOMER:</h4>
+                                        <div style="font-size: 0.95rem; line-height: 1.6;">
+                                            <strong>${order.shipping.firstName} ${order.shipping.lastName}</strong><br>
+                                            ${order.shipping.address1}<br>
+                                            ${order.shipping.address2 ? order.shipping.address2 + '<br>' : ''}
+                                            ${order.shipping.city}, ${order.shipping.state} ${order.shipping.zip}<br>
+                                            ${order.shipping.country}
+                                            ${order.shipping.phone ? '<br>Phone: ' + order.shipping.phone : ''}
+                                        </div>
+                                    </div>
+                                ` : hasPhysicalProducts ? `
+                                    <div style="padding: var(--spacing-md); background: rgba(255, 0, 0, 0.1); border-left: 3px solid red; border-radius: var(--radius-md); margin-bottom: var(--spacing-md);">
+                                        <strong style="color: red;">⚠️ Physical items but no shipping address collected!</strong>
+                                    </div>
+                                ` : `
+                                    <div style="padding: var(--spacing-sm); background: rgba(0, 212, 255, 0.1); border-radius: var(--radius-md); margin-bottom: var(--spacing-md); text-align: center;">
+                                        <strong style="color: var(--color-blue); font-size: 0.875rem;">💾 Digital Order - No Shipping Required</strong>
+                                    </div>
+                                `}
+                                
+                                <!-- Order Items -->
+                                <div>
+                                    <h4 style="margin: 0 0 0.75rem 0; font-size: 0.875rem; color: var(--color-text-secondary);">Order Items (${order.cart.length}):</h4>
+                                    <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+                                        ${order.cart.map(item => `
+                                            <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-sm); background: rgba(255,255,255,0.03); border-radius: var(--radius-sm);">
+                                                <div style="flex: 1;">
+                                                    <strong>${item.name}</strong>
+                                                    <span class="badge badge-${item.type === 'digital' ? 'digital' : 'physical'}" style="margin-left: 0.5rem; font-size: 0.7rem;">${item.type}</span>
+                                                    ${item.digitalContent ? `<br><small style="color: var(--color-warning);">Fulfillment: <code>${item.digitalContent}</code></small>` : ''}
+                                                    ${item.commission ? `<br><small style="color: var(--color-blue);">Commission: ${item.commission}%</small>` : ''}
+                                                </div>
+                                                <div style="font-weight: 600; color: var(--color-gold);">£${item.price.toFixed(2)}</div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                                
+                                <!-- Fulfillment Section -->
+                                <div style="margin-top: var(--spacing-md); padding: var(--spacing-md); background: rgba(255, 255, 255, 0.05); border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.1);">
+                                    <h4 style="margin: 0 0 10px 0; font-size: 0.875rem; color: var(--color-gold);">📦 Fulfillment Details</h4>
+                                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                                        ${hasPhysicalProducts ? `
+                                            <div class="form-group" style="margin: 0;">
+                                                <label style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 4px; display: block;">Tracking Number / Shipping Info</label>
+                                                <div style="display: flex; gap: 8px;">
+                                                    <input type="text" id="tracking-${order.orderId}" class="form-input" style="padding: 6px 10px; font-size: 0.85rem;" placeholder="e.g. Royal Mail: QW12345678" value="${order.trackingNumber || ''}">
+                                                </div>
+                                            </div>
+                                        ` : ''}
+                                        <div class="form-group" style="margin: 0;">
+                                            <label style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 4px; display: block;">Digital Content / Keys / Notes</label>
+                                            <div style="display: flex; gap: 8px;">
+                                                <input type="text" id="fulfillment-${order.orderId}" class="form-input" style="padding: 6px 10px; font-size: 0.85rem;" placeholder="e.g. License Keys or Download Links" value="${order.fulfillmentData || ''}">
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-outline btn-small" onclick="updateFulfillment('${order.orderId}')" style="align-self: flex-start; margin-top: 5px;">💾 Save Fulfillment</button>
+                                    </div>
+                                </div>
+
+                                <!-- Payment Info -->
+                                <div style="margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md);">
+                                    <div style="font-size: 0.875rem; color: var(--color-text-secondary);">
+                                        Payment Method: ${order.paymentMethod || 'PayPal'}
+                                    </div>
+                                    <div style="display: flex; gap: var(--spacing-sm);">
+                                        ${order.status === 'pending_payment' ? `
+                                            <button class="btn btn-primary btn-small" onclick="confirmOrderPayment('${order.orderId}', ${!hasPhysicalProducts})">✅ Confirm Payment</button>
+                                        ` : ''}
+                                        ${order.status === 'paid' && hasPhysicalProducts ? `
+                                            <button class="btn btn-secondary btn-small" onclick="completeOrder('${order.orderId}')">📦 Mark Shipped & Complete</button>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+            }).join('')}
+                </div>
+            `;
+        }
+
+        // Load settings
+        async function loadSettings() {
+            // Load config from Firebase if available
+            const config = await loadConfigFromFirebase();
+
+            // Basic Info
+            document.getElementById('setting-businessName').value = config.businessName || CONFIG.businessName;
+            document.getElementById('setting-businessEmail').value = config.businessEmail || CONFIG.businessEmail;
+            document.getElementById('setting-businessPhone').value = config.businessPhone || CONFIG.businessPhone || '';
+            document.getElementById('setting-commissionRate').value = config.defaultCommissionRate || CONFIG.defaultCommissionRate;
+
+            // Social
+            const social = config.social || CONFIG.social || {};
+            document.getElementById('setting-social-discord').value = social.discord || '';
+            document.getElementById('setting-social-tiktok').value = social.tiktok || '';
+            document.getElementById('setting-social-youtube').value = social.youtube || '';
+            document.getElementById('setting-social-linktree').value = social.linktree || '';
+            document.getElementById('setting-social-twitter').value = social.twitter || '';
+            document.getElementById('setting-social-instagram').value = social.instagram || '';
+            document.getElementById('setting-social-telegram').value = social.telegram || '';
+            document.getElementById('setting-social-whatsapp').value = social.whatsapp || '';
+
+            // Shipping
+            if (config.shipping) {
+                document.getElementById('setting-shippingFee').value = config.shipping.defaultFee || CONFIG.shipping.defaultFee;
+                document.getElementById('setting-freeShipping').value = config.shipping.freeShippingThreshold || CONFIG.shipping.freeShippingThreshold;
+            } else {
+                document.getElementById('setting-shippingFee').value = CONFIG.shipping.defaultFee;
+                document.getElementById('setting-freeShipping').value = CONFIG.shipping.freeShippingThreshold;
+            }
+
+            // Payments
+            // Payments
+            if (config.payment) {
+                if (config.payment.paypal) {
+                    document.getElementById('setting-paypalId').value = config.payment.paypal.clientId || '';
+                    document.getElementById('setting-paypalFF').checked = config.payment.paypal.friendsAndFamily || false;
+                    document.getElementById('setting-paypalEmail').value = config.payment.paypal.email || '';
+                }
+
+                if (config.payment.bank) {
+                    document.getElementById('setting-bankName').value = config.payment.bank.accountName || '';
+                    document.getElementById('setting-bankSortCode').value = config.payment.bank.sortCode || '';
+                    document.getElementById('setting-bankAccount').value = config.payment.bank.accountNumber || '';
+                }
+
+                document.getElementById('setting-btcWallet').value = config.payment.bitcoin?.walletAddress || '';
+                document.getElementById('setting-ethWallet').value = config.payment.ethereum?.walletAddress || '';
+            }
+        }
+
+        async function saveSettings() {
+            const updatedConfig = {
+                ...CONFIG,
+                businessName: document.getElementById('setting-businessName').value,
+                businessEmail: document.getElementById('setting-businessEmail').value,
+                businessPhone: document.getElementById('setting-businessPhone').value,
+                defaultCommissionRate: parseFloat(document.getElementById('setting-commissionRate').value),
+                social: {
+                    discord: document.getElementById('setting-social-discord').value,
+                    tiktok: document.getElementById('setting-social-tiktok').value,
+                    youtube: document.getElementById('setting-social-youtube').value,
+                    linktree: document.getElementById('setting-social-linktree').value,
+                    twitter: document.getElementById('setting-social-twitter').value,
+                    instagram: document.getElementById('setting-social-instagram').value,
+                    telegram: document.getElementById('setting-social-telegram').value,
+                    whatsapp: document.getElementById('setting-social-whatsapp').value
+                },
+                shipping: {
+                    ...CONFIG.shipping,
+                    defaultFee: parseFloat(document.getElementById('setting-shippingFee').value),
+                    freeShippingThreshold: parseFloat(document.getElementById('setting-freeShipping').value)
+                },
+                payment: {
+                    paypal: {
+                        enabled: !!document.getElementById('setting-paypalId').value || document.getElementById('setting-paypalFF').checked,
+                        clientId: document.getElementById('setting-paypalId').value,
+                        friendsAndFamily: document.getElementById('setting-paypalFF').checked,
+                        email: document.getElementById('setting-paypalEmail').value,
+                        currency: 'GBP'
+                    },
+                    bank: {
+                        enabled: !!document.getElementById('setting-bankAccount').value,
+                        accountName: document.getElementById('setting-bankName').value,
+                        sortCode: document.getElementById('setting-bankSortCode').value,
+                        accountNumber: document.getElementById('setting-bankAccount').value
+                    },
+                    bitcoin: {
+                        enabled: !!document.getElementById('setting-btcWallet').value,
+                        walletAddress: document.getElementById('setting-btcWallet').value
+                    },
+                    ethereum: {
+                        enabled: !!document.getElementById('setting-ethWallet').value,
+                        walletAddress: document.getElementById('setting-ethWallet').value
+                    }
+                }
+            };
+
+            // Save to Firebase
+            const saved = await saveConfigToFirebase(updatedConfig);
+
+            if (saved) {
+                // Also update local CONFIG object for this session
+                Object.assign(CONFIG, updatedConfig);
+                showToast('Settings saved successfully!', 'success');
+            } else {
+                // Fallback to localStorage
+                localStorage.setItem('flipside_config', JSON.stringify(updatedConfig));
+                Object.assign(CONFIG, updatedConfig);
+                showToast('Settings saved locally!', 'success');
+            }
+        }
+
+        async function confirmOrderPayment(orderId, isDigitalOnly) {
+            if (confirm(`Confirm that payment for order ${orderId} has been received?`)) {
+                const newStatus = isDigitalOnly ? 'completed' : 'paid';
+                const success = await updateOrderInFirebase(orderId, { status: newStatus });
+                if (success) {
+                    showToast(`Order marked as ${newStatus}!`, 'success');
+                    loadOrders();
+                    loadStats();
+                } else {
+                    showToast('Error updating order status', 'error');
+                }
+            }
+        }
+
+        async function completeOrder(orderId) {
+            if (confirm(`Mark order ${orderId} as completed?`)) {
+                const success = await updateOrderInFirebase(orderId, { status: 'completed' });
+                if (success) {
+                    showToast('Order completed!', 'success');
+                    loadOrders();
+                    loadStats();
+                } else {
+                    showToast('Error updating order status', 'error');
+                }
+            }
+        }
+
+        async function deleteOrder(orderId) {
+            if (confirm(`⚠️ Are you sure you want to PERMANENTLY delete order ${orderId}? This cannot be undone.`)) {
+                const success = await deleteOrderFromFirebase(orderId);
+                if (success) {
+                    showToast('Order deleted successfully', 'success');
+                    loadOrders();
+                    loadStats();
+                } else {
+                    showToast('Error deleting order', 'error');
+                }
+            }
+        }
+
+        async function testAutomationMatch() {
+            const orderId = prompt("Enter an Order ID to simulate payment for (copy one from the list):");
+            if (!orderId) return;
+
+            const amount = prompt("Enter the payment amount (e.g. 10.00):");
+            if (!amount) return;
+
+            showToast("Injecting test signal...", "info");
+
+            const success = await simulateIncomingPayment({
+                amount: amount,
+                currency: "GBP",
+                senderName: "Test User",
+                senderEmail: "test@example.com",
+                note: `Payment for ${orderId}`,
+                source: "simulation"
+            });
+
+            if (success) {
+                showToast("Signal sent! Watch for automation...", "success");
+            } else {
+                showToast("Failed to sending signal.", "error");
+            }
+        }
+
+        // Add product
+        function addProduct() {
+            alert('To add products:\n\n1. Open js/products.js\n2. Copy the product template at the top\n3. Fill in your product details\n4. Save the file\n5. Refresh this page\n\nThe file is designed to be easy to edit!');
+        }
+
+        // Export data
+        function exportData() {
+            const data = {
+                products: getAllProducts(),
+                resellers: JSON.parse(localStorage.getItem('allResellers') || '[]'),
+                orders: JSON.parse(localStorage.getItem('orders') || '[]'),
+                exportedAt: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `flipside-data-${Date.now()}.json`;
+            a.click();
+
+            showToast('Data exported successfully!', 'success');
+        }
+
+        // Create Test Order
+        async function createTestOrder() {
+            const orderId = Math.floor(100000 + Math.random() * 900000).toString();
+            const paymentReasons = ["Gas", "Food", "Groceries", "Lunch", "Tickets"];
+            const randomReason = paymentReasons[Math.floor(Math.random() * paymentReasons.length)];
+
+            const testOrder = {
+                orderId: orderId,
+                email: "customer@example.com",
+                cart: [
+                    { name: "Premium Digital Key", price: 19.99, type: "digital", commission: 5, digitalContent: "FLIP-TEST-KEY-123" },
+                    { name: "FlipSide Branded Tee", price: 24.95, type: "physical", commission: 10 }
+                ],
+                total: 44.94,
+                timestamp: new Date().toISOString(),
+                paymentMethod: "PayPal (Friends & Family)",
+                paymentNote: randomReason,
+                status: "pending_payment",
+                shipping: {
+                    firstName: "John",
+                    lastName: "Doe",
+                    address1: "123 High Street",
+                    address2: "Flat 4B",
+                    city: "London",
+                    state: "Greater London",
+                    zip: "SW1A 1AA",
+                    country: "United Kingdom",
+                    phone: "+44 7700 900123"
+                }
+            };
+
+            await updateOrderInFirebase(orderId, testOrder);
+            showToast(`Realistic Test Order #${orderId} created!`, "success");
+            loadOrders();
+        }
+
+        async function exportOrdersCSV() {
+            const orders = await loadOrdersFromFirebase();
+            if (orders.length === 0) {
+                showToast("No orders to export", "error");
+                return;
+            }
+
+            let csv = "Order ID,Date,Email,Name,Total,Status,Payment Method,Note\n";
+
+            orders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(o => {
+                const date = new Date(o.timestamp).toLocaleDateString();
+                const name = o.shipping ? `${o.shipping.firstName} ${o.shipping.lastName}` : "N/A";
+                const row = [
+                    o.orderId,
+                    date,
+                    o.email,
+                    `"${name}"`,
+                    o.total,
+                    o.status,
+                    o.paymentMethod,
+                    `"${o.paymentNote || ""}"`
+                ].join(",");
+                csv += row + "\n";
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `flipside-orders-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            showToast("Orders exported to CSV!", "success");
+        }
+
+        // --- PRODUCT MANAGEMENT GUI (Admin 2.0) ---
+        let currentProducts = [];
+
+        function openProductModal(productId = null) {
+            const modal = document.getElementById('productModal');
+            const form = document.getElementById('productForm');
+            const title = document.getElementById('modalTitle');
+
+            form.reset();
+            document.getElementById('editProductId').value = '';
+            document.getElementById('imagePreview').innerHTML = '<span style="color: var(--color-text-muted); font-size: 0.8rem;">Image Preview</span>';
+
+            if (productId) {
+                const product = currentProducts.find(p => p.id == productId);
+                if (product) {
+                    title.textContent = 'Edit Product';
+                    document.getElementById('editProductId').value = product.id;
+                    document.getElementById('prodName').value = product.name;
+                    document.getElementById('prodPrice').value = product.price;
+                    document.getElementById('prodCategory').value = product.category || 'Other';
+                    document.getElementById('prodType').value = product.type;
+                    document.getElementById('prodStock').value = product.type === 'physical' ? (product.stock || 0) : '';
+                    document.getElementById('prodCommission').value = product.commission || 10;
+                    document.getElementById('prodImage').value = product.image;
+                    document.getElementById('prodDescription').value = product.description;
+                    document.getElementById('prodFulfillment').value = product.fulfillment || '';
+
+                    previewProductImage();
+                    toggleStockField();
+                }
+            } else {
+                title.textContent = 'Add New Product';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.add('hidden');
+        }
+
+        function toggleStockField() {
+            const type = document.getElementById('prodType').value;
+            const stockGroup = document.getElementById('stockGroup');
+            const digitalFields = document.getElementById('digitalFields');
+
+            if (type === 'digital') {
+                stockGroup.style.opacity = '0.5';
+                stockGroup.style.pointerEvents = 'none';
+                digitalFields.classList.remove('hidden');
+            } else {
+                stockGroup.style.opacity = '1';
+                stockGroup.style.pointerEvents = 'auto';
+                digitalFields.classList.add('hidden');
+            }
+        }
+
+        function previewProductImage() {
+            const url = document.getElementById('prodImage').value;
+            const preview = document.getElementById('imagePreview');
+            if (url && url.startsWith('http')) {
+                preview.innerHTML = `<img src="${url}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentElement.innerHTML='Invalid Image'">`;
+            } else {
+                preview.innerHTML = '<span style="color: var(--color-text-muted); font-size: 0.8rem;">Image Preview</span>';
+            }
+        }
+
+        async function handleProductSubmit(e) {
+            e.preventDefault();
+
+            const editId = document.getElementById('editProductId').value;
+            const productData = {
+                id: editId ? parseInt(editId) : Date.now(),
+                name: document.getElementById('prodName').value,
+                price: parseFloat(document.getElementById('prodPrice').value),
+                category: document.getElementById('prodCategory').value,
+                type: document.getElementById('prodType').value,
+                stock: document.getElementById('prodType').value === 'physical' ? parseInt(document.getElementById('prodStock').value) : null,
+                commission: parseInt(document.getElementById('prodCommission').value),
+                image: document.getElementById('prodImage').value,
+                description: document.getElementById('prodDescription').value,
+                fulfillment: document.getElementById('prodFulfillment').value
+            };
+
+            try {
+                if (editId) {
+                    await updateProductInFirebase(editId, productData);
+                    showToast('Product updated successfully!', 'success');
+                } else {
+                    await addProductToFirebase(productData);
+                    showToast('Product added successfully!', 'success');
+                }
+                closeProductModal();
+                loadProducts();
+            } catch (error) {
+                console.error("Product Error:", error);
+                showToast('Failed to save product.', 'error');
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (confirm('Are you sure you want to delete this product? This cannot be undone.')) {
+                try {
+                    await deleteProductFromFirebase(id);
+                    showToast('Product deleted.', 'success');
+                    loadProducts();
+                } catch (error) {
+                    showToast('Failed to delete product.', 'error');
+                }
+            }
+        }
+
+        async function updateFulfillment(orderId) {
+            const tracking = document.getElementById(`tracking-${orderId}`)?.value || '';
+            const fulfillment = document.getElementById(`fulfillment-${orderId}`)?.value || '';
+
+            try {
+                await updateOrderInFirebase(orderId, {
+                    trackingNumber: tracking,
+                    fulfillmentData: fulfillment,
+                    fulfillment_updated_at: new Date().toISOString()
+                });
+                showToast('Fulfillment details saved!', 'success');
+                loadOrders(); // Refresh to show latest
+            } catch (error) {
+                console.error("Fulfillment Error:", error);
+                showToast('Failed to save details.', 'error');
+            }
+        }
+
+        async function markResellerPaid(resellerId, amount) {
+            if (confirm(`Confirm you have paid £${amount.toFixed(2)} to reseller ${resellerId}?`)) {
+                try {
+                    const resellers = await loadResellersFromFirebase();
+                    const reseller = resellers.find(r => r.id === resellerId);
+                    if (!reseller) return;
+
+                    const currentPaid = reseller.paidCommission || 0;
+                    await updateResellerInFirebase(resellerId, {
+                        paidCommission: currentPaid + amount
+                    });
+                    showToast(`Payout recorded for ${resellerId}`, 'success');
+                    loadResellers();
+                } catch (error) {
+                    showToast('Failed to record payout.', 'error');
+                }
+            }
+        }
+
+        async function updateSalesChart(orders) {
+            const chart = document.getElementById('salesChart');
+            const labelsLine = document.getElementById('chartLabels');
+            if (!chart || !labelsLine) return;
+
+            // Get last 7 days
+            const days = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                days.push(d.toISOString().split('T')[0]);
+            }
+
+            // Calculate daily totals
+            const totals = days.map(day => {
+                return orders.filter(o => o.timestamp.startsWith(day)).length;
+            });
+
+            const max = Math.max(...totals, 5); // Minimum 5 for scale
+
+            chart.innerHTML = totals.map((t, i) => {
+                const height = (t / max) * 100;
+                return `
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; height: 100%; justify-content: flex-end;">
+                        <div style="font-size: 0.75rem; color: var(--color-gold); font-weight: bold;">${t}</div>
+                        <div style="width: 100%; height: ${height}%; background: var(--gradient-primary); border-radius: 4px 4px 0 0; min-height: 2px; transition: height 0.5s ease;"></div>
+                    </div>
+                `;
+            }).join('');
+
+            labelsLine.innerHTML = days.map(day => {
+                const d = new Date(day);
+                return `<div style="flex: 1; text-align: center;">${d.toLocaleDateString(undefined, { weekday: 'short' })}</div>`;
+            }).join('');
+        }
+
+        // --- REVIEWS MANAGEMENT ---
+        async function loadReviews() {
+            const container = document.getElementById('reviewsList');
+            if (!container) return;
+            container.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px;">Loading reviews...</td></tr>';
+
+            try {
+                if (typeof loadAllReviewsFromFirebase !== 'function') {
+                    container.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px;">Review system offline.</td></tr>';
+                    return;
+                }
+                const reviews = await loadAllReviewsFromFirebase();
+                if (reviews.length === 0) {
+                    container.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px;">No reviews found.</td></tr>';
+                    return;
+                }
+
+                container.innerHTML = reviews.map(r => {
+                    const statusColor = r.status === 'approved' ? 'var(--color-success)' : (r.status === 'rejected' ? 'var(--color-error)' : 'var(--color-gold)');
+                    return `
+                        <tr>
+                            <td style="padding: var(--spacing-sm);">
+                                <div style="font-weight: 600;">PRD-${r.productId}</div>
+                            </td>
+                            <td style="padding: var(--spacing-sm);">${r.customerName}</td>
+                            <td style="padding: var(--spacing-sm);">
+                                <div style="color: var(--color-gold);">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+                            </td>
+                            <td style="padding: var(--spacing-sm);">
+                                <div style="max-width: 250px; font-size: 0.8rem; color: var(--color-text-secondary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="${r.comment}">${r.comment}</div>
+                            </td>
+                            <td style="padding: var(--spacing-sm); font-size: 0.75rem;">${new Date(r.timestamp).toLocaleDateString()}</td>
+                            <td style="padding: var(--spacing-sm);">
+                                <span style="font-size: 0.7rem; color: ${statusColor}; text-transform: uppercase;">● ${r.status}</span>
+                            </td>
+                            <td style="padding: var(--spacing-sm);">
+                                <div style="display: flex; gap: 5px;">
+                                    ${r.status !== 'approved' ? `<button class="btn btn-primary btn-small" onclick="moderateReview('${r.id}', 'approved')" style="padding: 4px 8px; font-size: 0.7rem;">Approve</button>` : ''}
+                                    ${r.status !== 'rejected' ? `<button class="btn btn-ghost btn-small" onclick="moderateReview('${r.id}', 'rejected')" style="color: #ff4444; padding: 4px 8px; font-size: 0.7rem;">Reject</button>` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error("Load Reviews Error:", error);
+                container.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--color-error);">Failed to load reviews.</td></tr>';
+            }
+        }
+
+        async function moderateReview(reviewId, status) {
+            try {
+                const success = await updateReviewStatus(reviewId, status);
+                if (success) {
+                    showToast(`Review ${status}!`, 'success');
+                    loadReviews();
+                } else {
+                    showToast('Failed to moderate review.', 'error');
+                }
+            } catch (error) {
+                showToast('Review update error.', 'error');
+            }
+        }
+
+        // Toast
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<p class="toast-message">${message}</p>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+
+    <!-- Product Management Modal -->
+    <div id="productModal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 600px;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+                <h2 id="modalTitle" style="color: var(--color-gold); margin: 0;">Add New Product</h2>
+                <button class="btn btn-ghost" onclick="closeProductModal()"
+                    style="font-size: 1.5rem; padding: 0;">&times;</button>
+            </div>
+
+            <form id="productForm" onsubmit="handleProductSubmit(event)">
+                <input type="hidden" id="editProductId">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" id="prodName" class="form-input" required placeholder="e.g., iPhone 15 Pro">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Price (£)</label>
+                        <input type="number" id="prodPrice" class="form-input" required step="0.01" min="0"
+                            placeholder="0.00">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select id="prodCategory" class="form-input" required>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Fashion">Fashion</option>
+                            <option value="Home">Home</option>
+                            <option value="Digital">Digital</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Product Type</label>
+                        <select id="prodType" class="form-input" required onchange="toggleStockField()">
+                            <option value="physical">Physical (Requires Shipping/Stock)</option>
+                            <option value="digital">Digital (Instant Delivery)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div id="stockGroup" class="form-group">
+                        <label class="form-label">Stock Level</label>
+                        <input type="number" id="prodStock" class="form-input" min="0" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Reseller Commission (%)</label>
+                        <input type="number" id="prodCommission" class="form-input" min="0" max="100" value="10">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Image URL</label>
+                    <input type="text" id="prodImage" class="form-input" required oninput="previewProductImage()"
+                        placeholder="https://example.com/image.jpg">
+                    <div id="imagePreview"
+                        style="margin-top: 10px; height: 100px; border-radius: 8px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px dashed rgba(255,255,255,0.1);">
+                        <span style="color: var(--color-text-muted); font-size: 0.8rem;">Image Preview</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea id="prodDescription" class="form-input" rows="3" required
+                        placeholder="Describe your product..."></textarea>
+                </div>
+
+                <div id="digitalFields" class="hidden"
+                    style="padding: var(--spacing-md); background: rgba(0, 212, 255, 0.05); border-radius: var(--radius-md); margin-bottom: var(--spacing-md); border: 1px solid rgba(0, 212, 255, 0.1);">
+                    <h4 style="color: var(--color-blue); margin-bottom: 5px;">Digital Fulfillment</h4>
+                    <label class="form-label">Fulfillment Data (Key/URL/Instruction)</label>
+                    <input type="text" id="prodFulfillment" class="form-input" placeholder="e.g., LICENSE-KEY-123">
+                </div>
+
+                <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-lg);">
+                    <button type="button" class="btn btn-outline" style="flex: 1;"
+                        onclick="closeProductModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 2;">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+</body>
+
+</html>
