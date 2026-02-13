@@ -85,9 +85,11 @@ body.light-mode {
     --color-bg-darker: #f0f2f5;
     --color-bg-card: #ffffff;
     --color-bg-card-hover: #f1f3f5;
-    --color-text-primary: #1a1a1a;
-    --color-text-secondary: #495057;
-    --color-text-muted: #868e96;
+    --color-text-primary: #111111;
+    --color-text-secondary: #333333;
+    --color-text-muted: #666666;
+    --color-nav-bg: rgba(255, 255, 255, 0.95);
+    --color-nav-border: rgba(0, 0, 0, 0.08);
     --glow-gold: 0 4px 12px rgba(255, 215, 0, 0.2);
     --glow-blue: 0 4px 12px rgba(0, 212, 255, 0.2);
 }
@@ -275,11 +277,21 @@ a:hover {
     background: rgba(255, 255, 255, 0.05);
     color: var(--color-text-primary);
     backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.light-mode .btn-ghost {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
 }
 
 .btn-ghost:hover {
     background: rgba(255, 255, 255, 0.1);
     transform: translateY(-2px);
+}
+
+body.light-mode .btn-ghost:hover {
+    background: rgba(0, 0, 0, 0.06);
 }
 
 .btn:disabled {
@@ -322,14 +334,20 @@ a:hover {
 }
 
 /* ===== NAVIGATION ===== */
+:root {
+    --color-nav-bg: rgba(10, 10, 10, 0.95);
+    --color-nav-border: rgba(255, 255, 255, 0.05);
+}
+
 nav {
     position: sticky;
     top: 0;
     z-index: 1000;
-    background: rgba(10, 10, 10, 0.95);
+    background: var(--color-nav-bg);
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--color-nav-border);
     padding: var(--spacing-sm) 0;
+    transition: background var(--transition-normal), border var(--transition-normal);
 }
 
 .nav-container {

@@ -49,11 +49,11 @@ const PRODUCTS = [
         id: 1,
         name: "FlipSide Pros 3rd Gen",
         type: "physical",
-        price: 44.99,
+        price: 49.99,
         commission: 20,
         image: "assets/products/Airpod Pro 3s.webp",
         description: "Experience absolute 1:1 fidelity with the FlipSide Pros 3rd Gen. Featuring high-performance Active Noise Cancellation (ANC), spatial audio support, and a seamless magnetic charging case. These are the ultimate premium wireless earbuds for those who demand quality without the premium price tag. Includes a 12-month manufacturer warranty.",
-        shortDescription: "Premium rep 1:1 Airpods with ANC",
+        shortDescription: "Premium rep 1:1 Airpod Pros with ANC",
         category: "Electronics",
         stock: 10,
         weight: 0.5,
@@ -64,21 +64,19 @@ const PRODUCTS = [
 
     {
         id: 2,
-        name: "Digital Marketing Course",
-        type: "digital",
-        price: 149.99,
-        commission: 30, // Higher commission for digital products (no shipping costs)
-        image: "assets/products/marketing-course.jpg",
-        description: "Complete digital marketing masterclass with 50+ hours of video content, downloadable resources, and lifetime access. Learn SEO, social media marketing, email campaigns, and more from industry experts.",
-        shortDescription: "Complete digital marketing masterclass - 50+ hours",
-        category: "Education",
-        downloadUrl: "https://example.com/courses/digital-marketing",
-        digitalContent: "https://flipside-storage.com/files/marketing-masterclass.zip",
-        fileSize: "8.5 GB",
+        name: "FlipSide Gen 4",
+        type: "physical",
+        price: 44.99,
+        commission: 20,
+        image: "assets/products/Airpods Gen 4.jpg",
+        description: "The all-new FlipSide Gen 4 brings a fresh design and enhanced acoustic architecture. With a more contoured fit and improved battery life, these buds deliver deep bass and crisp highs for an immersive listening experience. Features sweat and water resistance (IPX4) and a compact charging case with USB-C support. Perfect for everyday use and active lifestyles.",
+        shortDescription: "Premium rep 1:1 Airpods with enhanced sound",
+        category: "Electronics",
+        stock: 10,
+        weight: 0.5,
         featured: true,
-        onSale: true,
-        salePrice: 99.99,
-        tags: ["digital", "education", "bestseller"]
+        onSale: false,
+        tags: ["trending", "electronics", "audio"]
     },
 
     {
@@ -132,9 +130,26 @@ const PRODUCTS = [
         onSale: true,
         salePrice: 44.99,
         tags: ["accessories", "leather", "sale"]
+    },
+    {
+        id: 6,
+        name: "Digital Marketing Course",
+        type: "digital",
+        price: 149.99,
+        commission: 30, // Higher commission for digital products (no shipping costs)
+        image: "assets/products/marketing-course.jpg",
+        description: "Complete digital marketing masterclass with 50+ hours of video content, downloadable resources, and lifetime access. Learn SEO, social media marketing, email campaigns, and more from industry experts.",
+        shortDescription: "Complete digital marketing masterclass - 50+ hours",
+        category: "Education",
+        downloadUrl: "https://example.com/courses/digital-marketing",
+        digitalContent: "https://flipside-storage.com/files/marketing-masterclass.zip",
+        fileSize: "8.5 GB",
+        featured: true,
+        onSale: true,
+        salePrice: 99.99,
+        tags: ["digital", "education", "bestseller"]
     }
 ];
-
 // ===== HELPER FUNCTIONS =====
 // Don't modify these unless you know what you're doing
 
