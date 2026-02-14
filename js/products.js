@@ -42,24 +42,25 @@ PRODUCT TEMPLATE - Copy and paste this to add new products:
 */
 
 const PRODUCTS = [
-    // ===== EXAMPLE PRODUCTS =====
-    // Replace these with your actual products!
+    // ===== PRODUCTS (Alphabetical Order) =====
 
     {
         id: 1,
-        name: "FlipSide Pros 3rd Gen",
-        type: "physical",
-        price: 49.99,
-        commission: 20,
-        image: "assets/products/Airpod Pro 3s.webp",
-        description: "Experience absolute 1:1 fidelity with the FlipSide Pros 3rd Gen. Featuring high-performance Active Noise Cancellation (ANC), spatial audio support, and a seamless magnetic charging case. These are the ultimate premium wireless earbuds for those who demand quality without the premium price tag. Includes a 12-month manufacturer warranty.",
-        shortDescription: "Premium rep 1:1 Airpod Pros with ANC",
-        category: "Electronics",
-        stock: 10,
-        weight: 0.5,
+        name: "Digital Marketing Course",
+        type: "digital",
+        price: 149.99,
+        commission: 30, // Higher commission for digital products (no shipping costs)
+        image: "assets/products/marketing-course.jpg",
+        description: "Complete digital marketing masterclass with 50+ hours of video content, downloadable resources, and lifetime access. Learn SEO, social media marketing, email campaigns, and more from industry experts.",
+        shortDescription: "Complete digital marketing masterclass - 50+ hours",
+        category: "Education",
+        downloadUrl: "https://example.com/courses/digital-marketing",
+        digitalContent: "https://flipside-storage.com/files/marketing-masterclass.zip",
+        fileSize: "8.5 GB",
         featured: true,
-        onSale: false,
-        tags: ["trending", "electronics", "audio"]
+        onSale: true,
+        salePrice: 99.99,
+        tags: ["digital", "education", "bestseller"]
     },
 
     {
@@ -81,23 +82,40 @@ const PRODUCTS = [
 
     {
         id: 3,
-        name: "Smart Fitness Tracker",
+        name: "FlipSide Pros 3rd Gen",
         type: "physical",
-        price: 79.99,
+        price: 49.99,
         commission: 20,
-        image: "assets/products/fitness-tracker.jpg",
-        description: "Track your fitness goals with this advanced fitness tracker. Monitor heart rate, sleep patterns, steps, calories, and more. Water-resistant with 7-day battery life. Compatible with iOS and Android.",
-        shortDescription: "Advanced fitness tracker with heart rate monitoring",
+        image: "assets/products/Airpod Pro 3s.webp",
+        description: "Experience absolute 1:1 fidelity with the FlipSide Pros 3rd Gen. Featuring high-performance Active Noise Cancellation (ANC), spatial audio support, and a seamless magnetic charging case. These are the ultimate premium wireless earbuds for those who demand quality without the premium price tag. Includes a 12-month manufacturer warranty.",
+        shortDescription: "Premium rep 1:1 Airpod Pros with ANC",
         category: "Electronics",
-        stock: 250,
-        weight: 0.2,
-        featured: false,
+        stock: 10,
+        weight: 0.5,
+        featured: true,
         onSale: false,
-        tags: ["health", "fitness", "electronics"]
+        tags: ["trending", "electronics", "audio"]
     },
 
     {
         id: 4,
+        name: "FlipSide Watch Ultra 2",
+        type: "physical",
+        price: 54.99,
+        commission: 10,
+        image: "assets/products/Apple Watch Ultra 2.jpg",
+        description: "Experience the pinnacle of wearable technology with the FlipSide Watch Ultra 2. Engineered for endurance and adventure, it features a rugged aerospace-grade titanium case, a bright Always-On Retina display, and a customizable Action button. With advanced health monitoring, precise GPS tracking, and a long-lasting battery life, it's the ultimate companion for athletes and explorers alike.",
+        shortDescription: "Premium 1:1 smartwatch with rugged design and advanced health features",
+        category: "Electronics",
+        stock: 10,
+        weight: 0.5,
+        featured: true,
+        onSale: false,
+        tags: ["trending", "electronics", "wearable"]
+    },
+
+    {
+        id: 5,
         name: "Graphic Design Template Pack",
         type: "digital",
         price: 49.99,
@@ -115,7 +133,7 @@ const PRODUCTS = [
     },
 
     {
-        id: 5,
+        id: 6,
         name: "Premium Leather Wallet",
         type: "physical",
         price: 59.99,
@@ -131,23 +149,22 @@ const PRODUCTS = [
         salePrice: 44.99,
         tags: ["accessories", "leather", "sale"]
     },
+
     {
-        id: 6,
-        name: "Digital Marketing Course",
-        type: "digital",
-        price: 149.99,
-        commission: 30, // Higher commission for digital products (no shipping costs)
-        image: "assets/products/marketing-course.jpg",
-        description: "Complete digital marketing masterclass with 50+ hours of video content, downloadable resources, and lifetime access. Learn SEO, social media marketing, email campaigns, and more from industry experts.",
-        shortDescription: "Complete digital marketing masterclass - 50+ hours",
-        category: "Education",
-        downloadUrl: "https://example.com/courses/digital-marketing",
-        digitalContent: "https://flipside-storage.com/files/marketing-masterclass.zip",
-        fileSize: "8.5 GB",
-        featured: true,
-        onSale: true,
-        salePrice: 99.99,
-        tags: ["digital", "education", "bestseller"]
+        id: 7,
+        name: "Smart Fitness Tracker",
+        type: "physical",
+        price: 79.99,
+        commission: 20,
+        image: "assets/products/fitness-tracker.jpg",
+        description: "Track your fitness goals with this advanced fitness tracker. Monitor heart rate, sleep patterns, steps, calories, and more. Water-resistant with 7-day battery life. Compatible with iOS and Android.",
+        shortDescription: "Advanced fitness tracker with heart rate monitoring",
+        category: "Electronics",
+        stock: 250,
+        weight: 0.2,
+        featured: false,
+        onSale: false,
+        tags: ["health", "fitness", "electronics"]
     }
 ];
 // ===== HELPER FUNCTIONS =====

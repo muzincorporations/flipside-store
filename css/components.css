@@ -814,8 +814,11 @@ footer {
     opacity: 0;
     visibility: hidden;
     box-shadow: var(--glow-gold);
-    font-size: 1.2rem;
-    font-weight: bold;
+    font-size: 1.5rem;
+    /* Slightly larger for better centering visibility */
+    line-height: 1;
+    padding-bottom: 4px;
+    /* Nudge upward slightly as unicode arrows often sit low */
 }
 
 .back-to-top.visible {

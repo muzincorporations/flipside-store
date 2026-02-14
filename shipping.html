@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FlipSide Shipping Policy - Detailed delivery and processing information.">
+    <title>Shipping Information - FlipSide</title>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://flipside.com/shipping">
+    <meta property="og:title" content="Shipping Information - FlipSide">
+    <meta property="og:description"
+        content="Professional logistics and global delivery information for all FlipSide premium products.">
+    <meta property="og:image" content="assets/logo.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=3">
+
+    <style>
+        .policy-container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 var(--spacing-md);
+        }
+
+        .policy-card {
+            background: var(--color-bg-light);
+            padding: var(--spacing-2xl);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .policy-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .policy-header {
+            text-align: center;
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .policy-header h1 {
+            font-size: 3.5rem;
+            margin-bottom: var(--spacing-sm);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .policy-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .policy-section h2 {
+            color: var(--color-gold);
+            margin-bottom: var(--spacing-md);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .policy-text {
+            color: var(--color-text-secondary);
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        .shipping-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-xl);
+        }
+
+        .shipping-stat {
+            background: rgba(255, 255, 255, 0.03);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+        }
+
+        .shipping-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .shipping-stat-label {
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <div class="nav-container">
+                <a href="index.html" class="nav-logo">
+                    <img src="assets/logo.png" alt="FlipSide Logo">
+                    <span>FlipSide</span>
+                </a>
+                <div class="nav-links">
+                    <a href="products.html">Products</a>
+                    <a href="reseller.html">Become Reseller</a>
+                    <a href="faq.html">FAQ</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="policy-container">
+        <div class="policy-card">
+            <div class="policy-header">
+                <h1>Shipping Policy</h1>
+                <p style="color: var(--color-text-muted);">Logistics & Delivery Excellence</p>
+            </div>
+
+            <div class="policy-section">
+                <h2><span>🚚</span> Global Dispatch Standards</h2>
+                <div class="policy-text">
+                    <p>At FlipSide, we pride ourselves on a logistics network that prioritises both speed and security.
+                        Every order placed through our premium platform undergoes a rigorous 24-step verification and
+                        quality assurance inspection before it even arrives at our dispatch hub. We understand that when
+                        you invest in premium hardware or exclusive digital assets, the transit phase is critical.</p>
+                    <p>Our operational framework is designed to ensure that most physical goods are prepared for
+                        transit within 24 to 48 hours of payment authorisation. This initial processing window allows
+                        us to coordinate with our global distribution partners to secure the most efficient route
+                        straight to your doorstep.</p>
+                </div>
+            </div>
+
+            <div class="policy-section">
+                <h2><span>⏱️</span> Delivery Timeframes</h2>
+                <div class="policy-text">
+                    <p>We believe in transparent communication regarding our delivery windows. While many logistics
+                        services over-promise and under-deliver, FlipSide maintains a high fulfillment standard. For
+                        the vast majority of our domestic and international shipments, our logistics partners achieve
+                        final delivery in <strong>approximately seven days or less</strong> from the moment of dispatch.
+                    </p>
+                    <p>This timeframe accounts for the necessary customs clearance protocols (where applicable),
+                        last-mile transport legs, and the meticulous handling required for high-value electronics and
+                        delicate hardware. By utilizing expedited priority channels, we aim to exceed this expectation
+                        wherever possible, ensuring your FlipSide products arrive in pristine condition in a timeframe
+                        that respects your urgency.</p>
+                </div>
+            </div>
+
+            <div class="policy-section">
+                <h2><span>📦</span> Real-Time Tracking & Transparency</h2>
+                <div class="policy-text">
+                    <p>Peace of mind is an integral part of the FlipSide experience. As soon as your order leaves
+                        our distribution facility, our automated tracking system generates a unique identifier that
+                        provides minute-by-minute updates on your shipment's progress. You can monitor your order's
+                        journey through our dedicated <a href="track.html" style="color: var(--color-gold);">tracking
+                            portal</a>
+                        or via the direct link provided in your shipping confirmation email.</p>
+                </div>
+            </div>
+
+            <div class="shipping-grid">
+                <div class="shipping-stat">
+                    <div class="shipping-stat-value">~7 Days</div>
+                    <div class="shipping-stat-label">Average Delivery</div>
+                </div>
+                <div class="shipping-stat">
+                    <div class="shipping-stat-value">24/48h</div>
+                    <div class="shipping-stat-label">Dispatch Hub</div>
+                </div>
+                <div class="shipping-stat">
+                    <div class="shipping-stat-value">100%</div>
+                    <div class="shipping-stat-label">Tracked Shipments</div>
+                </div>
+            </div>
+
+            <div
+                style="text-align: center; margin-top: var(--spacing-2xl); padding-top: var(--spacing-xl); border-top: 1px solid rgba(255,255,255,0.05);">
+                <p style="margin-bottom: var(--spacing-md); color: var(--color-text-secondary);">Looking for more info?
+                </p>
+                <div style="display: flex; justify-content: center; gap: var(--spacing-md);">
+                    <a href="faq.html" class="btn btn-outline">Visit FAQ</a>
+                    <a href="index.html#contact" class="btn btn-ghost">Contact Support</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>FlipSide</h3>
+                    <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+                        Your trusted platform for premium reselling opportunities.
+                    </p>
+                    <div class="footer-social" id="footerSocial">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="reseller.html">Become a Reseller</a></li>
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Support</h3>
+                    <ul class="footer-links">
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="shipping.html">Shipping Info</a></li>
+                        <li><a href="returns.html">Returns</a></li>
+                        <li><a href="index.html#contact">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Contact</h3>
+                    <ul class="footer-links">
+                        <li id="footerEmail">📧 <a
+                                href="mailto:muzincorporations@gmail.com">muzincorporations@gmail.com</a></li>
+                        <li id="footerPhone" class="hidden">📱 <span></span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 FlipSide. All rights reserved. Built for success.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+</body>
+
+</html>

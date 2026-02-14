@@ -86,8 +86,8 @@ const CONFIG = {
     // Feature Flags
     features: {
         resellersEnabled: true,
-        reviewsEnabled: false, // Enable product reviews
-        wishlistEnabled: false, // Enable wishlist feature
+        reviewsEnabled: true, // Enable product reviews
+        wishlistEnabled: true, // Enable wishlist feature
         guestCheckoutEnabled: true // Allow checkout without account
     },
 
