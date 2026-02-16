@@ -287,25 +287,37 @@ function listenToOrder(orderId, callback) {
 }
 
 // Delete an order
+// Delete an order
 async function deleteOrderFromFirebase(orderId) {
-    if (!firebaseEnabled) {
+    // 1. Always try to delete from Local Storage (to handle historical/local-only orders)
+    try {
         const orders = JSON.parse(localStorage.getItem('orders') || '[]');
         const filtered = orders.filter(o => o.orderId !== orderId);
         localStorage.setItem('orders', JSON.stringify(filtered));
+    } catch (e) {
+        console.error("Error deleting from local storage:", e);
+    }
+
+    if (!firebaseEnabled) {
         return true;
     }
 
+    // 2. Try to delete from Firebase
     try {
         // Find the document with the specific orderId field
         const snapshot = await db.collection('orders').where('orderId', '==', orderId).get();
-        if (snapshot.empty) return false;
 
-        const docId = snapshot.docs[0].id;
-        await db.collection('orders').doc(docId).delete();
-        console.log("✅ Order deleted from Firebase");
+        if (!snapshot.empty) {
+            const docId = snapshot.docs[0].id;
+            await db.collection('orders').doc(docId).delete();
+            console.log("✅ Order deleted from Firebase");
+        } else {
+            console.log("⚠️ Order not found in Firebase (might be local-only)");
+        }
+
         return true;
     } catch (error) {
-        console.error("Error deleting order:", error);
+        console.error("Error deleting order from Firebase:", error);
         return false;
     }
 }
