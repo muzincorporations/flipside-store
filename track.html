@@ -133,13 +133,23 @@
             btn.disabled = true;
 
             try {
-                // We need to fetch the specific document ID directly
-                // Since our ID is the doc ID in Firestore
-                const docRef = db.collection('orders').doc(code);
-                const doc = await docRef.get();
+                let order = null;
 
-                if (doc.exists) {
-                    const order = doc.data();
+                // 1. Check Firebase first
+                if (isFirebaseConnected()) {
+                    const snapshot = await db.collection('orders').where('orderId', '==', code).get();
+                    if (!snapshot.empty) {
+                        order = snapshot.docs[0].data();
+                    }
+                }
+
+                // 2. Fallback to LocalStorage (if not found in Firebase or Firebase disabled)
+                if (!order) {
+                    const localOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+                    order = localOrders.find(o => o.orderId === code);
+                }
+
+                if (order) {
                     displayResult(order, code);
                 } else {
                     alert("Order not found! Please check the code and try again.");
@@ -147,7 +157,15 @@
                 }
             } catch (e) {
                 console.error(e);
-                alert("Error finding order.");
+                // Last ditch effort: check local storage even on error
+                const localOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+                const order = localOrders.find(o => o.orderId === code);
+
+                if (order) {
+                    displayResult(order, code);
+                } else {
+                    alert("Error finding order. Please try again.");
+                }
             } finally {
                 btn.textContent = "Track";
                 btn.disabled = false;
