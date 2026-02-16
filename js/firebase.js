@@ -318,14 +318,28 @@ async function loadOrdersFromFirebase() {
 
     try {
         const snapshot = await db.collection('orders').orderBy('timestamp', 'desc').get();
-        const orders = [];
+        const firestoreOrders = [];
 
         snapshot.forEach(doc => {
-            orders.push({ id: doc.id, ...doc.data() });
+            firestoreOrders.push({ id: doc.id, ...doc.data() });
         });
 
-        console.log(`✅ Loaded ${orders.length} orders from Firebase`);
-        return orders;
+        // Merge with local orders (avoiding duplicates)
+        const localOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+        const combinedOrders = [...firestoreOrders];
+
+        localOrders.forEach(localOrder => {
+            // Only add if not already in Firestore list (by orderId)
+            if (!combinedOrders.find(o => o.orderId === localOrder.orderId)) {
+                combinedOrders.push(localOrder);
+            }
+        });
+
+        // Sort combined list by timestamp
+        combinedOrders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        console.log(`✅ Loaded ${combinedOrders.length} orders (${firestoreOrders.length} remote, ${localOrders.length} local)`);
+        return combinedOrders;
     } catch (error) {
         console.error("Error loading orders:", error);
         return JSON.parse(localStorage.getItem('orders') || '[]');

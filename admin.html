@@ -536,6 +536,17 @@
     <script src="js/firebase.js"></script>
     <script>
         let sessionActive = false;
+        let orderFilter = 'active'; // Default to showing active orders
+
+        // Set order filter and reload
+        function setOrderFilter(filter) {
+            orderFilter = filter;
+            // Toggle active class on filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById('filter-' + filter);
+            if (activeBtn) activeBtn.classList.add('active');
+            loadOrders();
+        }
 
         // Login
         document.getElementById('loginForm').addEventListener('submit', (e) => {
