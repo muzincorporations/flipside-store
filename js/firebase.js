@@ -6,13 +6,13 @@
 // Firebase configuration
 // REPLACE THESE VALUES with your Firebase project details
 const firebaseConfig = {
-    apiKey: "YOUR_FIREBASE_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID",
-    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com"
+    apiKey: "AIzaSyCGr9Wnp8jA8XCqNVG187y3SuU7_JF-3dk",
+    authDomain: "flipside-store.firebaseapp.com",
+    projectId: "flipside-store",
+    storageBucket: "flipside-store.firebasestorage.app",
+    messagingSenderId: "815772306124",
+    appId: "1:815772306124:web:3dea5682743dc416181069",
+    measurementId: "G-XM3J22KZ47"
 };
 
 // Check if Firebase is configured
@@ -23,7 +23,7 @@ let db = null;
 function initFirebase() {
     try {
         // Check if config is set
-        if (firebaseConfig.apiKey === "YOUR_FIREBASE_API_KEY") {
+        if (!firebaseConfig.apiKey || firebaseConfig.apiKey.startsWith("YOUR_")) {
             console.log("Firebase not configured. Using local data.");
             return false;
         }
