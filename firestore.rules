@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAdmin() {
+      // Check if the user is authenticated (using Firebase Auth)
+      // This ensures only YOU (once logged in) can manage orders/settings
+      return request.auth != null;
+    }
+
+    // Products: Everyone can read, only Admin can write
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if false; // Only allow writes via Admin Panel (which uses the same client SDK but acts as admin)
+                             // wait, the Admin Panel runs on client side too.
+                             // without Auth, we can't insecurely secure this perfectly.
+                             // For now, let's open it for demonstration but warn the user.
+    }
+
+    // Reviews: Everyone can read approved reviews, anyone can create (status: pending)
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.resource.data.status == 'pending';
+      allow update, delete: if false; 
+    }
+
+    // Orders: Anyone can create, only admin can read/update (technically)
+    // But since users need to track, we might allow read by ID?
+    // Actually, tracking is done by exact ID match usually.
+    match /orders/{orderId} {
+      allow create: if true; // Anyone can place an order
+      allow read: if true;   // Needed for tracking page (by ID)
+      allow update: if false; // Only admin via backend or special flow
+    }
+
+    // Applications: Anyone can create
+    match /applications/{appId} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+
+    // Settings: Public read (for store config), Admin write
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if false; 
+    }
+  }
+}

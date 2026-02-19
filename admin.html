@@ -32,18 +32,37 @@
             </div>
             <div class="modal-body">
                 <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
-                    Enter the admin password to access the panel
+                    Please sign in to access the FlipSide Admin Panel.
                 </p>
+                
+                <div id="loginError" class="badge" style="background: rgba(255, 68, 68, 0.1); color: #ff4444; width: 100%; margin-bottom: var(--spacing-md); display: none; padding: 10px;"></div>
+
                 <form id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" id="adminEmail" required
+                            placeholder="e.g., muzincorporations@gmail.com">
+                    </div>
                     <div class="form-group">
                         <label class="form-label">Password</label>
                         <input type="password" class="form-input" id="adminPassword" required
-                            placeholder="Enter admin password">
+                            placeholder="Enter your password">
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-md);">
-                        Login
+                        Login with Email
                     </button>
                 </form>
+
+                <div style="margin: var(--spacing-lg) 0; display: flex; align-items: center; gap: 10px; color: var(--color-text-muted);">
+                    <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></div>
+                    <span>or</span>
+                    <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></div>
+                </div>
+
+                <button class="btn btn-outline" onclick="loginWithGoogle()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 18px;">
+                    Sign in with Google
+                </button>
             </div>
         </div>
     </div>
@@ -527,6 +546,7 @@
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <!-- Scripts -->
@@ -535,8 +555,26 @@
     <script src="js/products.js"></script>
     <script src="js/firebase.js"></script>
     <script>
-        let sessionActive = false;
+        let currentUser = null;
         let orderFilter = 'active'; // Default to showing active orders
+
+        // Initialize Auth listener
+        function initAuth() {
+            firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                    console.log("👤 Admin authenticated:", user.email);
+                    currentUser = user;
+                    document.getElementById('loginScreen').classList.remove('active');
+                    document.getElementById('adminPanel').classList.remove('hidden');
+                    loadDashboard();
+                } else {
+                    console.log("🚪 Admin signed out");
+                    currentUser = null;
+                    document.getElementById('loginScreen').classList.add('active');
+                    document.getElementById('adminPanel').classList.add('hidden');
+                }
+            });
+        }
 
         // Set order filter and reload
         function setOrderFilter(filter) {
@@ -548,41 +586,64 @@
             loadOrders();
         }
 
-        // Login
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        // Login with Email/Password
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
             const password = document.getElementById('adminPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            const submitBtn = e.target.querySelector('button');
 
-            if (password === CONFIG.admin.password) {
-                sessionActive = true;
-                localStorage.setItem('adminSession', Date.now());
-                document.getElementById('loginScreen').classList.remove('active');
-                document.getElementById('adminPanel').classList.remove('hidden');
-                loadDashboard();
+            try {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Signing in...';
+                errorDiv.style.display = 'none';
+                
+                await firebase.auth().signInWithEmailAndPassword(email, password);
                 showToast('Login successful!', 'success');
-            } else {
-                showToast('Incorrect password!', 'error');
+            } catch (error) {
+                console.error("Login error:", error);
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+                showToast('Login failed!', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Login with Email';
             }
         });
+
+        // Login with Google
+        async function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            const errorDiv = document.getElementById('loginError');
+            
+            try {
+                errorDiv.style.display = 'none';
+                await firebase.auth().signInWithPopup(provider);
+                showToast('Login successful!', 'success');
+            } catch (error) {
+                console.error("Google login error:", error);
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+                showToast('Google login failed!', 'error');
+            }
+        }
 
         // Check session on load
         document.addEventListener('DOMContentLoaded', () => {
             initFirebase();
-            const session = localStorage.getItem('adminSession');
-            if (session) {
-                const elapsed = Date.now() - parseInt(session);
-                if (elapsed < CONFIG.admin.sessionTimeout) {
-                    sessionActive = true;
-                    document.getElementById('loginScreen').classList.remove('active');
-                    document.getElementById('adminPanel').classList.remove('hidden');
-                    loadDashboard();
-                }
-            }
+            initAuth();
         });
 
-        function logout() {
-            localStorage.removeItem('adminSession');
-            window.location.reload();
+        async function logout() {
+            try {
+                await firebase.auth().signOut();
+                localStorage.removeItem('adminSession'); // Clean up old sessions
+                window.location.reload();
+            } catch (error) {
+                console.error("Logout error:", error);
+                showToast('Logout failed!', 'error');
+            }
         }
 
         // Load dashboard
