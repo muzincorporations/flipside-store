@@ -6,8 +6,8 @@
 (function () {
     // Check if EmailSDK is loaded
     if (window.emailjs) {
-        // REPLACE WITH YOUR EMAILJS PUBLIC KEY
-        emailjs.init("YOUR_PUBLIC_KEY");
+        // EMAILJS PUBLIC KEY
+        emailjs.init("NkVeUIFOgTtpiv52Z");
     }
 })();
 
@@ -30,14 +30,38 @@ const EmailService = {
                 track_link: `${window.location.origin}/track.html`, // Dynamic link to tracking page
             };
 
-            // REPLACE WITH YOUR SERVICE ID AND TEMPLATE ID
-            await emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams);
-            console.log("✅ Confirmation Email Sent!");
-            return true;
+            // 1. Send Customer Confirmation
+            await emailjs.send('service_zi1knre', 'template_9dvardd', templateParams);
+            console.log("✅ Customer Confirmation Email Sent!");
 
+            // 2. Send Admin Notification (Optional but recommended)
+            await this.sendAdminNotification(order);
+
+            return true;
         } catch (error) {
-            console.error("❌ Failed to send email:", error);
+            console.error("❌ Failed to send customer email:", error);
             return false;
+        }
+    },
+
+    // Send Admin Notification Email
+    async sendAdminNotification(order) {
+        try {
+            const adminParams = {
+                to_email: 'muzincorporations@gmail.com',
+                order_id: order.orderId,
+                order_total: order.total.toFixed(2),
+                customer_name: order.shipping ? order.shipping.firstName : "Customer",
+                customer_email: order.email,
+                items: order.cart.map(item => item.name).join(", ")
+            };
+
+            // Using the same template or a different one if you prefer
+            // For now, we reuse the confirmation template to keep it simple
+            await emailjs.send('service_zi1knre', 'template_9dvardd', adminParams);
+            console.log("✅ Admin Notification Sent!");
+        } catch (error) {
+            console.error("❌ Admin notification failed:", error);
         }
     }
 };
