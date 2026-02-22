@@ -287,36 +287,46 @@ function listenToOrder(orderId, callback) {
 }
 
 // Delete an order
-// Delete an order
 async function deleteOrderFromFirebase(orderId) {
-    // 1. Always try to delete from Local Storage (to handle historical/local-only orders)
+    // 1. Always delete from Local Storage immediately
+    let localDeleted = false;
     try {
         const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        const before = orders.length;
         const filtered = orders.filter(o => o.orderId !== orderId);
         localStorage.setItem('orders', JSON.stringify(filtered));
+        localDeleted = filtered.length < before;
+        console.log(localDeleted ? `✅ Deleted order ${orderId} from localStorage` : `⚠️ Order ${orderId} not found in localStorage`);
     } catch (e) {
         console.error("Error deleting from local storage:", e);
     }
 
     if (!firebaseEnabled) {
-        return true;
+        return true; // Local-only mode, local delete is enough
     }
 
-    // 2. Try to delete from Firebase
+    // 2. Try to delete from Firebase Firestore
     try {
-        // Find the document with the specific orderId field
         const snapshot = await db.collection('orders').where('orderId', '==', orderId).get();
 
         if (!snapshot.empty) {
             const docId = snapshot.docs[0].id;
             await db.collection('orders').doc(docId).delete();
-            console.log("✅ Order deleted from Firebase");
+            console.log("✅ Order deleted from Firebase Firestore");
         } else {
-            console.log("⚠️ Order not found in Firebase (might be local-only)");
+            console.log("⚠️ Order not found in Firestore (was local-only, already removed from localStorage)");
         }
 
         return true;
     } catch (error) {
+        if (error.code === 'permission-denied') {
+            // Firestore rules are blocking the delete — admin may not be logged in,
+            // or rules haven't been updated yet.
+            console.warn("⚠️ Firebase permission-denied when deleting order. Your Firestore rules may need updating. See: https://console.firebase.google.com → Firestore → Rules → allow update, delete: if request.auth != null;");
+            // We still succeeded locally, so return true to keep the UI consistent.
+            // The order will reappear on next full reload from Firebase if rules aren't updated.
+            return true;
+        }
         console.error("Error deleting order from Firebase:", error);
         return false;
     }

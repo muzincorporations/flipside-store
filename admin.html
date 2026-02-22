@@ -1672,6 +1672,7 @@
                     document.getElementById('prodImage').value = product.image;
                     document.getElementById('prodDescription').value = product.description;
                     document.getElementById('prodFulfillment').value = product.fulfillment || '';
+                    document.getElementById('prodHasKeys').checked = product.hasKeys === true;
 
                     previewProductImage();
                     toggleStockField();
@@ -1727,7 +1728,8 @@
                 commission: parseInt(document.getElementById('prodCommission').value),
                 image: document.getElementById('prodImage').value,
                 description: document.getElementById('prodDescription').value,
-                fulfillment: document.getElementById('prodFulfillment').value
+                fulfillment: document.getElementById('prodFulfillment').value,
+                hasKeys: document.getElementById('prodHasKeys').checked
             };
 
             try {
@@ -1909,17 +1911,27 @@
             const select = document.getElementById('keyProductSelect');
             if (!select) return;
 
-            let products = [];
-            if (typeof loadProductsFromFirebase === 'function' && isFirebaseConnected()) {
-                products = await loadProductsFromFirebase();
-            } else if (typeof PRODUCTS !== 'undefined') {
-                products = PRODUCTS;
+            try {
+                let products = [];
+                if (typeof loadProductsFromFirebase === 'function' && isFirebaseConnected()) {
+                    products = await loadProductsFromFirebase();
+                } else if (typeof PRODUCTS !== 'undefined') {
+                    products = PRODUCTS;
+                }
+
+                // Also get current keys to see which products ALREADY have keys
+                // even if the flag hasn't been set yet (migration fallback)
+                const allKeys = await loadKeysFromFirebase();
+                const productIdsWithKeys = new Set(allKeys.map(k => k.productId.toString()));
+
+                const keyProducts = products.filter(p => p.hasKeys === true || productIdsWithKeys.has(p.id.toString()));
+
+                select.innerHTML = '<option value="">Select a product...</option>' +
+                    keyProducts.map(p => `<option value="${p.id}">${p.name} (ID: ${p.id})</option>`).join('');
+            } catch (error) {
+                console.error("Error loading key products:", error);
+                select.innerHTML = '<option value="">Error loading products</option>';
             }
-
-            const keyProducts = products.filter(p => p.hasKeys === true);
-
-            select.innerHTML = '<option value="">Select a product...</option>' +
-                keyProducts.map(p => `<option value="${p.id}">${p.name} (ID: ${p.id})</option>`).join('');
         }
 
         async function submitNewKeys() {
@@ -2092,8 +2104,21 @@
                 <div id="digitalFields" class="hidden"
                     style="padding: var(--spacing-md); background: rgba(0, 212, 255, 0.05); border-radius: var(--radius-md); margin-bottom: var(--spacing-md); border: 1px solid rgba(0, 212, 255, 0.1);">
                     <h4 style="color: var(--color-blue); margin-bottom: 5px;">Digital Fulfillment</h4>
-                    <label class="form-label">Fulfillment Data (Key/URL/Instruction)</label>
-                    <input type="text" id="prodFulfillment" class="form-input" placeholder="e.g., LICENSE-KEY-123">
+                    <div style="margin-bottom: 12px;">
+                        <label class="form-label">Fulfillment Data (Key/URL/Instruction)</label>
+                        <input type="text" id="prodFulfillment" class="form-input" placeholder="e.g., LICENSE-KEY-123">
+                    </div>
+
+                    <div
+                        style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(255,215,0,0.05); border-radius: 6px; border: 1px solid rgba(255,215,0,0.1);">
+                        <input type="checkbox" id="prodHasKeys" style="width: 18px; height: 18px;">
+                        <label for="prodHasKeys"
+                            style="font-size: 0.85rem; color: var(--color-gold); cursor: pointer; user-select: none;">
+                            <strong>Use Key Manager Inventory</strong><br>
+                            <span style="color: var(--color-text-secondary); font-size: 0.75rem;">Dispense random keys
+                                from the inventory tab for this product.</span>
+                        </label>
+                    </div>
                 </div>
 
                 <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-lg);">
