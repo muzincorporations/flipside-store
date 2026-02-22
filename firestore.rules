@@ -3,47 +3,59 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     // Helper functions
-    function isAdmin() {
-      // Check if the user is authenticated (using Firebase Auth)
-      // This ensures only YOU (once logged in) can manage orders/settings
+    function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Products: Everyone can read, only Admin can write
+    // Products: Everyone can read, only authenticated admin can write/delete
     match /products/{productId} {
       allow read: if true;
-      allow write: if false; // Only allow writes via Admin Panel (which uses the same client SDK but acts as admin)
-                             // wait, the Admin Panel runs on client side too.
-                             // without Auth, we can't insecurely secure this perfectly.
-                             // For now, let's open it for demonstration but warn the user.
+      allow write, delete: if isAuthenticated();
     }
 
     // Reviews: Everyone can read approved reviews, anyone can create (status: pending)
+    // Only admin can update/delete
     match /reviews/{reviewId} {
       allow read: if true;
       allow create: if request.resource.data.status == 'pending';
-      allow update, delete: if false; 
+      allow update, delete: if isAuthenticated();
     }
 
-    // Orders: Anyone can create, only admin can read/update (technically)
-    // But since users need to track, we might allow read by ID?
-    // Actually, tracking is done by exact ID match usually.
+    // Orders: Anyone can create or read (needed for checkout + tracking page).
+    // Only authenticated admin can update or delete.
     match /orders/{orderId} {
-      allow create: if true; // Anyone can place an order
-      allow read: if true;   // Needed for tracking page (by ID)
-      allow update: if false; // Only admin via backend or special flow
+      allow create: if true;
+      allow read: if true;
+      allow update, delete: if isAuthenticated();
     }
 
-    // Applications: Anyone can create
+    // Keys: Only authenticated admin can read/write. Unauthenticated can check count
+    // (for stock display). Full CRUD only for authenticated.
+    match /keys/{keyId} {
+      allow read: if true; // Public count read for stock display
+      allow write, delete: if isAuthenticated();
+    }
+
+    // Applications: Anyone can create, only admin can read/update/delete
     match /applications/{appId} {
       allow create: if true;
-      allow read, update, delete: if false;
+      allow read, update, delete: if isAuthenticated();
     }
 
-    // Settings: Public read (for store config), Admin write
+    // Settings: Public read (for store config), Admin write/delete
     match /settings/{docId} {
       allow read: if true;
-      allow write: if false; 
+      allow write, delete: if isAuthenticated();
+    }
+
+    // Incoming Payments (Automation bridge): Admin only
+    match /incoming_payments/{docId} {
+      allow read, write, delete: if isAuthenticated();
+    }
+
+    // Resellers: Admin access only
+    match /resellers/{resellerId} {
+      allow read, write, delete: if isAuthenticated();
     }
   }
 }

@@ -643,6 +643,20 @@
             const errorDiv = document.getElementById('loginError');
             const submitBtn = e.target.querySelector('button');
 
+            // Map Firebase error codes to friendly messages
+            function getLoginErrorMessage(code) {
+                switch (code) {
+                    case 'auth/user-not-found': return '❌ No account found with that email. Check the Firebase Auth console to add yourself.';
+                    case 'auth/wrong-password': return '❌ Incorrect password. Please try again.';
+                    case 'auth/invalid-email': return '❌ The email address is badly formatted.';
+                    case 'auth/too-many-requests': return '❌ Too many failed attempts. Please wait a few minutes and try again.';
+                    case 'auth/user-disabled': return '❌ This account has been disabled. Contact your Firebase project owner.';
+                    case 'auth/network-request-failed': return '❌ Network error. Check your internet connection.';
+                    case 'auth/invalid-credential': return '❌ Wrong email or password. Double-check your credentials.';
+                    default: return `❌ Login failed: ${code}`;
+                }
+            }
+
             try {
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Signing in...';
@@ -652,9 +666,8 @@
                 showToast('Login successful!', 'success');
             } catch (error) {
                 console.error("Login error:", error);
-                errorDiv.textContent = error.message;
+                errorDiv.textContent = getLoginErrorMessage(error.code);
                 errorDiv.style.display = 'block';
-                showToast('Login failed!', 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Login with Email';
