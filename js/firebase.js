@@ -90,6 +90,12 @@ async function loadProductsFromFirebase() {
             products.push(doc.data());
         });
 
+        // If Firebase collection exists but is empty, fallback to local products (for new users)
+        if (products.length === 0) {
+            console.log("⚠️ Firebase product collection is empty. Falling back to local products.");
+            return getAllProducts();
+        }
+
         // Sort by ID
         products.sort((a, b) => a.id - b.id);
 
