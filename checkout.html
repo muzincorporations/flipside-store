@@ -604,6 +604,16 @@
                             return item;
                         });
 
+                        // Enforce pending_keys status if a key product exists
+                        let finalStatus = hasPhysicalProducts ? 'paid' : 'completed';
+                        const hasKeyProduct = enrichedCart.some(item => {
+                            const p = getProductById(item.id);
+                            return p && p.hasKeys;
+                        });
+                        if (hasKeyProduct) {
+                            finalStatus = 'pending_keys';
+                        }
+
                         const order = {
                             orderId: details.id,
                             email: document.getElementById('email').value,
@@ -612,7 +622,7 @@
                             referralCode: localStorage.getItem('referralCode'),
                             timestamp: new Date().toISOString(),
                             paymentDetails: details,
-                            status: hasPhysicalProducts ? 'paid' : 'completed'
+                            status: finalStatus
                         };
 
                         if (hasPhysicalProducts) {
@@ -721,6 +731,10 @@
                 return item;
             });
 
+            // Set initial status based on payment type and products
+            // Manual payments are 'pending_payment'. Once paid, if it has keys, it goes to 'pending_keys'
+            let initialStatus = 'pending_payment';
+
             const order = {
                 orderId: orderId,
                 email: document.getElementById('email').value,
@@ -730,7 +744,7 @@
                 timestamp: new Date().toISOString(),
                 paymentMethod: method,
                 paymentNote: randomReason, // Save the specific note
-                status: 'pending_payment'
+                status: initialStatus
             };
 
             if (hasPhysicalProducts) {

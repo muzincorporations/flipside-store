@@ -747,6 +747,106 @@ async function updateReviewStatus(reviewId, status) {
     }
 }
 
+// ===== KEY MANAGEMENT OPERATIONS =====
+
+// Add new keys
+async function addKeysToFirebase(productId, keyList) {
+    if (!firebaseEnabled) return false;
+    try {
+        const batch = db.batch();
+        const keysRef = db.collection('keys');
+        let addedCount = 0;
+
+        keyList.forEach(keyStr => {
+            if (keyStr.trim() !== '') {
+                const docRef = keysRef.doc(); // Auto-generate ID
+                batch.set(docRef, {
+                    keyString: keyStr.trim(),
+                    productId: productId.toString(),
+                    status: 'available',
+                    orderId: null,
+                    dateAdded: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                addedCount++;
+            }
+        });
+
+        if (addedCount > 0) {
+            await batch.commit();
+            console.log(`✅ Added ${addedCount} keys for Product ${productId}`);
+        }
+        return addedCount;
+    } catch (error) {
+        console.error("Error adding keys:", error);
+        return 0;
+    }
+}
+
+// Get all keys (for Admin Inventory view)
+async function loadKeysFromFirebase() {
+    if (!firebaseEnabled) return [];
+    try {
+        const snapshot = await db.collection('keys').orderBy('dateAdded', 'desc').get();
+        const keys = [];
+        snapshot.forEach(doc => {
+            keys.push({ id: doc.id, ...doc.data() });
+        });
+        return keys;
+    } catch (error) {
+        console.error("Error loading keys:", error);
+        return [];
+    }
+}
+
+// Get available key count for a specific product
+async function getAvailableKeyCount(productId) {
+    if (!firebaseEnabled) return 0;
+    try {
+        const snapshot = await db.collection('keys')
+            .where('productId', '==', productId.toString())
+            .where('status', '==', 'available')
+            .get();
+        return snapshot.size;
+    } catch (error) {
+        console.error("Error getting key count:", error);
+        return 0;
+    }
+}
+
+// Assign a key to an order (Admin approves order)
+async function assignKeyToOrder(productId, orderId) {
+    if (!firebaseEnabled) return null;
+    try {
+        // Find one available key of the correct product
+        const snapshot = await db.collection('keys')
+            .where('productId', '==', productId.toString())
+            .where('status', '==', 'available')
+            .limit(1)
+            .get();
+
+        if (snapshot.empty) {
+            console.error(`No available keys for Product ${productId}`);
+            return null;
+        }
+
+        const keyDoc = snapshot.docs[0];
+        const keyData = keyDoc.data();
+
+        // Mark it as sold
+        await keyDoc.ref.update({
+            status: 'sold',
+            orderId: orderId,
+            dateSold: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        console.log(`✅ Key assigned to order ${orderId}`);
+        return keyData.keyString;
+    } catch (error) {
+        console.error("Error assigning key:", error);
+        return null;
+    }
+}
+
 // Check Firebase connection status
 function isFirebaseConnected() {
     return firebaseEnabled;
@@ -783,6 +883,10 @@ if (typeof module !== 'undefined' && module.exports) {
         saveReviewToFirebase,
         loadReviewsFromFirebase,
         loadAllReviewsFromFirebase,
-        updateReviewStatus
+        updateReviewStatus,
+        addKeysToFirebase,
+        loadKeysFromFirebase,
+        getAvailableKeyCount,
+        assignKeyToOrder
     };
 }

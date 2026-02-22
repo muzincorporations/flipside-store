@@ -103,6 +103,7 @@
                     <button class="filter-tab" onclick="showTab('resellers')">👥 Resellers</button>
                     <button class="filter-tab" onclick="showTab('orders')">🛒 Orders</button>
                     <button class="filter-tab" onclick="showTab('reviews')">⭐ Reviews</button>
+                    <button class="filter-tab" onclick="showTab('keys')">🔑 Keys</button>
                     <button class="filter-tab" onclick="showTab('settings')">⚙️ Settings</button>
                 </div>
 
@@ -319,6 +320,50 @@
                                 <!-- Reviews will be loaded here -->
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- Keys Tab -->
+                <div id="tab-keys" class="tab-content hidden">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); flex-wrap: wrap; gap: var(--spacing-md);">
+                        <div>
+                            <h2 class="section-title">🔑 Key Manager</h2>
+                            <p class="section-subtitle">Securely add and manage product license keys</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-2">
+                        <!-- Add Keys Form -->
+                        <div class="card" style="padding: var(--spacing-lg);">
+                            <h3 style="margin-bottom: var(--spacing-md);">➕ Add New Keys</h3>
+                            <form id="addKeysForm" onsubmit="event.preventDefault(); submitNewKeys();">
+                                <div class="form-group">
+                                    <label class="form-label">Digital Product</label>
+                                    <select class="form-input" id="keyProductSelect" required>
+                                        <option value="">Select a product...</option>
+                                        <!-- Populated dynamically -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Paste Keys (One per line)</label>
+                                    <textarea class="form-input" id="keyInputArea" rows="8" required
+                                        placeholder="XXXX-XXXX-XXXX&#10;YYYY-YYYY-YYYY&#10;ZZZZ-ZZZZ-ZZZZ"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="addKeysBtn" style="width: 100%;">Save
+                                    Keys to Database</button>
+                            </form>
+                        </div>
+
+                        <!-- Key Inventory Stats -->
+                        <div class="card" style="padding: var(--spacing-lg);">
+                            <h3 style="margin-bottom: var(--spacing-md);">📊 Key Inventory</h3>
+                            <div id="keyInventoryList"
+                                style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                                <!-- Populated dynamically -->
+                                <p style="color: var(--color-text-muted);">Loading inventory...</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -753,6 +798,10 @@
             if (tabName === 'orders') loadOrders();
             if (tabName === 'reviews') loadReviews();
             if (tabName === 'overview') loadStats();
+            if (tabName === 'keys') {
+                loadKeyProducts();
+                loadKeyInventory();
+            }
         }
 
         // Load products
@@ -1221,8 +1270,14 @@
                                         ${order.status === 'pending_payment' ? `
                                             <button class="btn btn-primary btn-small" onclick="confirmOrderPayment('${order.orderId}', ${!hasPhysicalProducts})">✅ Confirm Payment</button>
                                         ` : ''}
+                                        ${order.status === 'pending_keys' ? `
+                                            <button class="btn btn-primary btn-small" onclick="dispenseKeysForOrder('${order.orderId}')" style="background: var(--gradient-primary); border: none; color: black; font-weight: bold;">🔑 Approve & Dispense Keys</button>
+                                        ` : ''}
                                         ${order.status === 'paid' && hasPhysicalProducts ? `
                                             <button class="btn btn-secondary btn-small" onclick="completeOrder('${order.orderId}')">📦 Mark Shipped & Complete</button>
+                                        ` : ''}
+                                        ${order.status === 'paid' && !hasPhysicalProducts ? `
+                                            <span style="color: var(--color-success); font-size: 0.85rem; font-weight: bold;">✅ Order Complete</span>
                                         ` : ''}
                                     </div>
                                 </div>
@@ -1370,6 +1425,79 @@
                 } else {
                     showToast('Error updating order status', 'error');
                 }
+            }
+        }
+
+        async function dispenseKeysForOrder(orderId) {
+            try {
+                const orders = await loadOrdersFromFirebase();
+                const order = orders.find(o => o.orderId === orderId);
+
+                if (!order) {
+                    showToast('Order not found', 'error');
+                    return;
+                }
+
+                // Find all products in the order that require keys
+                const keyProducts = order.cart.filter(item => {
+                    // Check if it's a known product with hasKeys = true in our catalog
+                    let p = [];
+                    if (typeof PRODUCTS !== 'undefined') p = PRODUCTS;
+                    const catalogMatch = p.find(cp => cp.id.toString() === item.id.toString());
+                    return catalogMatch && catalogMatch.hasKeys;
+                });
+
+                if (keyProducts.length === 0) {
+                    showToast('No keys required for this order.', 'info');
+                    // Move it along
+                    await updateOrderInFirebase(orderId, { status: 'completed' });
+                    loadOrders();
+                    return;
+                }
+
+                let keysDispensed = [];
+
+                // For each product requiring a key, grab one from the DB
+                for (const item of keyProducts) {
+                    const keyString = await assignKeyToOrder(item.id, orderId);
+                    if (keyString) {
+                        keysDispensed.push({ name: item.name, key: keyString });
+                    } else {
+                        throw new Error(`Out of stock for ${item.name}! Cannot dispense key.`);
+                    }
+                }
+
+                // Update the order fulfillment data with the keys and mark as completed
+                let fulfillmentNote = keysDispensed.map(k => `${k.name}: ${k.key}`).join(' | ');
+                const currentFulfillment = order.fulfillmentData ? order.fulfillmentData + ' | ' : '';
+
+                const updatedOrderData = {
+                    ...order, // Need full order object for email
+                    status: 'completed',
+                    fulfillmentData: currentFulfillment + fulfillmentNote,
+                    fulfillment_updated_at: new Date().toISOString()
+                };
+
+                await updateOrderInFirebase(orderId, {
+                    status: updatedOrderData.status,
+                    fulfillmentData: updatedOrderData.fulfillmentData,
+                    fulfillment_updated_at: updatedOrderData.fulfillment_updated_at
+                });
+
+                // Trigger Fulfillment Email
+                if (typeof EmailService !== 'undefined' && EmailService.sendFulfillmentEmail) {
+                    EmailService.sendFulfillmentEmail(updatedOrderData);
+                }
+
+                showToast(`Successfully dispensed ${keysDispensed.length} key(s)!`, 'success');
+
+                // Reload UI
+                loadOrders();
+                loadStats();
+
+            } catch (error) {
+                console.error("Dispense Error:", error);
+                showToast(error.message || 'Failed to dispense keys.', 'error');
             }
         }
 
@@ -1762,6 +1890,117 @@
             toast.innerHTML = `<p class="toast-message">${message}</p>`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
+        }
+        // --- KEY MANAGEMENT ---
+        async function loadKeyProducts() {
+            const select = document.getElementById('keyProductSelect');
+            if (!select) return;
+
+            let products = [];
+            if (typeof loadProductsFromFirebase === 'function' && isFirebaseConnected()) {
+                products = await loadProductsFromFirebase();
+            } else if (typeof PRODUCTS !== 'undefined') {
+                products = PRODUCTS;
+            }
+
+            const keyProducts = products.filter(p => p.hasKeys === true);
+
+            select.innerHTML = '<option value="">Select a product...</option>' +
+                keyProducts.map(p => `<option value="${p.id}">${p.name} (ID: ${p.id})</option>`).join('');
+        }
+
+        async function submitNewKeys() {
+            const productId = document.getElementById('keyProductSelect').value;
+            const keyText = document.getElementById('keyInputArea').value;
+            const btn = document.getElementById('addKeysBtn');
+
+            if (!productId || !keyText.trim()) {
+                showToast('Please select a product and enter keys.', 'error');
+                return;
+            }
+
+            const keys = keyText.split('\n').map(k => k.trim()).filter(k => k !== '');
+            if (keys.length === 0) return;
+
+            try {
+                btn.disabled = true;
+                btn.textContent = 'Saving...';
+
+                const added = await addKeysToFirebase(productId, keys);
+                if (added > 0) {
+                    showToast(`Successfully added ${added} key(s)!`, 'success');
+                    document.getElementById('keyInputArea').value = '';
+                    loadKeyInventory();
+                } else {
+                    showToast('No keys were added.', 'error');
+                }
+            } catch (error) {
+                console.error("Error adding keys:", error);
+                showToast('Failed to add keys.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Keys to Database';
+            }
+        }
+
+        async function loadKeyInventory() {
+            const container = document.getElementById('keyInventoryList');
+            if (!container) return;
+
+            try {
+                if (!isFirebaseConnected()) {
+                    container.innerHTML = '<p style="color: var(--color-error);">Database connection required for keys.</p>';
+                    return;
+                }
+
+                const keys = await loadKeysFromFirebase();
+                if (keys.length === 0) {
+                    container.innerHTML = '<p style="color: var(--color-text-muted);">No keys in inventory yet.</p>';
+                    return;
+                }
+
+                const inventory = {};
+                keys.forEach(k => {
+                    if (!inventory[k.productId]) {
+                        inventory[k.productId] = { available: 0, sold: 0 };
+                    }
+                    if (k.status === 'available') inventory[k.productId].available++;
+                    if (k.status === 'sold') inventory[k.productId].sold++;
+                });
+
+                let products = [];
+                if (typeof loadProductsFromFirebase === 'function') {
+                    products = await loadProductsFromFirebase();
+                }
+
+                container.innerHTML = Object.keys(inventory).map(productId => {
+                    const stats = inventory[productId];
+                    const product = products.find(p => p.id.toString() === productId) || { name: 'Unknown Product' };
+
+                    return `
+                        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-gold);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <strong>${product.name}</strong>
+                                <span style="color: var(--color-text-muted); font-size: 0.8rem;">ID: ${productId}</span>
+                            </div>
+                            <div style="display: flex; gap: 20px;">
+                                <div>
+                                    <div style="font-size: 0.8rem; color: var(--color-text-secondary);">Available</div>
+                                    <div style="font-size: 1.2rem; color: var(--color-success); font-weight: bold;">${stats.available}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.8rem; color: var(--color-text-secondary);">Sold</div>
+                                    <div style="font-size: 1.2rem; color: var(--color-text-muted); font-weight: bold;">${stats.sold}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error("Load Inventory Error:", error);
+                container.innerHTML = '<p style="color: var(--color-error);">Failed to load inventory.</p>';
+            }
         }
     </script>
 

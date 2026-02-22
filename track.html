@@ -42,21 +42,47 @@
             </div>
         </div>
 
-        <div id="statusResult" class="card hidden" style="margin-top: var(--spacing-lg);">
-            <div style="text-align: center; margin-bottom: var(--spacing-lg);">
-                <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">Status</p>
-                <div id="statusBadge" class="badge badge-pending" style="font-size: 1.2rem; padding: 8px 16px;">Pending
+        <div id="statusResult" class="card hidden" style="margin-top: var(--spacing-lg); padding: 0; overflow: hidden;">
+            <!-- Header -->
+            <div id="orderHeader" style="padding: var(--spacing-lg); border-bottom: 1px solid rgba(255,255,255,0.07);">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--spacing-sm);">
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 4px;">ORDER
+                            ID</div>
+                        <div id="displayOrderId"
+                            style="font-weight: 700; font-size: 1.1rem; letter-spacing: 2px; color: var(--color-gold);">
+                        </div>
+                    </div>
+                    <div id="statusBadge" class="badge badge-pending" style="font-size: 1rem; padding: 6px 14px;">
+                        Pending</div>
                 </div>
             </div>
 
-            <div id="orderDetails">
-                <!-- Order items will go here -->
+            <!-- Status Timeline -->
+            <div id="statusTimeline"
+                style="padding: var(--spacing-lg); border-bottom: 1px solid rgba(255,255,255,0.07);"></div>
+
+            <!-- Digital Access Panel (shown only for completed digital orders) -->
+            <div id="digitalAccessPanel" class="hidden"
+                style="margin: 0 var(--spacing-lg) var(--spacing-lg); padding: var(--spacing-md); background: rgba(0,255,150,0.06); border: 1px solid rgba(0,255,150,0.25); border-radius: var(--radius-md);">
+                <h4
+                    style="color: #4ade80; font-size: 0.9rem; margin-bottom: var(--spacing-md); display: flex; align-items: center; gap: 8px;">
+                    🔑 Your Digital Access</h4>
+                <div id="digitalAccessContent"></div>
             </div>
 
-            <p
-                style="text-align: center; color: var(--color-text-muted); font-size: 0.85rem; margin-top: var(--spacing-lg);">
-                Order ID: <span id="displayOrderId"></span>
-            </p>
+            <!-- Shipping Tracker (shown only for physical orders with tracking) -->
+            <div id="shippingPanel" class="hidden"
+                style="margin: 0 var(--spacing-lg) var(--spacing-lg); padding: var(--spacing-md); background: rgba(0,112,255,0.06); border: 1px solid rgba(0,112,255,0.25); border-radius: var(--radius-md);">
+                <h4
+                    style="color: var(--color-blue); font-size: 0.9rem; margin-bottom: var(--spacing-sm); display: flex; align-items: center; gap: 8px;">
+                    📦 Shipping Info</h4>
+                <div id="shippingContent"></div>
+            </div>
+
+            <!-- Order Items -->
+            <div id="orderDetails" style="padding: 0 var(--spacing-lg) var(--spacing-lg);"></div>
         </div>
     </main>
 
@@ -180,39 +206,217 @@
             result.classList.remove('hidden');
             document.getElementById('displayOrderId').textContent = id;
 
-            // Update Badge
-            badge.className = `badge badge-${order.status === 'pending_payment' ? 'pending' : order.status}`;
-            badge.textContent = order.status === 'pending_payment' ? 'Pending Payment' : capitalize(order.status);
+            // --- Status Configuration ---
+            const statusMap = {
+                pending_payment: { label: 'Awaiting Payment', color: 'var(--color-gold)', bg: 'rgba(255,215,0,0.1)', icon: '⏳' },
+                pending_keys: { label: 'Pending Approval', color: '#f97316', bg: 'rgba(249,115,22,0.1)', icon: '🔎' },
+                paid: { label: 'Payment Confirmed', color: 'var(--color-blue)', bg: 'rgba(0,212,255,0.1)', icon: '✅' },
+                completed: { label: 'Completed', color: '#4ade80', bg: 'rgba(0,255,150,0.1)', icon: '🎉' },
+            };
 
-            if (order.status === 'pending_payment') {
-                badge.style.background = 'rgba(255, 215, 0, 0.1)';
-                badge.style.color = 'var(--color-gold)';
-                badge.style.borderColor = 'var(--color-gold)';
-            } else if (order.status === 'completed') {
-                badge.style.background = 'rgba(0, 212, 255, 0.1)';
-                badge.style.color = 'var(--color-blue)';
-                badge.style.borderColor = 'var(--color-blue)';
+            const current = statusMap[order.status] || { label: capitalize(order.status), color: 'var(--color-text-muted)', bg: 'rgba(255,255,255,0.05)', icon: '📋' };
+
+            // Badge
+            badge.textContent = `${current.icon} ${current.label}`;
+            badge.style.cssText = `font-size:1rem; padding:6px 14px; background:${current.bg}; color:${current.color}; border-color:${current.color}; border:1px solid;`;
+
+            // --- Status Timeline ---
+            const steps = [
+                { key: 'pending_payment', label: 'Order Placed', icon: '📝' },
+                { key: 'pending_keys', label: 'Admin Review', icon: '🔎' },
+                { key: 'paid', label: 'Payment Confirmed', icon: '💳' },
+                { key: 'completed', label: 'Delivered', icon: '🎉' },
+            ];
+
+            // Determine ordering of steps for physical orders (no 'pending_keys' step)
+            const hasDigital = order.cart && order.cart.some(i => i.type === 'digital');
+            const stepOrder = ['pending_payment', 'pending_keys', 'paid', 'completed'];
+            const allStatuses = Object.keys(statusMap);
+            const currentIdx = stepOrder.indexOf(order.status);
+
+            const timelineHtml = steps.map((step, i) => {
+                const stepIdx = stepOrder.indexOf(step.key);
+                const isDone = stepIdx < currentIdx;
+                const isActive = stepIdx === currentIdx;
+                const isUpcoming = stepIdx > currentIdx;
+
+                // Skip pending_keys for non-digital orders
+                if (step.key === 'pending_keys' && !hasDigital) return '';
+
+                return `
+                    <div style="display:flex; align-items:center; gap: 12px; padding: 10px 0; ${i > 0 ? 'border-top:1px solid rgba(255,255,255,0.05);' : ''}">
+                        <div style="width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+                            background:${isDone ? 'rgba(74,222,128,0.15)' : isActive ? current.bg : 'rgba(255,255,255,0.04)'};
+                            border:1px solid ${isDone ? '#4ade80' : isActive ? current.color : 'rgba(255,255,255,0.1)'};
+                            font-size:1rem;">
+                            ${isDone ? '✓' : step.icon}
+                        </div>
+                        <div style="flex:1;">
+                            <div style="font-weight:600; font-size:0.9rem; color:${isDone ? '#4ade80' : isActive ? current.color : 'var(--color-text-secondary)'};">  ${step.label}</div>
+                            ${isActive ? `<div style="font-size:0.75rem; color:var(--color-text-muted); margin-top:2px;">${getStepMessage(order, step.key)}</div>` : ''}
+                        </div>
+                        ${isUpcoming ? '<div style="font-size:0.7rem;color:var(--color-text-muted);">Upcoming</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('statusTimeline').innerHTML = timelineHtml;
+
+            // --- Digital Access Panel ---
+            if (order.status === 'completed' && order.fulfillmentData) {
+                const panel = document.getElementById('digitalAccessPanel');
+                const content = document.getElementById('digitalAccessContent');
+                panel.classList.remove('hidden');
+
+                // Parse pipe-separated keys if multiple
+                const entries = order.fulfillmentData.split(' | ').filter(Boolean);
+                content.innerHTML = entries.map(entry => {
+                    // Detect URLs
+                    const isUrl = entry.match(/https?:\/\//i);
+                    const parts = entry.split(':').map(s => s.trim());
+                    const label = parts.length > 1 ? parts.shift() : null;
+                    const value = parts.join(':').trim();
+
+                    return `
+                        <div style="background:rgba(0,0,0,0.3); border-radius:var(--radius-sm); padding:var(--spacing-sm) var(--spacing-md); margin-bottom: 8px;">
+                            ${label ? `<div style="font-size:0.7rem; color:var(--color-text-muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:1px;">${label}</div>` : ''}
+                            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                                ${isUrl
+                            ? `<a href="${value}" target="_blank" rel="noopener" style="color:#4ade80; font-weight:600; word-break:break-all;">${value}</a>`
+                            : `<code style="color:#4ade80; font-size:1rem; font-weight:700; letter-spacing:2px; word-break:break-all;">${value || entry}</code>`}
+                                <button class="copy-btn" data-copy-text="${value || entry}" style="flex-shrink:0; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); color:var(--color-text-secondary); border-radius:4px; padding:4px 10px; cursor:pointer; font-size:0.75rem;">Copy 📋</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
             }
 
-            // Products
-            details.innerHTML = order.cart.map(item => `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <span>${item.name}</span>
-                    <span style="color: var(--color-text-secondary);">£${item.price.toFixed(2)}</span>
-                </div>
-            `).join('');
+            // --- Shipping Panel ---
+            if (order.trackingNumber) {
+                const panel = document.getElementById('shippingPanel');
+                const content = document.getElementById('shippingContent');
+                panel.classList.remove('hidden');
+                content.innerHTML = `
+                    <div style="background:rgba(0,0,0,0.3); border-radius:var(--radius-sm); padding:var(--spacing-sm) var(--spacing-md);">
+                        <div style="font-size:0.7rem; color:var(--color-text-muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:1px;">Tracking Number</div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                            <code style="color:var(--color-blue); font-size:1rem; font-weight:700; letter-spacing:2px; word-break:break-all;">${order.trackingNumber}</code>
+                            <button class="copy-btn" data-copy-text="${order.trackingNumber}" style="flex-shrink:0; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); color:var(--color-text-secondary); border-radius:4px; padding:4px 10px; cursor:pointer; font-size:0.75rem;">Copy 📋</button>
+                        </div>
+                    </div>
+                `;
+            }
 
-            // Total
-            details.innerHTML += `
-                <div style="display: flex; justify-content: space-between; margin-top: 12px; font-weight: 700;">
-                    <span>Total</span>
-                    <span>£${order.total.toFixed(2)}</span>
+            // --- Order Items Summary ---
+            details.innerHTML = `
+                <div style="font-size:0.75rem; color:var(--color-text-secondary); margin-bottom: var(--spacing-sm); text-transform:uppercase; letter-spacing:1px;">Items Ordered</div>
+                ${order.cart.map(item => `
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
+                            <div>
+                                <div style="font-weight:600; font-size:0.9rem;">${item.name}</div>
+                                <div style="font-size:0.75rem; color:var(--color-text-muted);">${capitalize(item.type || 'product')}</div>
+                            </div>
+                            <span style="color:var(--color-gold); font-weight:600;">£${item.price.toFixed(2)}</span>
+                        </div>
+                    `).join('')
+                }
+                <div style="display:flex; justify-content:space-between; margin-top:12px; font-weight:700; font-size:1.05rem;">
+                    <span>Order Total</span>
+                    <span style="color:var(--color-gold);">£${order.total.toFixed(2)}</span>
                 </div>
+                ${order.paymentMethod ? `<div style="margin-top:8px; font-size:0.75rem; color:var(--color-text-muted);">Paid via ${order.paymentMethod}</div>` : ''}
             `;
         }
 
+        function getStepMessage(order, stepKey) {
+            if (stepKey === 'pending_payment') return 'Waiting for your payment to be verified by our team.';
+            if (stepKey === 'pending_keys') return 'Our team is reviewing your order and will approve it shortly.';
+            if (stepKey === 'paid') return 'Your payment has been confirmed! Your order is being prepared.';
+            if (stepKey === 'completed') return 'Your order is complete. Check the access panel above for your digital items!';
+            return '';
+        }
+
+        // Event delegation for copy buttons
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('copy-btn')) {
+                const textToCopy = event.target.dataset.copyText;
+                if (textToCopy) {
+                    copyText(textToCopy);
+                }
+            }
+        });
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied to clipboard!', 'success');
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                // Fallback for older browsers or non-secure contexts
+                const el = document.createElement('textarea');
+                el.value = text;
+                el.setAttribute('readonly', '');
+                el.style.position = 'absolute';
+                el.style.left = '-9999px';
+                document.body.appendChild(el);
+                el.select();
+                try {
+                    document.execCommand('copy');
+                    showToast('Copied to clipboard!', 'success');
+                } catch (err) {
+                    showToast('Failed to copy text.', 'error');
+                } finally {
+                    document.body.removeChild(el);
+                }
+            });
+        }
+
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toast-container') || (() => {
+                const div = document.createElement('div');
+                div.id = 'toast-container';
+                Object.assign(div.style, {
+                    position: 'fixed',
+                    bottom: '20px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    zIndex: '1000',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                    alignItems: 'center'
+                });
+                document.body.appendChild(div);
+                return div;
+            })();
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            Object.assign(toast.style, {
+                background: type === 'success' ? 'rgba(74, 222, 128, 0.9)' : 'rgba(239, 68, 68, 0.9)',
+                color: 'white',
+                padding: '10px 20px',
+                borderRadius: '5px',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+                opacity: '0',
+                transition: 'opacity 0.3s ease-in-out',
+                fontSize: '0.9rem'
+            });
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+
+            // Fade in
+            setTimeout(() => toast.style.opacity = '1', 10);
+
+            // Fade out and remove
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.addEventListener('transitionend', () => toast.remove());
+            }, 3000);
+        }
+
         function capitalize(s) {
-            return s.charAt(0).toUpperCase() + s.slice(1);
+            if (!s) return '';
+            return s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, ' ');
         }
     </script>
     <script src="js/utils.js"></script>

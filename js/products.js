@@ -27,6 +27,7 @@ PRODUCT TEMPLATE - Copy and paste this to add new products:
   downloadUrl: "https://example.com/download/product1", // Public link (optional)
   digitalContent: "LICENSE-KEY-12345", // The actual content/file to give after purchase
   fileSize: "150 MB", // Size of digital product
+  hasKeys: false, // Set to true if this product dispenses a license key
   
   // Optional fields:
   featured: true, // Show on homepage featured section
@@ -46,21 +47,22 @@ const PRODUCTS = [
 
     {
         id: 1,
-        name: "Digital Marketing Course",
+        name: "ASDA Barcode Generator Access",
         type: "digital",
-        price: 149.99,
-        commission: 30, // Higher commission for digital products (no shipping costs)
-        image: "assets/products/marketing-course.jpg",
-        description: "Complete digital marketing masterclass with 50+ hours of video content, downloadable resources, and lifetime access. Learn SEO, social media marketing, email campaigns, and more from industry experts.",
-        shortDescription: "Complete digital marketing masterclass - 50+ hours",
-        category: "Education",
-        downloadUrl: "https://example.com/courses/digital-marketing",
-        digitalContent: "https://flipside-storage.com/files/marketing-masterclass.zip",
-        fileSize: "8.5 GB",
-        featured: true,
-        onSale: true,
-        salePrice: 99.99,
-        tags: ["digital", "education", "bestseller"]
+        price: 19.99,
+        commission: 10, // Higher commission for digital products (no shipping costs)
+        image: "assets/products/ASDA Generator.png",
+        description: "Get exclusive lifetime access to the ASDA Barcode Generator. Automatically produce valid barcodes on demand to enhance your smart shopping and reselling experience. Upon purchase, you will instantly receive a unique license key to authenticate and unlock your bot access.",
+        shortDescription: "Exclusive access key for the ASDA Barcode Generator bot.",
+        category: "Software",
+        downloadUrl: "", // Remove download URL since it's key-based
+        digitalContent: "Key will be automatically assigned.", // This will be dynamic
+        hasKeys: true, // This product dispenses a license key
+        fileSize: "N/A",
+        featured: false,
+        onSale: false,
+        salePrice: null,
+        tags: ["digital", "software", "bot"]
     },
 
     {

@@ -390,7 +390,7 @@
         }
 
         // Display products
-        function displayProducts() {
+        async function displayProducts() {
             const container = document.getElementById('productsGrid');
             const noResults = document.getElementById('noResults');
 
@@ -402,10 +402,38 @@
 
             noResults.classList.add('hidden');
 
+            // Fetch key counts for all relevant products simultaneously
+            const keyCounts = {};
+            if (typeof getAvailableKeyCount === 'function' && isFirebaseConnected()) {
+                const keyProducts = filteredProducts.filter(p => p.hasKeys);
+                await Promise.all(keyProducts.map(async p => {
+                    keyCounts[p.id] = await getAvailableKeyCount(p.id);
+                }));
+            }
+
             container.innerHTML = filteredProducts.map(product => {
                 const price = getFinalPrice(product);
                 const isOnSale = product.onSale && product.salePrice;
                 const isSaved = isInWishlist(product.id);
+
+                let stockDisplay = '';
+                let isAvailable = true;
+                let btnText = 'Add to Cart';
+
+                if (product.type === 'physical') {
+                    isAvailable = isInStock(product);
+                    stockDisplay = `<div class="product-stock ${isAvailable ? 'in-stock' : 'out-of-stock'}">${isAvailable ? 'In Stock' : 'Out of Stock'}</div>`;
+                    btnText = isAvailable ? 'Add to Cart' : 'Out of Stock';
+                } else if (product.hasKeys) {
+                    const keysLeft = keyCounts[product.id] || 0;
+                    isAvailable = keysLeft > 0;
+                    if (isAvailable) {
+                        stockDisplay = `<div class="product-stock in-stock" style="color: var(--color-gold);">${keysLeft} Keys Available</div>`;
+                    } else {
+                        stockDisplay = `<div class="product-stock out-of-stock">Out of Stock</div>`;
+                    }
+                    btnText = isAvailable ? 'Add to Cart' : 'Out of Stock';
+                }
 
                 return `
           <div class="product-card fade-in" onclick="openProductModal(${product.id})">
@@ -432,10 +460,10 @@
                 <div class="product-price">
                   <div class="product-price-current">£${price.toFixed(2)}</div>
                   ${isOnSale ? `<div class="product-price-original">£${product.price.toFixed(2)}</div>` : ''}
-                  ${product.type === 'physical' ? `<div class="product-stock ${isInStock(product) ? 'in-stock' : 'out-of-stock'}">${isInStock(product) ? 'In Stock' : 'Out of Stock'}</div>` : ''}
+                  ${stockDisplay}
                 </div>
-                <button class="btn btn-primary btn-small btn-premium" onclick="event.stopPropagation(); addToCart(${product.id})" ${!isInStock(product) ? 'disabled' : ''}>
-                  ${isInStock(product) ? 'Add to Cart' : 'Out of Stock'}
+                <button class="btn btn-primary btn-small btn-premium" onclick="event.stopPropagation(); addToCart(${product.id})" ${!isAvailable ? 'disabled' : ''}>
+                  ${btnText}
                 </button>
               </div>
             </div>
@@ -543,13 +571,40 @@
                 saleBadge.style.display = 'none';
             }
 
+            // Determine stock status dynamically for Keys
+            let isAvailable = true;
+            let stockText = 'In Stock';
+
+            if (product.type === 'physical') {
+                isAvailable = isInStock(product);
+                stockText = isAvailable ? 'In Stock' : 'Out of Stock';
+            } else if (product.hasKeys) {
+                const addBtn = document.getElementById('modalAddToCart');
+                addBtn.disabled = true;
+                addBtn.textContent = 'Checking Stock...';
+
+                let keysLeft = 0;
+                if (typeof getAvailableKeyCount === 'function' && isFirebaseConnected()) {
+                    keysLeft = await getAvailableKeyCount(product.id);
+                }
+
+                isAvailable = keysLeft > 0;
+                stockText = isAvailable ? `${keysLeft} Keys Available` : 'Out of Stock';
+
+                // Update modal UI elements if applicable (can append to title for now to be visible)
+                const titleEl = document.getElementById('modalProductTitle');
+                titleEl.innerHTML = `${product.name} <span style="font-size:0.5em;color:var(--color-gold);vertical-align:middle;margin-left:10px;">${stockText}</span>`;
+            }
+
             // Update buttons
             const addBtn = document.getElementById('modalAddToCart');
-            addBtn.disabled = !isInStock(product);
-            addBtn.textContent = isInStock(product) ? 'Add to Cart' : 'Out of Stock';
+            addBtn.disabled = !isAvailable;
+            addBtn.textContent = isAvailable ? 'Add to Cart' : 'Out of Stock';
             addBtn.onclick = () => {
-                addToCart(product.id);
-                closeProductModal();
+                if (isAvailable) {
+                    addToCart(product.id);
+                    closeProductModal();
+                }
             };
 
             const wishBtn = document.getElementById('modalToggleWishlist');

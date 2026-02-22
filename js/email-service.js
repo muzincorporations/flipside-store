@@ -63,5 +63,33 @@ const EmailService = {
         } catch (error) {
             console.error("❌ Admin notification failed:", error);
         }
+    },
+
+    // Send Fulfillment / Key Dispatch Email
+    async sendFulfillmentEmail(order) {
+        if (!window.emailjs) {
+            console.log("⚠️ EmailJS not loaded. Skipping email.");
+            return;
+        }
+
+        try {
+            const templateParams = {
+                to_email: order.email,
+                to_name: order.shipping ? order.shipping.firstName : "Customer",
+                order_id: order.orderId,
+                fulfillment_data: order.fulfillmentData || "No additional setup required.",
+                tracking_number: order.trackingNumber || "N/A"
+            };
+
+            // Note: You will need to create a new template in EmailJS for Fulfillment
+            // and replace 'template_fulfillment' below with its actual ID.
+            // Using the default confirmation template as fallback for now.
+            await emailjs.send('service_zi1knre', 'template_9dvardd', templateParams);
+            console.log("✅ Fulfillment Email Sent!");
+            return true;
+        } catch (error) {
+            console.error("❌ Failed to send fulfillment email:", error);
+            return false;
+        }
     }
 };
