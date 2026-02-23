@@ -67,6 +67,46 @@ const PRODUCTS = [
 
     {
         id: 2,
+        name: "M&S Barcode Generator Access",
+        type: "digital",
+        price: 19.99,
+        commission: 10,
+        image: "assets/products/M&S Generator.png",
+        description: "Get exclusive lifetime access to the M&S Barcode Generator. Automatically produce valid barcodes on demand to enhance your smart shopping and reselling experience. Upon purchase, you will instantly receive a unique license key to authenticate and unlock your bot access.",
+        shortDescription: "Exclusive access key for the M&S Barcode Generator bot.",
+        category: "Software",
+        downloadUrl: "",
+        digitalContent: "",
+        hasKeys: true,
+        fileSize: "N/A",
+        featured: false,
+        onSale: false,
+        salePrice: null,
+        tags: ["digital", "software", "bot"]
+    },
+
+    {
+        id: 3,
+        name: "Waitrose Barcode Generator Access",
+        type: "digital",
+        price: 19.99,
+        commission: 10,
+        image: "assets/products/Waitrose Generator.png",
+        description: "Get exclusive lifetime access to the Waitrose Barcode Generator. Automatically produce valid barcodes on demand to enhance your smart shopping and reselling experience. Upon purchase, you will instantly receive a unique license key to authenticate and unlock your bot access.",
+        shortDescription: "Exclusive access key for the Waitrose Barcode Generator bot.",
+        category: "Software",
+        downloadUrl: "",
+        digitalContent: "",
+        hasKeys: true,
+        fileSize: "N/A",
+        featured: false,
+        onSale: false,
+        salePrice: null,
+        tags: ["digital", "software", "bot"]
+    },
+
+    {
+        id: 4,
         name: "FlipSide Gen 4",
         type: "physical",
         price: 44.99,
@@ -83,7 +123,7 @@ const PRODUCTS = [
     },
 
     {
-        id: 3,
+        id: 5,
         name: "FlipSide Pros 3rd Gen",
         type: "physical",
         price: 49.99,
@@ -100,7 +140,7 @@ const PRODUCTS = [
     },
 
     {
-        id: 4,
+        id: 6,
         name: "FlipSide Watch Ultra 2",
         type: "physical",
         price: 54.99,
@@ -117,25 +157,7 @@ const PRODUCTS = [
     },
 
     {
-        id: 5,
-        name: "Graphic Design Template Pack",
-        type: "digital",
-        price: 49.99,
-        commission: 35,
-        image: "assets/products/design-pack.jpg",
-        description: "Professional graphic design templates for social media, presentations, and marketing materials. Includes 500+ customizable templates in various formats. Instant download and lifetime updates.",
-        shortDescription: "500+ professional design templates - instant download",
-        category: "Design",
-        downloadUrl: "https://example.com/templates/design-pack",
-        digitalContent: "ACCESS_CODE_DESIGN_2026",
-        fileSize: "2.1 GB",
-        featured: false,
-        onSale: false,
-        tags: ["digital", "design", "templates"]
-    },
-
-    {
-        id: 6,
+        id: 7,
         name: "Premium Leather Wallet",
         type: "physical",
         price: 59.99,
@@ -150,24 +172,8 @@ const PRODUCTS = [
         onSale: true,
         salePrice: 44.99,
         tags: ["accessories", "leather", "sale"]
-    },
-
-    {
-        id: 7,
-        name: "Smart Fitness Tracker",
-        type: "physical",
-        price: 79.99,
-        commission: 20,
-        image: "assets/products/fitness-tracker.jpg",
-        description: "Track your fitness goals with this advanced fitness tracker. Monitor heart rate, sleep patterns, steps, calories, and more. Water-resistant with 7-day battery life. Compatible with iOS and Android.",
-        shortDescription: "Advanced fitness tracker with heart rate monitoring",
-        category: "Electronics",
-        stock: 250,
-        weight: 0.2,
-        featured: false,
-        onSale: false,
-        tags: ["health", "fitness", "electronics"]
     }
+
 ];
 // ===== HELPER FUNCTIONS =====
 // Don't modify these unless you know what you're doing
