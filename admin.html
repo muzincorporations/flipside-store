@@ -182,8 +182,10 @@
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); flex-wrap: wrap; gap: var(--spacing-md);">
                         <h2>Manage Products</h2>
-                        <button class="btn btn-primary" id="addProductBtn" onclick="openProductModal()">➕ Add
-                            Product</button>
+                        <div style="display: flex; gap: var(--spacing-sm);">
+                            <button class="btn btn-outline" onclick="syncProductsFromLocal()" title="Overwrite Cloud with local products.js">🔄 Sync to Cloud</button>
+                            <button class="btn btn-primary" id="addProductBtn" onclick="openProductModal()">➕ Add Product</button>
+                        </div>
                     </div>
 
                     <div class="card" style="padding: var(--spacing-lg);">
@@ -2206,6 +2208,37 @@
             } catch (error) {
                 console.error("Error loading account inventory:", error);
                 container.innerHTML = '<p style="color: var(--color-error);">Error loading inventory.</p>';
+            }
+        }
+        // Sync products from products.js to Firebase
+        async function syncProductsFromLocal() {
+            if (!isFirebaseConnected()) {
+                showToast("❌ Firebase not connected. Cannot sync.", "error");
+                return;
+            }
+
+            if (confirm("⚠️ This will overwrite all products in the cloud with the current data from your js/products.js file. This is useful if you just uploaded a new products.js to GitHub. Continue?")) {
+                try {
+                    showToast("⏳ Syncing products to cloud...", "info");
+                    
+                    // Get latest local products
+                    if (typeof getAllProducts !== 'function') {
+                        throw new Error("getAllProducts function not found.");
+                    }
+                    
+                    const localProducts = getAllProducts();
+                    const success = await saveProductsToFirebase(localProducts);
+                    
+                    if (success) {
+                        showToast("✅ Successfully synced products to cloud!", "success");
+                        loadProducts(); // Reload the list
+                    } else {
+                        showToast("❌ Failed to sync products to cloud.", "error");
+                    }
+                } catch (error) {
+                    console.error("Sync error:", error);
+                    showToast("Sync failed: " + error.message, "error");
+                }
             }
         }
     </script>
