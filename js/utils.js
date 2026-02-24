@@ -235,7 +235,7 @@ window.shareProduct = function (platform, productName, productId) {
     let shareUrl = '';
     if (platform === 'whatsapp') {
         shareUrl = `https://wa.me/?text=${text}%20${encodeURIComponent(url)}`;
-    } else if (platform === 'twitter') {
+    } else if (platform === 'twitter' || platform === 'x') {
         shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`;
     }
 
@@ -255,7 +255,7 @@ function renderDynamicInfo() {
         const social = CONFIG.social || {};
         let html = '';
 
-        if (social.twitter) html += `<a href="${social.twitter}" target="_blank" title="Twitter">🐦</a>`;
+        if (social.x || social.twitter) html += `<a href="${social.x || social.twitter}" target="_blank" title="X (Twitter)">𝕏</a>`;
         if (social.instagram) html += `<a href="${social.instagram}" target="_blank" title="Instagram">📷</a>`;
         if (social.discord) html += `<a href="${social.discord}" target="_blank" title="Discord">💬</a>`;
         if (social.tiktok) html += `<a href="${social.tiktok}" target="_blank" title="TikTok">📱</a>`;

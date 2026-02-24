@@ -739,6 +739,8 @@ footer {
     border-radius: var(--radius-lg);
     overflow: hidden;
     background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
 }
 
 .product-main-img {
@@ -840,22 +842,26 @@ footer {
     box-shadow: 0 0 15px rgba(37, 211, 102, 0.2);
 }
 
-.share-btn.twitter:hover {
-    border-color: #1DA1F2;
-    color: #1DA1F2;
-    box-shadow: 0 0 15px rgba(29, 161, 242, 0.2);
+.share-btn.twitter:hover,
+.share-btn.x:hover {
+    border-color: #ffffff;
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
 }
 
 .other-favourites {
-    margin-top: var(--spacing-xl);
-    padding: var(--spacing-lg);
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
     background: rgba(255, 215, 0, 0.03);
     border: 1px dashed rgba(255, 215, 0, 0.2);
     border-radius: var(--radius-lg);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .other-favourites-title {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
     color: var(--color-gold);
     margin-bottom: var(--spacing-md);
@@ -865,41 +871,45 @@ footer {
 }
 
 .other-favourites-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    flex: 1;
 }
 
 .fav-item {
     background: var(--color-bg-darker);
     border-radius: var(--radius-md);
-    padding: var(--spacing-sm);
-    text-align: center;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
     border: 1px solid rgba(255, 255, 255, 0.05);
     transition: all var(--transition-fast);
     cursor: pointer;
     text-decoration: none;
+    flex: 1;
 }
 
 .fav-item:hover {
     border-color: var(--color-gold);
-    transform: scale(1.05);
+    transform: translateX(5px);
+    background: rgba(255, 215, 0, 0.05);
 }
 
 .fav-item-img {
-    width: 60px;
-    height: 60px;
+    width: 40px;
+    height: 40px;
     object-fit: cover;
     border-radius: var(--radius-sm);
-    margin: 0 auto var(--spacing-xs);
     display: block;
 }
 
 .fav-item-name {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--color-text-primary);
-    display: block;
+    flex: 1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

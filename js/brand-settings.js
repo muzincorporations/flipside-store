@@ -20,7 +20,7 @@ const BRAND_SETTINGS = {
         tiktok: "https://www.tiktok.com/@flipside.reselling",
         linktree: "https://linktr.ee/flipside.reselling",
         youtube: "https://www.youtube.com/@flipside.reselling",
-        twitter: "",
+        x: "",
         instagram: "",
         telegram: "https://t.me/+c0eOOxtvP6pmYjlk",
         whatsapp: ""
