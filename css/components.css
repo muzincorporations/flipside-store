@@ -787,11 +787,122 @@ footer {
 @media (max-width: 768px) {
     .product-detail-grid {
         grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
     }
 
     .product-info-title {
         font-size: 1.5rem;
     }
+
+    .product-info-actions {
+        flex-direction: column;
+    }
+
+    .product-info-actions button {
+        width: 100%;
+    }
+}
+
+/* ===== SHARE BUTTONS & FAVOURITES ===== */
+.modal-share-suite {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.share-btn {
+    flex: 1;
+    min-width: 140px;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--color-text-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.share-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.share-btn.whatsapp:hover {
+    border-color: #25D366;
+    color: #25D366;
+    box-shadow: 0 0 15px rgba(37, 211, 102, 0.2);
+}
+
+.share-btn.twitter:hover {
+    border-color: #1DA1F2;
+    color: #1DA1F2;
+    box-shadow: 0 0 15px rgba(29, 161, 242, 0.2);
+}
+
+.other-favourites {
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: rgba(255, 215, 0, 0.03);
+    border: 1px dashed rgba(255, 215, 0, 0.2);
+    border-radius: var(--radius-lg);
+}
+
+.other-favourites-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-gold);
+    margin-bottom: var(--spacing-md);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.other-favourites-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+}
+
+.fav-item {
+    background: var(--color-bg-darker);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.fav-item:hover {
+    border-color: var(--color-gold);
+    transform: scale(1.05);
+}
+
+.fav-item-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    margin: 0 auto var(--spacing-xs);
+    display: block;
+}
+
+.fav-item-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* ===== BACK TO TOP ===== */

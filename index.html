@@ -278,6 +278,13 @@
                     <div class="product-detail-gallery">
                         <img src="" alt="" id="modalProductImage" class="product-main-img"
                             onerror="this.src='https://via.placeholder.com/400x400/1a1a1a/FFD700?text=Image+Not+Found'">
+
+                        <div id="modalOtherFavourites" class="other-favourites">
+                            <h4 class="other-favourites-title">Other Customer Favourites</h4>
+                            <div class="other-favourites-grid" id="favouritesGrid">
+                                <!-- Favourites will be loaded here -->
+                            </div>
+                        </div>
                     </div>
                     <div class="product-detail-info">
                         <div class="product-card-category" id="modalProductCategory">CATEGORY</div>
@@ -371,6 +378,7 @@
         const navLinks = document.getElementById('navLinks');
 
         menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
             navLinks.classList.toggle('active');
         });
 
@@ -563,8 +571,28 @@
             loadModalReviews(productId);
             resetReviewForm();
 
+            // Load Favourites
+            loadFavourites(productId);
+
             modal.classList.add('active');
             document.body.style.overflow = 'hidden'; // Prevent scroll
+        }
+
+        function loadFavourites(currentId) {
+            const grid = document.getElementById('favouritesGrid');
+            if (!grid) return;
+
+            // allProducts might not be defined on index.html, use getAllProducts()
+            const products = typeof getAllProducts === 'function' ? getAllProducts() : [];
+            const others = products.filter(p => p.id !== currentId);
+            const selected = others.sort(() => 0.5 - Math.random()).slice(0, 2);
+
+            grid.innerHTML = selected.map(p => `
+                <div class="fav-item" onclick="event.stopPropagation(); openProductModal(${p.id})">
+                    <img src="${p.image}" alt="${p.name}" class="fav-item-img" onerror="this.src='https://via.placeholder.com/100x100/1a1a1a/FFD700?text=Image'">
+                    <span class="fav-item-name">${p.name}</span>
+                </div>
+            `).join('');
         }
 
         function closeProductModal() {
