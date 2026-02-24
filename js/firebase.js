@@ -863,6 +863,106 @@ async function assignKeyToOrder(productId, orderId) {
     }
 }
 
+// ===== ACCOUNT MANAGEMENT OPERATIONS =====
+
+// Add new accounts
+async function addAccountsToFirebase(productId, accountList) {
+    if (!firebaseEnabled) return false;
+    try {
+        const batch = db.batch();
+        const accountsRef = db.collection('accounts');
+        let addedCount = 0;
+
+        accountList.forEach(accountStr => {
+            if (accountStr.trim() !== '') {
+                const docRef = accountsRef.doc(); // Auto-generate ID
+                batch.set(docRef, {
+                    accountString: accountStr.trim(),
+                    productId: productId.toString(),
+                    status: 'available',
+                    orderId: null,
+                    dateAdded: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                addedCount++;
+            }
+        });
+
+        if (addedCount > 0) {
+            await batch.commit();
+            console.log(`✅ Added ${addedCount} accounts for Product ${productId}`);
+        }
+        return addedCount;
+    } catch (error) {
+        console.error("Error adding accounts:", error);
+        return 0;
+    }
+}
+
+// Get all accounts (for Admin Inventory view)
+async function loadAccountsFromFirebase() {
+    if (!firebaseEnabled) return [];
+    try {
+        const snapshot = await db.collection('accounts').orderBy('dateAdded', 'desc').get();
+        const accounts = [];
+        snapshot.forEach(doc => {
+            accounts.push({ id: doc.id, ...doc.data() });
+        });
+        return accounts;
+    } catch (error) {
+        console.error("Error loading accounts:", error);
+        return [];
+    }
+}
+
+// Get available account count for a specific product
+async function getAvailableAccountCount(productId) {
+    if (!firebaseEnabled) return 0;
+    try {
+        const snapshot = await db.collection('accounts')
+            .where('productId', '==', productId.toString())
+            .where('status', '==', 'available')
+            .get();
+        return snapshot.size;
+    } catch (error) {
+        console.error("Error getting account count:", error);
+        return 0;
+    }
+}
+
+// Assign an account to an order (Admin approves order)
+async function assignAccountToOrder(productId, orderId) {
+    if (!firebaseEnabled) return null;
+    try {
+        // Find one available account of the correct product
+        const snapshot = await db.collection('accounts')
+            .where('productId', '==', productId.toString())
+            .where('status', '==', 'available')
+            .limit(1)
+            .get();
+
+        if (snapshot.empty) {
+            console.error(`No available accounts for Product ${productId}`);
+            return null;
+        }
+
+        const accountDoc = snapshot.docs[0];
+        const accountData = accountDoc.data();
+
+        // Mark it as sold
+        await accountDoc.ref.update({
+            status: 'sold',
+            orderId: orderId,
+            dateSold: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        console.log(`✅ Account assigned to order ${orderId}`);
+        return accountData.accountString;
+    } catch (error) {
+        console.error("Error assigning account:", error);
+        return null;
+    }
+}
+
 // Check Firebase connection status
 function isFirebaseConnected() {
     return firebaseEnabled;
@@ -903,6 +1003,10 @@ if (typeof module !== 'undefined' && module.exports) {
         addKeysToFirebase,
         loadKeysFromFirebase,
         getAvailableKeyCount,
-        assignKeyToOrder
+        assignKeyToOrder,
+        addAccountsToFirebase,
+        loadAccountsFromFirebase,
+        getAvailableAccountCount,
+        assignAccountToOrder
     };
 }

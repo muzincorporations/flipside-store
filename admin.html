@@ -104,6 +104,7 @@
                     <button class="filter-tab" onclick="showTab('orders')">🛒 Orders</button>
                     <button class="filter-tab" onclick="showTab('reviews')">⭐ Reviews</button>
                     <button class="filter-tab" onclick="showTab('keys')">🔑 Keys</button>
+                    <button class="filter-tab" onclick="showTab('accounts')">👤 Accounts</button>
                     <button class="filter-tab" onclick="showTab('settings')">⚙️ Settings</button>
                 </div>
 
@@ -359,6 +360,51 @@
                         <div class="card" style="padding: var(--spacing-lg);">
                             <h3 style="margin-bottom: var(--spacing-md);">📊 Key Inventory</h3>
                             <div id="keyInventoryList"
+                                style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                                <!-- Populated dynamically -->
+                                <p style="color: var(--color-text-muted);">Loading inventory...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accounts Tab -->
+                <div id="tab-accounts" class="tab-content hidden">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+                        <div>
+                            <h2 class="section-title">👤 Account Manager</h2>
+                            <p class="section-subtitle">Add and manage account logins (email:password)</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-2">
+                        <!-- Add Accounts Form -->
+                        <div class="card" style="padding: var(--spacing-lg);">
+                            <h3 style="margin-bottom: var(--spacing-md);">➕ Add New Accounts</h3>
+                            <form id="addAccountsForm" onsubmit="event.preventDefault(); submitNewAccounts();">
+                                <div class="form-group">
+                                    <label class="form-label">Account Product</label>
+                                    <select class="form-input" id="accountProductSelect" required>
+                                        <option value="">Select a product...</option>
+                                        <!-- Populated dynamically -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Paste Accounts (One per line - email:password)</label>
+                                    <textarea class="form-input" id="accountInputArea" rows="8" required
+                                        placeholder="email@example.com:password123&#10;user2@gmail.com:pass456"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="addAccountsBtn"
+                                    style="width: 100%;">Save
+                                    Accounts to Database</button>
+                            </form>
+                        </div>
+
+                        <!-- Account Inventory Stats -->
+                        <div class="card" style="padding: var(--spacing-lg);">
+                            <h3 style="margin-bottom: var(--spacing-md);">📊 Account Inventory</h3>
+                            <div id="accountInventoryList"
                                 style="display: flex; flex-direction: column; gap: var(--spacing-md);">
                                 <!-- Populated dynamically -->
                                 <p style="color: var(--color-text-muted);">Loading inventory...</p>
@@ -814,6 +860,10 @@
             if (tabName === 'keys') {
                 loadKeyProducts();
                 loadKeyInventory();
+            }
+            if (tabName === 'accounts') {
+                loadAccountProducts();
+                loadAccountInventory();
             }
         }
 
@@ -1284,7 +1334,7 @@
                                             <button class="btn btn-primary btn-small" onclick="confirmOrderPayment('${order.orderId}', ${!hasPhysicalProducts})">✅ Confirm Payment</button>
                                         ` : ''}
                                         ${order.status === 'pending_keys' ? `
-                                            <button class="btn btn-primary btn-small" onclick="dispenseKeysForOrder('${order.orderId}')" style="background: var(--gradient-primary); border: none; color: black; font-weight: bold;">🔑 Approve & Dispense Keys</button>
+                                            <button class="btn btn-primary btn-small" onclick="dispenseDigitalContentForOrder('${order.orderId}')" style="background: var(--gradient-primary); border: none; color: black; font-weight: bold;">✅ Approve & Dispense Digital Content</button>
                                         ` : ''}
                                         ${order.status === 'paid' && hasPhysicalProducts ? `
                                             <button class="btn btn-secondary btn-small" onclick="completeOrder('${order.orderId}')">📦 Mark Shipped & Complete</button>
@@ -1441,7 +1491,7 @@
             }
         }
 
-        async function dispenseKeysForOrder(orderId) {
+        async function dispenseDigitalContentForOrder(orderId) {
             try {
                 const orders = await loadOrdersFromFirebase();
                 const order = orders.find(o => o.orderId === orderId);
@@ -1451,41 +1501,51 @@
                     return;
                 }
 
-                // Find all products in the order that require keys
-                const keyProducts = order.cart.filter(item => {
-                    // Check if it's a known product with hasKeys = true in our catalog
+                // Find all products in the order that require keys or accounts
+                const digitalProducts = order.cart.filter(item => {
                     let p = [];
                     if (typeof PRODUCTS !== 'undefined') p = PRODUCTS;
                     const catalogMatch = p.find(cp => cp.id.toString() === item.id.toString());
-                    return catalogMatch && catalogMatch.hasKeys;
+                    return catalogMatch && (catalogMatch.hasKeys || catalogMatch.hasAccounts);
                 });
 
-                if (keyProducts.length === 0) {
-                    showToast('No keys required for this order.', 'info');
-                    // Move it along
+                if (digitalProducts.length === 0) {
+                    showToast('No digital content required for this order.', 'info');
                     await updateOrderInFirebase(orderId, { status: 'completed' });
                     loadOrders();
                     return;
                 }
 
-                let keysDispensed = [];
+                let dispensedItems = [];
 
-                // For each product requiring a key, grab one from the DB
-                for (const item of keyProducts) {
-                    const keyString = await assignKeyToOrder(item.id, orderId);
-                    if (keyString) {
-                        keysDispensed.push({ name: item.name, key: keyString });
-                    } else {
-                        throw new Error(`Out of stock for ${item.name}! Cannot dispense key.`);
+                for (const item of digitalProducts) {
+                    let p = [];
+                    if (typeof PRODUCTS !== 'undefined') p = PRODUCTS;
+                    const catalogMatch = p.find(cp => cp.id.toString() === item.id.toString());
+
+                    if (catalogMatch.hasKeys) {
+                        const keyString = await assignKeyToOrder(item.id, orderId);
+                        if (keyString) {
+                            dispensedItems.push({ name: item.name, content: keyString, type: 'Key' });
+                        } else {
+                            throw new Error(`Out of stock for Keys: ${item.name}!`);
+                        }
+                    } else if (catalogMatch.hasAccounts) {
+                        const accountString = await assignAccountToOrder(item.id, orderId);
+                        if (accountString) {
+                            dispensedItems.push({ name: item.name, content: accountString, type: 'Account' });
+                        } else {
+                            throw new Error(`Out of stock for Accounts: ${item.name}!`);
+                        }
                     }
                 }
 
-                // Update the order fulfillment data with the keys and mark as completed
-                let fulfillmentNote = keysDispensed.map(k => `${k.name}: ${k.key}`).join(' | ');
+                // Update the order fulfillment data
+                let fulfillmentNote = dispensedItems.map(item => `${item.name} (${item.type}): ${item.content}`).join(' | ');
                 const currentFulfillment = order.fulfillmentData ? order.fulfillmentData + ' | ' : '';
 
                 const updatedOrderData = {
-                    ...order, // Need full order object for email
+                    ...order,
                     status: 'completed',
                     fulfillmentData: currentFulfillment + fulfillmentNote,
                     fulfillment_updated_at: new Date().toISOString()
@@ -1502,7 +1562,7 @@
                     EmailService.sendFulfillmentEmail(updatedOrderData);
                 }
 
-                showToast(`Successfully dispensed ${keysDispensed.length} key(s)!`, 'success');
+                showToast(`Successfully dispensed ${dispensedItems.length} item(s)!`, 'success');
 
                 // Reload UI
                 loadOrders();
@@ -1510,7 +1570,7 @@
 
             } catch (error) {
                 console.error("Dispense Error:", error);
-                showToast(error.message || 'Failed to dispense keys.', 'error');
+                showToast(error.message || 'Failed to dispense content.', 'error');
             }
         }
 
@@ -1673,6 +1733,7 @@
                     document.getElementById('prodDescription').value = product.description;
                     document.getElementById('prodFulfillment').value = product.fulfillment || '';
                     document.getElementById('prodHasKeys').checked = product.hasKeys === true;
+                    document.getElementById('prodHasAccounts').checked = product.hasAccounts === true;
 
                     previewProductImage();
                     toggleStockField();
@@ -1729,7 +1790,8 @@
                 image: document.getElementById('prodImage').value,
                 description: document.getElementById('prodDescription').value,
                 fulfillment: document.getElementById('prodFulfillment').value,
-                hasKeys: document.getElementById('prodHasKeys').checked
+                hasKeys: document.getElementById('prodHasKeys').checked,
+                hasAccounts: document.getElementById('prodHasAccounts').checked
             };
 
             try {
@@ -2027,6 +2089,125 @@
                 container.innerHTML = '<p style="color: var(--color-error);">Failed to load inventory.</p>';
             }
         }
+
+        // --- ACCOUNT MANAGEMENT ---
+        async function loadAccountProducts() {
+            const select = document.getElementById('accountProductSelect');
+            if (!select) return;
+
+            try {
+                let products = [];
+                if (typeof loadProductsFromFirebase === 'function' && isFirebaseConnected()) {
+                    products = await loadProductsFromFirebase();
+                } else if (typeof PRODUCTS !== 'undefined') {
+                    products = PRODUCTS;
+                }
+
+                const allAccounts = await loadAccountsFromFirebase();
+                const productIdsWithAccounts = new Set(allAccounts.map(a => a.productId.toString()));
+
+                const accountProducts = products.filter(p => p.hasAccounts === true || productIdsWithAccounts.has(p.id.toString()));
+
+                select.innerHTML = '<option value="">Select a product...</option>' +
+                    accountProducts.map(p => `<option value="${p.id}">${p.name} (ID: ${p.id})</option>`).join('');
+            } catch (error) {
+                console.error("Error loading account products:", error);
+                select.innerHTML = '<option value="">Error loading products</option>';
+            }
+        }
+
+        async function submitNewAccounts() {
+            const productId = document.getElementById('accountProductSelect').value;
+            const accountText = document.getElementById('accountInputArea').value;
+            const btn = document.getElementById('addAccountsBtn');
+
+            if (!productId || !accountText.trim()) {
+                showToast('Please select a product and enter accounts.', 'error');
+                return;
+            }
+
+            const accounts = accountText.split('\n').map(a => a.trim()).filter(a => a !== '');
+            if (accounts.length === 0) return;
+
+            try {
+                btn.disabled = true;
+                btn.textContent = 'Saving...';
+
+                const added = await addAccountsToFirebase(productId, accounts);
+                if (added > 0) {
+                    showToast(`Successfully added ${added} account(s)!`, 'success');
+                    document.getElementById('accountInputArea').value = '';
+                    loadAccountInventory();
+                } else {
+                    showToast('No accounts were added.', 'error');
+                }
+            } catch (error) {
+                console.error("Error adding accounts:", error);
+                showToast('Failed to add accounts.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Accounts to Database';
+            }
+        }
+
+        async function loadAccountInventory() {
+            const container = document.getElementById('accountInventoryList');
+            if (!container) return;
+
+            try {
+                if (!isFirebaseConnected()) {
+                    container.innerHTML = '<p style="color: var(--color-error);">Database connection required for accounts.</p>';
+                    return;
+                }
+
+                const accounts = await loadAccountsFromFirebase();
+                if (accounts.length === 0) {
+                    container.innerHTML = '<p style="color: var(--color-text-muted);">No accounts in inventory yet.</p>';
+                    return;
+                }
+
+                const inventory = {};
+                accounts.forEach(a => {
+                    if (!inventory[a.productId]) {
+                        inventory[a.productId] = { available: 0, sold: 0 };
+                    }
+                    if (a.status === 'available') inventory[a.productId].available++;
+                    if (a.status === 'sold') inventory[a.productId].sold++;
+                });
+
+                let products = [];
+                if (typeof loadProductsFromFirebase === 'function') {
+                    products = await loadProductsFromFirebase();
+                }
+
+                container.innerHTML = Object.keys(inventory).map(productId => {
+                    const stats = inventory[productId];
+                    const product = products.find(p => p.id.toString() === productId) || { name: 'Unknown Product' };
+
+                    return `
+                        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 3px solid var(--color-blue);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <strong>${product.name}</strong>
+                                <span style="color: var(--color-text-muted); font-size: 0.8rem;">ID: ${productId}</span>
+                            </div>
+                            <div style="display: flex; gap: 20px;">
+                                <div>
+                                    <div style="font-size: 0.8rem; color: var(--color-text-secondary);">Available</div>
+                                    <div style="font-size: 1.2rem; color: var(--color-success); font-weight: bold;">${stats.available}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.8rem; color: var(--color-text-secondary);">Sold</div>
+                                    <div style="font-size: 1.2rem; color: var(--color-text-muted); font-weight: bold;">${stats.sold}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error("Error loading account inventory:", error);
+                container.innerHTML = '<p style="color: var(--color-error);">Error loading inventory.</p>';
+            }
+        }
     </script>
 
     <!-- Product Management Modal -->
@@ -2110,7 +2291,7 @@
                     </div>
 
                     <div
-                        style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(255,215,0,0.05); border-radius: 6px; border: 1px solid rgba(255,215,0,0.1);">
+                        style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(255,215,0,0.05); border-radius: 6px; border: 1px solid rgba(255,215,0,0.1); margin-bottom: 10px;">
                         <input type="checkbox" id="prodHasKeys" style="width: 18px; height: 18px;">
                         <label for="prodHasKeys"
                             style="font-size: 0.85rem; color: var(--color-gold); cursor: pointer; user-select: none;">
@@ -2119,6 +2300,19 @@
                                 from the inventory tab for this product.</span>
                         </label>
                     </div>
+
+                    <div
+                        style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(0, 212, 255, 0.05); border-radius: 6px; border: 1px solid rgba(0, 212, 255, 0.1);">
+                        <input type="checkbox" id="prodHasAccounts" style="width: 18px; height: 18px;">
+                        <label for="prodHasAccounts"
+                            style="font-size: 0.85rem; color: var(--color-blue); cursor: pointer; user-select: none;">
+                            <strong>Use Account Manager Inventory</strong><br>
+                            <span style="color: var(--color-text-secondary); font-size: 0.75rem;">Dispense account
+                                logins
+                                (one per line) for this product.</span>
+                        </label>
+                    </div>
+
                 </div>
 
                 <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-lg);">

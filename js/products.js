@@ -50,14 +50,15 @@ const PRODUCTS = [
         name: "ASDA Barcode Generator Access",
         type: "digital",
         price: 19.99,
-        commission: 10, // Higher commission for digital products (no shipping costs)
+        commission: 10,
         image: "assets/products/ASDA Generator.png",
         description: "Get exclusive lifetime access to the ASDA Barcode Generator. Automatically produce valid barcodes on demand to enhance your smart shopping and reselling experience. Upon purchase, you will instantly receive a unique license key to authenticate and unlock your bot access.",
         shortDescription: "Exclusive access key for the ASDA Barcode Generator bot.",
         category: "Software",
-        downloadUrl: "", // Remove download URL since it's key-based
-        digitalContent: "Key will be automatically assigned.", // This will be dynamic
-        hasKeys: true, // This product dispenses a license key
+        downloadUrl: "",
+        digitalContent: "Key will be automatically assigned.",
+        hasKeys: true,
+        hasAccounts: false,
         fileSize: "N/A",
         featured: false,
         onSale: false,
@@ -76,8 +77,9 @@ const PRODUCTS = [
         shortDescription: "Exclusive access key for the M&S Barcode Generator bot.",
         category: "Software",
         downloadUrl: "",
-        digitalContent: "",
+        digitalContent: "Key will be automatically assigned.",
         hasKeys: true,
+        hasAccounts: false,
         fileSize: "N/A",
         featured: false,
         onSale: false,
@@ -96,8 +98,9 @@ const PRODUCTS = [
         shortDescription: "Exclusive access key for the Waitrose Barcode Generator bot.",
         category: "Software",
         downloadUrl: "",
-        digitalContent: "",
+        digitalContent: "Key will be automatically assigned.",
         hasKeys: true,
+        hasAccounts: false,
         fileSize: "N/A",
         featured: false,
         onSale: false,
@@ -119,6 +122,8 @@ const PRODUCTS = [
         weight: 0.5,
         featured: true,
         onSale: false,
+        hasKeys: false,
+        hasAccounts: false,
         tags: ["trending", "electronics", "audio"]
     },
 
@@ -136,6 +141,8 @@ const PRODUCTS = [
         weight: 0.5,
         featured: true,
         onSale: false,
+        hasKeys: false,
+        hasAccounts: false,
         tags: ["trending", "electronics", "audio"]
     },
 
@@ -153,27 +160,52 @@ const PRODUCTS = [
         weight: 0.5,
         featured: true,
         onSale: false,
+        hasKeys: false,
+        hasAccounts: false,
         tags: ["trending", "electronics", "wearable"]
     },
 
     {
         id: 7,
-        name: "Premium Leather Wallet",
-        type: "physical",
-        price: 59.99,
-        commission: 20,
-        image: "assets/products/wallet.jpg",
-        description: "Handcrafted genuine leather wallet with RFID protection. Features 8 card slots, 2 bill compartments, and a sleek minimalist design. Perfect gift for any occasion.",
-        shortDescription: "Genuine leather wallet with RFID protection",
-        category: "Accessories",
-        stock: 75,
-        weight: 0.3,
+        name: "Crunchyroll Premium Account",
+        type: "digital",
+        price: 4.99,
+        commission: 5,
+        image: "assets/products/Lifetime Crunchyroll Account.png",
+        description: "Get exclusive lifetime access to a Crunchyroll Premium Account. You can also recieve replacements for any issues as long as you have evidence and proof of purchase.",
+        shortDescription: "Exclusive lifetime access to a Crunchyroll Premium Account.",
+        category: "Accounts",
+        downloadUrl: "",
+        digitalContent: "Account will be manually assigned.",
+        hasKeys: false,
+        hasAccounts: true,
+        fileSize: "N/A",
         featured: false,
-        onSale: true,
-        salePrice: 44.99,
-        tags: ["accessories", "leather", "sale"]
-    }
+        onSale: false,
+        salePrice: null,
+        tags: ["accounts"]
+    },
 
+    {
+        id: 8,
+        name: "Netflix Premium Account",
+        type: "digital",
+        price: 4.99,
+        commission: 5,
+        image: "assets/products/Lifetime Netflix Account.png",
+        description: "Get exclusive lifetime access to a Lifetime Netflix Premium Account. You can also recieve replacements for any issues as long as you have evidence and proof of purchase.",
+        shortDescription: "Exclusive lifetime access to a Netflix Premium Account.",
+        category: "Accounts",
+        downloadUrl: "",
+        digitalContent: "Account will be manually assigned.",
+        hasKeys: false,
+        hasAccounts: true,
+        fileSize: "N/A",
+        featured: false,
+        onSale: false,
+        salePrice: null,
+        tags: ["accounts"]
+    }
 ];
 // ===== HELPER FUNCTIONS =====
 // Don't modify these unless you know what you're doing
