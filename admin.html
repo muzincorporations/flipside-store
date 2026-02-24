@@ -183,8 +183,10 @@
                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); flex-wrap: wrap; gap: var(--spacing-md);">
                         <h2>Manage Products</h2>
                         <div style="display: flex; gap: var(--spacing-sm);">
-                            <button class="btn btn-outline" onclick="syncProductsFromLocal()" title="Overwrite Cloud with local products.js">🔄 Sync to Cloud</button>
-                            <button class="btn btn-primary" id="addProductBtn" onclick="openProductModal()">➕ Add Product</button>
+                            <button class="btn btn-outline" onclick="syncProductsFromLocal()"
+                                title="Overwrite Cloud with local products.js">🔄 Sync to Cloud</button>
+                            <button class="btn btn-primary" id="addProductBtn" onclick="openProductModal()">➕ Add
+                                Product</button>
                         </div>
                     </div>
 
@@ -1215,6 +1217,7 @@
                 if (order.status === 'paid') statusColor = 'var(--color-gold)';
                 if (order.status === 'completed') statusColor = 'var(--color-blue)';
                 if (order.status === 'pending_payment') statusColor = 'var(--color-warning)';
+                if (order.status === 'pending_keys') statusColor = 'var(--color-purple)';
 
                 return `
                             <div class="card" style="padding: var(--spacing-lg); background: rgba(255, 255, 255, 0.03); border-left: 4px solid ${statusColor};">
@@ -1468,14 +1471,37 @@
 
         async function confirmOrderPayment(orderId, isDigitalOnly) {
             if (confirm(`Confirm that payment for order ${orderId} has been received?`)) {
-                const newStatus = isDigitalOnly ? 'completed' : 'paid';
-                const success = await updateOrderInFirebase(orderId, { status: newStatus });
-                if (success) {
-                    showToast(`Order marked as ${newStatus}!`, 'success');
-                    loadOrders();
-                    loadStats();
-                } else {
-                    showToast('Error updating order status', 'error');
+                try {
+                    const orders = await loadOrdersFromFirebase();
+                    const order = orders.find(o => o.orderId === orderId);
+
+                    if (!order) {
+                        showToast('Order not found', 'error');
+                        return;
+                    }
+
+                    // Check if any digital products need manual dispensing
+                    const needsDispensing = order.cart.some(item => {
+                        const product = typeof PRODUCTS !== 'undefined' ? PRODUCTS.find(p => p.id.toString() === item.id.toString()) : null;
+                        return product && (product.hasKeys || product.hasAccounts);
+                    });
+
+                    let newStatus = 'paid';
+                    if (isDigitalOnly) {
+                        newStatus = needsDispensing ? 'pending_keys' : 'completed';
+                    }
+
+                    const success = await updateOrderInFirebase(orderId, { status: newStatus });
+                    if (success) {
+                        showToast(`Order marked as ${newStatus.replace('_', ' ')}!`, 'success');
+                        loadOrders();
+                        loadStats();
+                    } else {
+                        showToast('Error updating order status', 'error');
+                    }
+                } catch (error) {
+                    console.error("Error confirming payment:", error);
+                    showToast('Failed to confirm payment.', 'error');
                 }
             }
         }
@@ -1516,6 +1542,25 @@
                     await updateOrderInFirebase(orderId, { status: 'completed' });
                     loadOrders();
                     return;
+                }
+
+                // PRE-CHECK STOCK: ensure everything required has at least 1 in stock
+                for (const item of digitalProducts) {
+                    let p = [];
+                    if (typeof PRODUCTS !== 'undefined') p = PRODUCTS;
+                    const catalogMatch = p.find(cp => cp.id.toString() === item.id.toString());
+
+                    if (catalogMatch.hasKeys) {
+                        const count = await getAvailableKeyCount(item.id);
+                        if (count === 0) {
+                            throw new Error(`Out of Stock: Please add at least one Key for "${item.name}" before dispensing.`);
+                        }
+                    } else if (catalogMatch.hasAccounts) {
+                        const count = await getAvailableAccountCount(item.id);
+                        if (count === 0) {
+                            throw new Error(`Out of Stock: Please add at least one Account for "${item.name}" before dispensing.`);
+                        }
+                    }
                 }
 
                 let dispensedItems = [];
@@ -2220,15 +2265,15 @@
             if (confirm("⚠️ This will overwrite all products in the cloud with the current data from your js/products.js file. This is useful if you just uploaded a new products.js to GitHub. Continue?")) {
                 try {
                     showToast("⏳ Syncing products to cloud...", "info");
-                    
+
                     // Get latest local products
                     if (typeof getAllProducts !== 'function') {
                         throw new Error("getAllProducts function not found.");
                     }
-                    
+
                     const localProducts = getAllProducts();
                     const success = await saveProductsToFirebase(localProducts);
-                    
+
                     if (success) {
                         showToast("✅ Successfully synced products to cloud!", "success");
                         loadProducts(); // Reload the list
