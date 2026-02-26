@@ -21,6 +21,9 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="assets/favicon.png?v=3">
     <link rel="shortcut icon" type="image/png" href="assets/favicon.png?v=3">
+    <!-- Barcode Library -->
+    <script src="https://cdn.jsdelivr.net/npm/bwip-js@3.0.4/dist/bwip-js-min.js"></script>
+    <script src="js/barcode-generator.js"></script>
 </head>
 
 <body>
@@ -105,6 +108,7 @@
                     <button class="filter-tab" onclick="showTab('reviews')">⭐ Reviews</button>
                     <button class="filter-tab" onclick="showTab('keys')">🔑 Keys</button>
                     <button class="filter-tab" onclick="showTab('accounts')">👤 Accounts</button>
+                    <button class="filter-tab" onclick="showTab('barcode')">🏷️ Barcode Generator</button>
                     <button class="filter-tab" onclick="showTab('settings')">⚙️ Settings</button>
                 </div>
 
@@ -412,6 +416,69 @@
                                 style="display: flex; flex-direction: column; gap: var(--spacing-md);">
                                 <!-- Populated dynamically -->
                                 <p style="color: var(--color-text-muted);">Loading inventory...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barcode Generator Tab -->
+                <div id="tab-barcode" class="tab-content hidden">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">🏷️ Barcode Generator</h2>
+                            <p class="section-subtitle">Generate store-specific barcodes for manual scanning</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-2">
+                        <!-- Generator Form -->
+                        <div class="card" style="padding: var(--spacing-lg);">
+                            <h3 style="margin-bottom: var(--spacing-md);">➕ New Barcode</h3>
+                            <form id="barcodeGenForm" onsubmit="event.preventDefault(); generateAdminBarcode();">
+                                <div class="form-group">
+                                    <label class="form-label">Store</label>
+                                    <select class="form-input" id="genStore" required>
+                                        <option value="Asda">Asda</option>
+                                        <option value="Morrisons">Morrisons</option>
+                                        <option value="Sainsburys">Sainsburys</option>
+                                        <option value="Waitrose">Waitrose</option>
+                                        <option value="Savers">Savers</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Product Name</label>
+                                        <input type="text" id="genProdName" class="form-input" required
+                                            placeholder="e.g. Apples">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Price (£)</label>
+                                        <input type="text" id="genPrice" class="form-input" required
+                                            placeholder="e.g. 1.50">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Base Barcode (13 digits)</label>
+                                    <input type="text" id="genBaseCode" class="form-input" required
+                                        placeholder="e.g. 5012345678900">
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">✨
+                                    Generate Barcode</button>
+                            </form>
+                        </div>
+
+                        <!-- Preview Area -->
+                        <div class="card"
+                            style="padding: var(--spacing-lg); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px;">
+                            <h3 style="margin-bottom: var(--spacing-md); align-self: flex-start;">👁️ Preview</h3>
+                            <div id="barcodePreviewArea"
+                                style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); border-radius: 8px; width: 100%; padding: 20px; border: 1px dashed rgba(255,255,255,0.1);">
+                                <p style="color: var(--color-text-muted); text-align: center;">Generated barcode will
+                                    appear here</p>
+                            </div>
+                            <div id="barcodeActionButtons" class="hidden" style="margin-top: 20px; width: 100%;">
+                                <button class="btn btn-outline" style="width: 100%;"
+                                    onclick="downloadGeneratedBarcode()">📥 Download Barcode Image</button>
                             </div>
                         </div>
                     </div>
@@ -2285,6 +2352,80 @@
                     showToast("Sync failed: " + error.message, "error");
                 }
             }
+        }
+
+        // --- BARCODE GENERATOR HANDLERS ---
+        async function generateAdminBarcode() {
+            const store = document.getElementById('genStore').value;
+            const name = document.getElementById('genProdName').value;
+            const price = document.getElementById('genPrice').value;
+            const code = document.getElementById('genBaseCode').value;
+            const previewArea = document.getElementById('barcodePreviewArea');
+            const actionButtons = document.getElementById('barcodeActionButtons');
+
+            if (!name || !price || !code) {
+                showToast('Please fill in all fields.', 'error');
+                return;
+            }
+
+            try {
+                previewArea.innerHTML = '<p style="color: var(--color-gold);">Generating...</p>';
+
+                // 1. Generate the raw barcode number using ported logic
+                const result = BarcodeGenerator.generate(store, code, price);
+
+                // 2. Render to Canvas via bwip-js
+                const canvas = document.createElement('canvas');
+                try {
+                    bwipjs.toCanvas(canvas, {
+                        bcid: 'code128',       // Barcode type
+                        text: result.barcode,  // Text to encode
+                        scale: 3,              // 3x scaling factor
+                        height: 15,            // Bar height, in millimeters
+                        includetext: true,     // Show human-readable text
+                        textxalign: 'center',  // Always good to set this
+                    });
+
+                    // Update Preview
+                    previewArea.innerHTML = '';
+                    previewArea.appendChild(canvas);
+
+                    // Add Label
+                    const label = document.createElement('div');
+                    label.style.marginTop = '15px';
+                    label.style.textAlign = 'center';
+                    label.innerHTML = `
+                        <div style="font-weight: bold; color: var(--color-gold);">${store} Barcode</div>
+                        <div style="font-size: 0.9rem;">${name} - ${result.displayPrice}</div>
+                        <div style="font-family: monospace; font-size: 0.8rem; margin-top: 5px; opacity: 0.6;">${result.barcode}</div>
+                    `;
+                    previewArea.appendChild(label);
+
+                    actionButtons.classList.remove('hidden');
+                    window.lastGeneratedBarcode = {
+                        store,
+                        name,
+                        price: result.displayPrice
+                    };
+
+                    showToast('Barcode generated!', 'success');
+                } catch (e) {
+                    previewArea.innerHTML = `<p style="color: var(--color-error);">Rendering Error: ${e.message}</p>`;
+                }
+            } catch (error) {
+                previewArea.innerHTML = `<p style="color: var(--color-error);">Generation Error: ${error.message}</p>`;
+            }
+        }
+
+        function downloadGeneratedBarcode() {
+            const canvas = document.querySelector('#barcodePreviewArea canvas');
+            if (!canvas) return;
+
+            const info = window.lastGeneratedBarcode || { store: 'barcode', name: 'product' };
+            const link = document.createElement('a');
+            link.download = `FlipSide-${info.store}-${info.name.replace(/\s+/g, '-')}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
         }
     </script>
 
