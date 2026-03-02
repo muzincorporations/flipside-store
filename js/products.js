@@ -62,6 +62,7 @@ const PRODUCTS = [
         fileSize: "N/A",
         featured: false,
         onSale: false,
+        available: true,
         salePrice: null,
         tags: ["digital", "software", "bot"]
     },
@@ -83,6 +84,7 @@ const PRODUCTS = [
         fileSize: "N/A",
         featured: false,
         onSale: false,
+        available: true,
         salePrice: null,
         tags: ["digital", "software", "bot"]
     },
@@ -104,6 +106,7 @@ const PRODUCTS = [
         fileSize: "N/A",
         featured: false,
         onSale: false,
+        available: true,
         salePrice: null,
         tags: ["digital", "software", "bot"]
     },
@@ -124,6 +127,8 @@ const PRODUCTS = [
         onSale: false,
         hasKeys: false,
         hasAccounts: false,
+        available: true,
+        trending: true,
         tags: ["trending", "electronics", "audio"]
     },
 
@@ -143,6 +148,8 @@ const PRODUCTS = [
         onSale: false,
         hasKeys: false,
         hasAccounts: false,
+        available: true,
+        trending: true,
         tags: ["trending", "electronics", "audio"]
     },
 
@@ -162,6 +169,8 @@ const PRODUCTS = [
         onSale: false,
         hasKeys: false,
         hasAccounts: false,
+        available: true,
+        trending: true,
         tags: ["trending", "electronics", "wearable"]
     },
 
@@ -183,6 +192,7 @@ const PRODUCTS = [
         featured: false,
         onSale: false,
         salePrice: null,
+        available: true,
         tags: ["accounts"]
     },
 
@@ -204,7 +214,29 @@ const PRODUCTS = [
         featured: false,
         onSale: false,
         salePrice: null,
+        available: true,
+        trending: true,
         tags: ["accounts"]
+    },
+    {
+        id: 9,
+        name: "Spotify Premium Account",
+        type: "digital",
+        price: 3.99,
+        commission: 5,
+        image: "assets/products/Lifetime Spotify.webp",
+        description: "Enjoy millions of songs without ads, offline, and with high-quality audio. This Spotify Premium Account offers lifetime access.",
+        shortDescription: "Lifetime access to Spotify Premium with no ads.",
+        category: "Accounts",
+        available: true,
+        digitalContent: "Account will be manually assigned.",
+        hasKeys: false,
+        hasAccounts: true,
+        featured: false,
+        onSale: true,
+        salePrice: 2.99,
+        trending: true,
+        tags: ["accounts", "music"]
     }
 ];
 // ===== HELPER FUNCTIONS =====
@@ -212,7 +244,7 @@ const PRODUCTS = [
 
 // Get all products
 function getAllProducts() {
-    return PRODUCTS;
+    return PRODUCTS.filter(p => p.available !== false);
 }
 
 // Get product by ID
@@ -222,27 +254,27 @@ function getProductById(id) {
 
 // Get products by category
 function getProductsByCategory(category) {
-    return PRODUCTS.filter(p => p.category === category);
+    return PRODUCTS.filter(p => p.category === category && p.available !== false);
 }
 
 // Get products by type (physical/digital)
 function getProductsByType(type) {
-    return PRODUCTS.filter(p => p.type === type);
+    return PRODUCTS.filter(p => p.type === type && p.available !== false);
 }
 
 // Get featured products
 function getFeaturedProducts() {
-    return PRODUCTS.filter(p => p.featured === true);
+    return PRODUCTS.filter(p => p.featured === true && p.available !== false);
 }
 
 // Get products on sale
 function getSaleProducts() {
-    return PRODUCTS.filter(p => p.onSale === true);
+    return PRODUCTS.filter(p => p.onSale === true && p.available !== false);
 }
 
 // Get all unique categories
 function getAllCategories() {
-    const categories = [...new Set(PRODUCTS.map(p => p.category))];
+    const categories = [...new Set(PRODUCTS.filter(p => p.available !== false).map(p => p.category))];
     return categories.sort();
 }
 

@@ -434,6 +434,13 @@
                         <!-- Generator Form -->
                         <div class="card" style="padding: var(--spacing-lg);">
                             <h3 style="margin-bottom: var(--spacing-md);">➕ New Barcode</h3>
+                            <div class="form-group" style="margin-bottom: var(--spacing-md);">
+                                <label class="form-label">Auto-fill from Product (Optional)</label>
+                                <select class="form-input" id="barcodeProductLoad" onchange="autoFillBarcodeForm()">
+                                    <option value="">Select a product to auto-fill...</option>
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
                             <form id="barcodeGenForm" onsubmit="event.preventDefault(); generateAdminBarcode();">
                                 <div class="form-group">
                                     <label class="form-label">Store</label>
@@ -476,9 +483,13 @@
                                 <p style="color: var(--color-text-muted); text-align: center;">Generated barcode will
                                     appear here</p>
                             </div>
-                            <div id="barcodeActionButtons" class="hidden" style="margin-top: 20px; width: 100%;">
+                            <div id="barcodeActionButtons" class="hidden"
+                                style="margin-top: 20px; width: 100%; display: flex; flex-direction: column; gap: 10px;">
                                 <button class="btn btn-outline" style="width: 100%;"
                                     onclick="downloadGeneratedBarcode()">📥 Download Barcode Image</button>
+                                <button class="btn btn-ghost"
+                                    style="width: 100%; border: 1px solid rgba(255,255,255,0.1);"
+                                    onclick="copyBarcodeToClipboard()">📋 Copy Raw Code</button>
                             </div>
                         </div>
                     </div>
@@ -935,6 +946,9 @@
             if (tabName === 'accounts') {
                 loadAccountProducts();
                 loadAccountInventory();
+            }
+            if (tabName === 'barcode') {
+                loadBarcodeProducts();
             }
         }
 
@@ -1553,12 +1567,37 @@
                         return product && (product.hasKeys || product.hasAccounts);
                     });
 
-                    let newStatus = 'paid';
-                    if (isDigitalOnly) {
-                        newStatus = needsDispensing ? 'pending_keys' : 'completed';
+                    // Check if any products are specifically 'Account' types that might need manual entry
+                    const accountProducts = order.cart.filter(item => {
+                        const product = typeof PRODUCTS !== 'undefined' ? PRODUCTS.find(p => p.id.toString() === item.id.toString()) : null;
+                        return product && product.hasAccounts;
+                    });
+
+                    let fulfillmentData = order.fulfillmentData || '';
+                    if (accountProducts.length > 0) {
+                        const manualEntry = confirm("This order contains account products. Would you like to manually enter account details now?\n\n(Click Cancel to skip and use the Account Manager or dispense manually later)");
+                        if (manualEntry) {
+                            const details = prompt("Enter account details (e.g. Email:Password) for the product(s): " + accountProducts.map(p => p.name).join(", "));
+                            if (details) {
+                                fulfillmentData = (fulfillmentData ? fulfillmentData + ' | ' : '') + "Manual Entry: " + details;
+                            }
+                        }
                     }
 
-                    const success = await updateOrderInFirebase(orderId, { status: newStatus });
+                    let newStatus = 'paid';
+                    if (isDigitalOnly) {
+                        // If we manually entered details, and it's digital only, we can potentially mark it completed
+                        newStatus = needsDispensing ? 'pending_keys' : 'completed';
+                        if (fulfillmentData && !needsDispensing) newStatus = 'completed';
+                        // If it needs dispensing but we added manual data, still pending_keys for official dispense or admin can mark complete later
+                    }
+
+                    const updateData = { status: newStatus };
+                    if (fulfillmentData !== (order.fulfillmentData || '')) {
+                        updateData.fulfillmentData = fulfillmentData;
+                    }
+
+                    const success = await updateOrderInFirebase(orderId, updateData);
                     if (success) {
                         showToast(`Order marked as ${newStatus.replace('_', ' ')}!`, 'success');
                         loadOrders();
@@ -2355,6 +2394,53 @@
         }
 
         // --- BARCODE GENERATOR HANDLERS ---
+        async function loadBarcodeProducts() {
+            const select = document.getElementById('barcodeProductLoad');
+            if (!select) return;
+
+            try {
+                let products = [];
+                if (typeof loadProductsFromFirebase === 'function' && isFirebaseConnected()) {
+                    products = await loadProductsFromFirebase();
+                } else if (typeof PRODUCTS !== 'undefined') {
+                    products = PRODUCTS;
+                }
+
+                select.innerHTML = '<option value="">Select a product to auto-fill...</option>' +
+                    products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            } catch (error) {
+                console.error("Error loading barcode products:", error);
+            }
+        }
+
+        function autoFillBarcodeForm() {
+            const productId = document.getElementById('barcodeProductLoad').value;
+            if (!productId) return;
+
+            let products = [];
+            if (typeof currentProducts !== 'undefined' && currentProducts.length > 0) {
+                products = currentProducts;
+            } else if (typeof PRODUCTS !== 'undefined') {
+                products = PRODUCTS;
+            }
+
+            const product = products.find(p => p.id == productId);
+            if (product) {
+                document.getElementById('genProdName').value = product.name;
+                document.getElementById('genPrice').value = product.price.toFixed(2);
+
+                // Guess store from name
+                const name = product.name.toLowerCase();
+                if (name.includes('asda')) document.getElementById('genStore').value = 'Asda';
+                else if (name.includes('morrison')) document.getElementById('genStore').value = 'Morrisons';
+                else if (name.includes('sainsbury')) document.getElementById('genStore').value = 'Sainsburys';
+                else if (name.includes('waitrose')) document.getElementById('genStore').value = 'Waitrose';
+                else if (name.includes('saver')) document.getElementById('genStore').value = 'Savers';
+
+                showToast('Form auto-filled!', 'info');
+            }
+        }
+
         async function generateAdminBarcode() {
             const store = document.getElementById('genStore').value;
             const name = document.getElementById('genProdName').value;
@@ -2376,6 +2462,10 @@
 
                 // 2. Render to Canvas via bwip-js
                 const canvas = document.createElement('canvas');
+                canvas.style.background = 'white';
+                canvas.style.padding = '10px';
+                canvas.style.borderRadius = '4px';
+
                 try {
                     bwipjs.toCanvas(canvas, {
                         bcid: 'code128',       // Barcode type
@@ -2384,10 +2474,12 @@
                         height: 15,            // Bar height, in millimeters
                         includetext: true,     // Show human-readable text
                         textxalign: 'center',  // Always good to set this
+                        backcolor: 'FFFFFF'    // White background for scannability
                     });
 
                     // Update Preview
                     previewArea.innerHTML = '';
+                    previewArea.style.background = 'rgba(255,255,255,0.05)';
                     previewArea.appendChild(canvas);
 
                     // Add Label
@@ -2405,7 +2497,8 @@
                     window.lastGeneratedBarcode = {
                         store,
                         name,
-                        price: result.displayPrice
+                        price: result.displayPrice,
+                        rawCode: result.barcode
                     };
 
                     showToast('Barcode generated!', 'success');
@@ -2415,6 +2508,21 @@
             } catch (error) {
                 previewArea.innerHTML = `<p style="color: var(--color-error);">Generation Error: ${error.message}</p>`;
             }
+        }
+
+        function copyBarcodeToClipboard() {
+            if (!window.lastGeneratedBarcode || !window.lastGeneratedBarcode.rawCode) {
+                showToast('No barcode generated yet.', 'error');
+                return;
+            }
+
+            const code = window.lastGeneratedBarcode.rawCode;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast('Barcode string copied to clipboard!', 'success');
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
+                showToast('Failed to copy code.', 'error');
+            });
         }
 
         function downloadGeneratedBarcode() {

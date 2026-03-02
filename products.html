@@ -450,6 +450,7 @@
               <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/400x400/1a1a1a/FFD700?text=${encodeURIComponent(product.name)}'">
               <div class="product-card-badges">
                 ${isOnSale ? '<span class="badge badge-sale">Sale</span>' : ''}
+                ${product.trending ? '<span class="badge badge-trending">Trending</span>' : ''}
               </div>
               <div class="wishlist-btn ${isSaved ? 'active' : ''}" onclick="event.stopPropagation(); toggleWishlist(${product.id})">
                 ${isSaved ? '❤️' : '🤍'}
